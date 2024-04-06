@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Timitin2.0/static/css/main.4838aa44.css",
+    "main.js": "/Timitin2.0/static/js/main.3e2fb681.js",
+    "index.html": "/Timitin2.0/index.html",
+    "main.4838aa44.css.map": "/Timitin2.0/static/css/main.4838aa44.css.map",
+    "main.3e2fb681.js.map": "/Timitin2.0/static/js/main.3e2fb681.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.4838aa44.css",
+    "static/js/main.3e2fb681.js"
+  ]
+}
