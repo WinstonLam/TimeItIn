@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/Timitin/static/css/main.4838aa44.css",
-    "main.js": "/Timitin/static/js/main.ee3fd948.js",
-    "index.html": "/Timitin/index.html",
-    "main.4838aa44.css.map": "/Timitin/static/css/main.4838aa44.css.map",
-    "main.ee3fd948.js.map": "/Timitin/static/js/main.ee3fd948.js.map"
+    "main.css": "/TimeItIn/static/css/main.4838aa44.css",
+    "main.js": "/TimeItIn/static/js/main.32e4f2eb.js",
+    "index.html": "/TimeItIn/index.html",
+    "main.4838aa44.css.map": "/TimeItIn/static/css/main.4838aa44.css.map",
+    "main.32e4f2eb.js.map": "/TimeItIn/static/js/main.32e4f2eb.js.map"
   },
   "entrypoints": [
     "static/css/main.4838aa44.css",
-    "static/js/main.ee3fd948.js"
+    "static/js/main.32e4f2eb.js"
   ]
 }
