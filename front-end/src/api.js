@@ -9,6 +9,7 @@ const firebaseConfig = {
 };
 
 const BASE_URL = process.env.REACT_APP_BACKEND_URL;
+console.log("BASE_URL", BASE_URL);
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
