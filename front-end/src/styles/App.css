@@ -1,0 +1,55 @@
+:root {
+    --primary-color: 18, 72, 107; 
+    --second-color:65, 145, 151;
+    --third-color: 120, 214, 198;
+    --fourth-color:245, 252, 205;
+  }
+
+.content{
+
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(var(--primary-color));
+}
+
+.App {
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    overflow: hidden;
+  }
+
+  body, html {
+    margin: 0;
+    padding: 0;
+}
+
+.component {
+  transition: opacity 0.5s, visibility 0.5s, max-height 0.5s;
+  max-height: 100vh; /* Adjust as needed */
+  visibility: visible;
+  opacity: 1;
+}
+
+.hide {
+  opacity: 0;
+  visibility: hidden;
+  max-height: 0;
+}
+
+
+body::-webkit-scrollbar{
+  display: auto;
+  width: 7.5px;
+}
+
+body::-webkit-scrollbar-thumb{
+  border-radius: 2rem;
+  background-color: rgb(var(--primary-color));
+}
+
+body::-webkit-scrollbar-track{
+  background-color:rgb(var(--second-color));
+}

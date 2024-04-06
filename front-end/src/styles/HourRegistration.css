@@ -1,0 +1,66 @@
+.hour-registration{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100%;
+}
+
+.hour-registration-modal{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    min-width: 500px;
+    min-height: 400px;
+    height: 70%;
+    background-color: rgb(var(--second-color));
+    border-radius: 10px;
+    transition: all 0.5s ease-in-out;
+}
+
+.hour-registration-modal .autocomplete-input{
+    margin-bottom: 15%;
+
+}
+
+.hour-registration-modal .times{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 90%;
+    margin-top: -15%;   
+}
+
+.hour-registration-modal .error,
+.hour-registration-modal .error-show{
+    width: 50%;
+    color: red;
+}
+
+.clock-svg{
+    cursor: pointer;
+    width: 150px;
+    height: 150px;
+    fill: transparent;
+    stroke: rgb(var(--primary-color));
+    filter: drop-shadow(-4px 4px 3px rgba(0, 0, 0, 0.8));
+    transition: stroke 0.5s ease-in-out,
+                transform 0.2s ease-in-out,
+                filter 0.2s ease-in-out;
+}
+
+.clock-svg:hover{
+    stroke: rgb(var(--third-color));
+}
+
+.clock-svg:active{
+    filter: none;
+    transform: translate(-4px, 4px);
+}
+
+.clock-svg:focus{
+    filter: none;
+    transform: translate(-4px, 4px);
+}

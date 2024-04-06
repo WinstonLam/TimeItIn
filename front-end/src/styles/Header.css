@@ -1,0 +1,57 @@
+/* Styles for the fixed header */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    background-color: rgb(var(--second-color));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100; 
+  }
+  
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 80%;
+    height: 90%;
+    margin: 0 10%;
+
+  }
+  
+
+  .header-item {
+    color: white; 
+    margin: 0 10px; 
+  }
+  
+
+  .header-gear-icon{
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    fill: rgb(var(--primary-color));
+    stroke: 3px rgb(var(--primary-color));
+    filter: drop-shadow(-2px 2px 1px rgba(0, 0, 0, 0.5));
+    transition: transform 0.1s ease-in-out,
+                filter 0.1s ease-in-out,
+                fill 0.5s ease-in-out,
+                stroke 0.5s ease-in-out;
+
+  }
+
+  .header-gear-icon:hover{
+    fill: rgb(var(--third-color));
+    stroke: 3px rgb(var(--third-color));
+    filter: drop-shadow(-2px 2px 1px rgba(0, 0, 0, 0.5));
+  }
+
+  .header-gear-icon:active{
+    transform: translate(-2px, 2px);
+    filter: none;
+  }
+

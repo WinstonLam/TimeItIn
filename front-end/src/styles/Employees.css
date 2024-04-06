@@ -1,0 +1,199 @@
+.employees-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    height: 100%;
+    overflow: auto;
+  }
+  .employees-table{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 75%;
+
+    overflow: scroll;
+    max-width: 1280px;
+
+  }
+
+  .employees-table::-webkit-scrollbar{
+    display: auto;
+    width: 7.5px;
+    height: 7.5px;
+    margin: 10px;
+  }
+  
+  .employees-table::-webkit-scrollbar-thumb{
+    border-radius: 2rem;
+    background-color: rgb(var(--second-color));
+  }
+  
+  .employees-table::-webkit-scrollbar-track{
+    background-color:transparent;
+  }
+  .employees-table::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+.employees-table  table {
+    min-height: 500px; 
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* make cells have equal width */
+    max-width: 1250px;
+    overflow: scroll;
+  }
+
+  .employees-table .content-container{
+    max-height: 400px;
+    width: 100%;
+    overflow-y: scroll;
+  }
+  
+.employees-table th, .employees-table td {
+    padding: 8px;
+    min-width: 150px;
+    width: 100%;
+    height: 50px;
+    text-align: left;
+    border: 1px solid #ddd; /* add border to cells */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+  }
+  .employees-table tr {
+    display: flex;
+  }
+
+ .employees-table th{
+  color: rgb(var(--second-color));
+  font-size: 20px;
+  }
+
+  .employees-table-top-content{
+
+    text-shadow: -1px 1px 1px black;
+    color: rgb(var(--second-color));
+  }
+  .employees-table-top-content th{
+    border: none;
+    min-width: 220px ;
+    height: 120px;
+  }
+  .employees-table-top-content .title{
+    display: flex;
+    justify-content: flex-start;
+  }
+
+
+
+  
+
+  .employees-table-top-content .actions{
+
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+  }
+
+  
+  .employees-table-header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 90%;
+    text-shadow: -1px 1px 1px black;
+  }
+
+  .employees-table-sort{
+    cursor: pointer;
+    width: 25px;
+    height: 25px;
+    fill: transparent;
+    stroke: rgb(var(--second-color));
+    transition: all 0.3s ease-in-out;
+    filter: drop-shadow(-1px 1px 1px black)
+   
+  }
+
+  .employees-table-sort.clicked {
+    fill: rgb(var(--second-color));
+    transition: all 0.3s ease-in-out;
+  }
+
+  .employees-table-content{
+    display: flex;
+    align-items: center;
+    color: white;
+    width: 90%;
+  }
+  
+  .employees-table-top-content .actions .add-user{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+  }
+  .employees-table-top-content .actions .add-user{
+    cursor: pointer;
+  
+    fill: none;
+    color: rgb(var(--second-color));
+    transition: color 0.3s ease-in-out,
+                transform 0.1s ease-in-out,
+                filter 0.1s ease-in-out;
+  }
+  .employees-table-top-content .actions .add-user .icon{
+    cursor: pointer;
+    height: 75px;
+    width: 75px;
+    stroke: rgb(var(--second-color));
+    stroke-width: 1.5;
+    fill: none;
+    transition: stroke 0.3s ease-in-out,
+                transform 0.1s ease-in-out,
+                filter 0.1s ease-in-out;
+    filter: drop-shadow(-2px 2px 1px rgba(0, 0, 0, 0.5));
+
+  }
+
+ 
+  .employees-table-top-content .actions .add-user:hover {
+    color: rgb(var(--third-color));
+    filter: drop-shadow(-2px 2px 1px rgba(0, 0, 0, 0.5));
+  }
+  
+  .employees-table-top-content .actions .add-user:hover .icon {
+    stroke: rgb(var(--third-color));
+  }
+
+  .employees-table-top-content .actions .add-user .icon:active,
+  .employees-table-top-content .actions .add-user:active{
+    transform: translate(-2px, 2px);
+    filter: none;
+  }
+
+  .employees-table-top-content .actions .row-selector{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .employees-table-top-content .actions .row-selector select{
+    height: 75px;
+    background-color: rgb(var(--primary-color));
+    border: none;
+    font-size: 25px;
+    color: rgb(var(--second-color));
+    outline: none;
+    cursor: pointer;
+  }

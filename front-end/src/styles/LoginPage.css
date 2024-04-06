@@ -1,0 +1,57 @@
+.loginPage{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.login-modal{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 500px;
+    height: 70%;
+    background-color: rgb(var(--second-color));
+    border-radius: 10px;
+}
+
+.login-modal-content{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 90%;
+    height: 70%;
+}
+
+.login-modal-content form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    height: 50%;
+    margin-top: -10%;
+}
+
+.login-modal .error,
+.login-modal .error-show{
+
+    color: red;
+    height: 20px;
+    opacity: 0;
+    pointer-events: none;
+    margin-left: 10%;
+    height: 100px;
+    font-weight: bold;
+    font-size: 16px;
+    width: 50%;
+    margin-top: 5px;
+    transition: all 0.3s ease-in-out;
+}
+.login-modal .error-show{
+    opacity: 1;
+    margin-left: 0;
+    pointer-events: all;
+}

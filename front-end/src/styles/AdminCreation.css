@@ -1,0 +1,106 @@
+.admin-creation{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100%;
+}
+
+.admin-creation-modal{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 500px;
+    height: 70%;
+    background-color: rgb(var(--second-color));
+    border-radius: 10px;
+}
+
+.admin-creation-modal-pincode{
+    display: flex;
+    height: 150px;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+.admin-creation-modal-actions{
+    display: flex;
+    justify-content: space-evenly;
+    width: 90%
+}.input-container {
+    position: relative;
+    margin-bottom: 30px; 
+  }
+  
+  .input-container label {
+    position: absolute;
+    top: 50%;
+    left: 5px;
+    transform: translateY(-50%);
+    transition: top 0.3s, font-size 0.3s;
+    pointer-events: none;
+    padding: 0 5px; 
+    z-index: 2; /* Ensure the label stays on top of the input */
+  }
+  
+  .input-container input {
+    position: relative;
+    z-index: 1; /* The input remains below the label */
+  }
+  
+  .input-container.active label {
+    top: -5px;
+    font-size: 0.8em; 
+    z-index: 2; /* When the label is active, it should be at the same level as the input */
+  }
+  
+  .error-message {
+    color: red;
+    font-size: 0.8em;
+    position: absolute;
+    bottom: -30px; 
+    left: 5px;
+  }
+  
+
+  .input-container input:focus + label {
+    z-index: 2; /* Ensure the label stays on top of the input even when the input is focused */
+  }
+  
+  .input-container input.input-error {
+    border: 1px solid red; /* Highlight the input with a red border when there's an error */
+    outline: none; /* Remove the default browser outline */
+  }
+  
+  .input-container input.input-error:focus {
+    border-color: red; /* Ensure the red border remains even when the input is focused */
+  }
+  
+  .success-container {
+    text-align: center;
+    padding: 20px;
+    background-color: #e6ffe6; /* Light green background */
+    border: 1px solid #33cc33; /* Green border */
+    border-radius: 5px;
+  }
+  
+  .success-container p {
+    font-size: 1.2em;
+    color: #33cc33; /* Green text */
+    margin-bottom: 20px;
+  }
+  
+  .success-container button {
+    padding: 10px 20px;
+    background-color: #33cc33; /* Green background */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .success-container button:hover {
+    background-color: #28a745; /* Darker green on hover */
+  }
