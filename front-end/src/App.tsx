@@ -28,7 +28,7 @@ function AppContent() {
   const { loading, loggedIn } = useContext(AdminContext);
 
   return (
-    <Router basename="/Timitin2.0">
+    <Router basename="/TimeItIn">
       <div className="App">
         <Settings active={settings} setActive={setSettings} />
         <Header setSideNav={setSettings} />
