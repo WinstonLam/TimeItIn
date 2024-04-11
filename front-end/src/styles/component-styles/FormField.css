@@ -1,6 +1,6 @@
 .form-field, .form-field-optional {
     position: relative;
-    height: 58px;
+    height: 70px;
     width: 215px;
     display: flex;
     align-items: center;
@@ -20,8 +20,9 @@
   }
   .form-field label, .form-field-optional label{
     position: absolute;
-    left: -20%;
-    top: 0%;
+    left: 10%;
+    top: 13%;
+    text-align: left;
     transition: 0.3s;
     pointer-events: none;
     width: 100%;
@@ -30,7 +31,7 @@
 .form-field-optional label {
     left: -25%;
     top: 23%;
- 
+
   }
   
   .form-field input:focus + label,
@@ -50,24 +51,44 @@
                 0 0 2px rgba(var(--second-color));
 
   }
-  .form-field .error{
+  .form-field .form-error{
     color: red;
     opacity: 0;
-    margin-left: -1%;
+    height: 50px;
+    width: 100%;
     pointer-events: none;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 16px;
     margin-top: 5px;
     transition: all 0.3s ease-in-out;
   }
 
-  .form-field .error-show{
+  .form-field .form-error-show{
     color: red;
     opacity: 1;
-    margin-left: -15%;
+    height: 50px;
+    width: 100%;
     pointer-events: none;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 16px;
     margin-top: 5px;
     transition: all 0.3s ease-in-out;
+  }
+
+  .form-field .eye-show, 
+  .form-field .eye-hide{
+    stroke: rgb(var(--second-color));
+    fill: transparent;
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    top: 0;
+    right: 5%;
+    cursor: pointer;
+    transition: fill 0.3s ease-in-out;
+  }
+
+  .form-field .eye-hide{
+    fill: rgb(var(--primary-color));
+
   }

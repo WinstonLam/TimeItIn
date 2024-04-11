@@ -16,11 +16,12 @@ const LoginPage = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormSubmitted(true);
+    if (!email || !password) return;
 
     try {
       const res = await loginUser(email, password);
-      login(res.uid, res.token)
-      setFormSubmitted(true);
+      login(res.uid, res.token);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -57,10 +58,11 @@ const LoginPage = () => {
                   required
                   formSubmitted={formSubmitted}
                   onChange={(value) => setPassword(value)}
+                  sensitive={true}
                 />
 
                 <div className="actions">
-                  <Button type="submit" text="Login" onClick={() => { }} />
+                  <Button type="submit" text="Login" onClick={() => {}} />
                   <Button
                     text="Register"
                     onClick={() => setRegister(true)}

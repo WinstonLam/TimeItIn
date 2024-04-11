@@ -161,3 +161,29 @@
     display: flex;
     flex-direction: column;
   }
+
+  .hours-container .timepicker {
+    
+    width: 30%;
+    border-radius: 2rem;
+    padding: 0.5rem;
+    text-align: center;
+    background-color: transparent;
+    border: 3px solid rgb(var(--second-color));
+    font-size: 20px;
+    color: rgba(var(--second-color));
+  }
+  .hours-container .timepicker span{
+    font-size: 16px;
+    font-weight: bold;
+  }
+  .hours-container .timepicker input{
+    cursor: pointer;
+    background-color: transparent;
+    font-size: 16px;
+    border: none;
+    color: rgba(var(--second-color));
+  }
+  .hours-container .timepicker ::placeholder{
+    color: rgb(var(--second-color))
+  }

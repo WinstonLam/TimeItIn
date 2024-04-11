@@ -41,7 +41,6 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ setRegister }) => {
 
     setFormSubmitted(true);
 
-
     if (!data.email || !data.password || !data.pincode) return;
     try {
       await registerUser(data);
@@ -105,6 +104,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ setRegister }) => {
               required={true}
               formSubmitted={formSubmitted}
               onChange={(value) => setData({ ...data, password: value })}
+              sensitive={true}
             />
             <FormField
               value={data.pincode}
@@ -113,6 +113,9 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ setRegister }) => {
               required={true}
               formSubmitted={formSubmitted}
               onChange={(value) => setData({ ...data, pincode: value })}
+              sensitive={true}
+              limit={4}
+              strict="digit"
             />
 
             <div className="actions">

@@ -30,7 +30,6 @@ const EmployeeCreation: React.FC<EmployeeCreationProps> = ({ setAddUser }) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [countdown, setCountdown] = useState(5);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const { token, uid, setEmployees } = useContext(AdminContext);
@@ -55,20 +54,6 @@ const EmployeeCreation: React.FC<EmployeeCreationProps> = ({ setAddUser }) => {
 
       // If the employee was created successfully, start the countdown
       setSuccess(true);
-      const timer = setInterval(() => {
-        setCountdown((prevCountdown) => prevCountdown - 1);
-      }, 1000);
-
-      setTimeout(() => {
-        clearInterval(timer);
-        setFormSubmitted(false);
-        setSuccess(false);
-        setFirstName("");
-        setLastName("");
-        setAddUser(false);
-        setCountdown(5);
-        navigate("/employees");
-      }, 5000);
     } catch (error) {
       const errorObj = error as AxiosError;
       // If the employee could not be created, display an error message
@@ -96,7 +81,7 @@ const EmployeeCreation: React.FC<EmployeeCreationProps> = ({ setAddUser }) => {
         {success ? (
           <div className="succes">
             <h2>Succesfully created new employee</h2>
-            Redirecting in {countdown} seconds...
+
             <div className="actions">
               <Button onClick={handleBack} text="Overview" />
               <Button
