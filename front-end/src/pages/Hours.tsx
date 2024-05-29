@@ -3,7 +3,7 @@ import { AdminContext } from "../providers/AdminContext";
 import DatePicker from "react-datepicker";
 import SortSvg from "../icons/sort";
 import "../styles/Hours.css";
-import { setTime } from "../api"; // Import the setTime function
+import { setTime, editHours } from "../api"; // Import the setTime function
 
 interface Employee {
   uid: string;
@@ -24,9 +24,7 @@ const Hours: React.FC = () => {
   const [hideEmptyEmployees, setHideEmptyEmployees] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [isEditing, setIsEditing] = useState(false);
-  const [editedHours, setEditedHours] = useState<{
-    [key: string]: { [date: string]: EmployeeHours };
-  }>({});
+  const [editedHours, setEditedHours] = useState<{ [employeeId: string]: EmployeeHours; }>({});
   const [sortConfig, setSortConfig] = useState({
     key: "firstName",
     direction: "ascending",
@@ -114,55 +112,47 @@ const Hours: React.FC = () => {
   };
   const handleSubmitClick = async () => {
     // Submit the edited hours
-    for (const employeeId in editedHours) {
-      for (const date in editedHours[employeeId]) {
-        const { starttime, endtime } = editedHours[employeeId][date];
-        if (starttime || endtime) {
-          const dateObj = new Date(date); // Ensure date is a Date object
-          const startTimeObj = starttime
-            ? new Date(`${date}T${starttime}:00`).toISOString()
-            : null;
-          const endTimeObj = endtime
-            ? new Date(`${date}T${endtime}:00`).toISOString()
-            : null;
+    const hoursToUpdate: { [employeeId: string]: { starttime?: string; endtime?: string } } = {};
+    const currentDate = selectedDate ? selectedDate : new Date();
 
-          console.log(employeeId, startTimeObj, endTimeObj);
-          try {
-            await setTime(uid, token, employeeId, {
-              date: dateObj.toISOString(),
-              starttime: startTimeObj,
-              endtime: endTimeObj,
-            });
-          } catch (err) {
-            console.error("Error setting time:", err);
-          }
+    for (const employeeId in editedHours) {
+
+      const { starttime, endtime } = editedHours[employeeId]
+      if (starttime || endtime) {
+        if (!hoursToUpdate[employeeId]) {
+          hoursToUpdate[employeeId] = {};
         }
+        hoursToUpdate[employeeId] = {
+          starttime: starttime ? new Date(`${currentDate}T${starttime}:00`).toISOString() : undefined,
+          endtime: endtime ? new Date(`${currentDate}T${endtime}:00`).toISOString() : undefined,
+        };
       }
+
     }
+
+
+    try {
+      await editHours(uid, token, currentDate.toISOString(), hoursToUpdate);
+      console.log("Successfully edited hours");
+    } catch (err) {
+      console.error("Error editing hours:", err);
+    }
+
     setIsEditing(false);
     setEditedHours({});
   };
-
   const handleTimeChange = (
     employeeId: string,
-    date: Date,
     field: string,
     value: string | null
   ) => {
-    const timeValue = value || ""; // Convert null to an empty string
-    setEditedHours((prevState) => {
-      const dateString = date.toISOString().split("T")[0]; // Format date as YYYY-MM-DD
-      return {
-        ...prevState,
-        [employeeId]: {
-          ...prevState[employeeId],
-          [dateString]: {
-            ...prevState[employeeId]?.[dateString],
-            [field]: timeValue,
-          },
-        },
-      };
-    });
+    setEditedHours((prevState) => ({
+      ...prevState,
+      [employeeId]: {
+        ...prevState[employeeId],
+        [field]: value || undefined
+      }
+    }));
   };
 
   const dates = generateDates(selectedDate, visibleCols);
@@ -170,6 +160,8 @@ const Hours: React.FC = () => {
   for (let i = 0; i < dates.length; i += 7) {
     weeks.push(dates.slice(i, i + 7));
   }
+
+  console.log(editedHours)
 
   return (
     <div className="hours-container">
@@ -244,11 +236,11 @@ const Hours: React.FC = () => {
                       );
                       const isEditable = isEditing;
                       const starttime =
-                        editedHours[employee.uid]?.[dateString]?.starttime ||
+                        editedHours[employee.uid]?.starttime ||
                         employeeHours?.starttime ||
                         "";
                       const endtime =
-                        editedHours[employee.uid]?.[dateString]?.endtime ||
+                        editedHours[employee.uid]?.endtime ||
                         employeeHours?.endtime ||
                         "";
 
@@ -262,7 +254,6 @@ const Hours: React.FC = () => {
                               onChange={(e) =>
                                 handleTimeChange(
                                   employee.uid,
-                                  date,
                                   "starttime",
                                   e.target.value
                                 )
@@ -276,7 +267,6 @@ const Hours: React.FC = () => {
                               onChange={(e) =>
                                 handleTimeChange(
                                   employee.uid,
-                                  date,
                                   "endtime",
                                   e.target.value
                                 )

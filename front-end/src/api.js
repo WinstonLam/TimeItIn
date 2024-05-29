@@ -208,6 +208,29 @@ export const setTime = (uid, token, employeeId, date) => {
     });
 };
 
+export const editHours = (uid, token, employeeId, date, hours) => {
+  console.log("editHours");
+
+  return axios
+    .post(
+      `${BASE_URL}/edit-hours/${uid}`,
+      { employeeId, date, hours },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      console.error("Error editing hours:", error);
+      throw error;
+    });
+};
+
 export const getHours = (uid, token, date) => {
   return axios
     .get(`${BASE_URL}/get-hours/${uid}`, {

@@ -229,6 +229,58 @@ protectedRouter.post("/set-time/:uid", async (req, res) => {
   }
 });
 
+protectedRouter.get("/edit-hours/:uid", async (req, res) => {
+  console.log("Updating hours for employeeId:", req.body.employeeId);
+  const date = new Date(req.body.date);
+  const hours = req.body.hours;
+
+  try {
+    const userDoc = await db.collection("users").doc(uid).get();
+    if (!userDoc.exists) {
+      res.status(404).send({ error: "User not found" });
+      return;
+    }
+
+    // Format the current date as 'mm-yyyy' for month and 'dd-mm-yyyy' for day
+    const monthOptions = { year: "numeric", month: "2-digit" };
+    const dayOption = { day: "2-digit", month: "2-digit", year: "numeric" };
+    const monthId = date
+      .toLocaleDateString("en-GB", monthOptions)
+      .replace(/\//g, "-");
+    const dayId = date
+      .toLocaleDateString("en-GB", dayOption)
+      .replace(/\//g, "-");
+
+    // Fetch the document for the specific month
+    const monthDoc = await userDoc.ref.collection("hours").doc(monthId).get();
+
+    // Populate the updates with the given object
+    const updates = {};
+
+    for (const employeeId in hours) {
+      const { starttime, endtime } = hours[employeeId];
+      updates[`${dayId}.${employeeId}.starttime`] = starttime;
+      updates[`${dayId}.${employeeId}.endtime`] = endtime;
+    }
+
+    // If no document exists for this month, create one with the start and end times
+    if (!monthDoc.exists) {
+      await monthDoc.ref.set(updates);
+    } else {
+      // If the document for this month exists, update the start and end times
+      await monthDoc.ref.update(updates);
+    }
+
+    // Fetch the updated document
+    const updatedMonthDoc = await monthDoc.ref.get();
+    const updatedDayData = updatedMonthDoc.data()[dayId] || {};
+
+    res.status(200).send({ hours: updatedDayData });
+  } catch (error) {
+    console.error("Error updating hours:", error);
+    res.status(500).send({ error: error.message });
+  }
+});
 // Get hours for admin
 protectedRouter.get("/get-hours/:uid", async (req, res) => {
   const userId = req.params.uid;
