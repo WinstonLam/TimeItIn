@@ -164,7 +164,7 @@
 
   .hours-container .timepicker {
     
-    width: 30%;
+    width: 40%;
     border-radius: 2rem;
     padding: 0.5rem;
     text-align: center;
@@ -183,6 +183,8 @@
     font-size: 16px;
     border: none;
     color: rgba(var(--second-color));
+    min-width: 50px;
+    min-height: 25px;
   }
   .hours-container .timepicker ::placeholder{
     color: rgb(var(--second-color))

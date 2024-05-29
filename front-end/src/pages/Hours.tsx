@@ -2,8 +2,8 @@ import React, { useState, useContext } from "react";
 import { AdminContext } from "../providers/AdminContext";
 import DatePicker from "react-datepicker";
 import SortSvg from "../icons/sort";
-import TimePicker from "react-time-picker";
 import "../styles/Hours.css";
+import { setTime } from "../api"; // Import the setTime function
 
 interface Employee {
   uid: string;
@@ -17,14 +17,16 @@ interface EmployeeHours {
 }
 
 const Hours: React.FC = () => {
-  const { loading, employees, getEmployeeHours } = useContext(AdminContext);
+  const { loading, employees, getEmployeeHours, uid, token } =
+    useContext(AdminContext);
   const [visibleCols, setVisibleCols] = useState<number>(1);
   const [sorted, setSorted] = useState(false);
   const [hideEmptyEmployees, setHideEmptyEmployees] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-  const [editCell, setEditCell] = useState<{ row: number; col: number } | null>(
-    null
-  );
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedHours, setEditedHours] = useState<{
+    [key: string]: { [date: string]: EmployeeHours };
+  }>({});
   const [sortConfig, setSortConfig] = useState({
     key: "firstName",
     direction: "ascending",
@@ -60,14 +62,6 @@ const Hours: React.FC = () => {
 
   const handleColChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setVisibleCols(Number(event.target.value));
-  };
-
-  const handleCellDoubleClick = (employeeIndex: number, colIndex: number) => {
-    setEditCell({ row: employeeIndex, col: colIndex });
-  };
-
-  const handleBlur = () => {
-    setEditCell(null);
   };
 
   const generateDates = (
@@ -110,18 +104,87 @@ const Hours: React.FC = () => {
     return dates;
   };
 
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancelClick = () => {
+    setIsEditing(false);
+    setEditedHours({});
+  };
+  const handleSubmitClick = async () => {
+    // Submit the edited hours
+    for (const employeeId in editedHours) {
+      for (const date in editedHours[employeeId]) {
+        const { starttime, endtime } = editedHours[employeeId][date];
+        if (starttime || endtime) {
+          const dateObj = new Date(date); // Ensure date is a Date object
+          const startTimeObj = starttime
+            ? new Date(`${date}T${starttime}:00`).toISOString()
+            : null;
+          const endTimeObj = endtime
+            ? new Date(`${date}T${endtime}:00`).toISOString()
+            : null;
+
+          console.log(employeeId, startTimeObj, endTimeObj);
+          try {
+            await setTime(uid, token, employeeId, {
+              date: dateObj.toISOString(),
+              starttime: startTimeObj,
+              endtime: endTimeObj,
+            });
+          } catch (err) {
+            console.error("Error setting time:", err);
+          }
+        }
+      }
+    }
+    setIsEditing(false);
+    setEditedHours({});
+  };
+
+  const handleTimeChange = (
+    employeeId: string,
+    date: Date,
+    field: string,
+    value: string | null
+  ) => {
+    const timeValue = value || ""; // Convert null to an empty string
+    setEditedHours((prevState) => {
+      const dateString = date.toISOString().split("T")[0]; // Format date as YYYY-MM-DD
+      return {
+        ...prevState,
+        [employeeId]: {
+          ...prevState[employeeId],
+          [dateString]: {
+            ...prevState[employeeId]?.[dateString],
+            [field]: timeValue,
+          },
+        },
+      };
+    });
+  };
+
   const dates = generateDates(selectedDate, visibleCols);
   const weeks = [];
   for (let i = 0; i < dates.length; i += 7) {
     weeks.push(dates.slice(i, i + 7));
   }
 
-  const timeUpdate = () => {};
-
   return (
     <div className="hours-container">
       <div className="hours-table-top-content">
-        <h1>Hours</h1>
+        <div className="hours-container-header">
+          <h1>Hours</h1>
+          {!isEditing ? (
+            <button onClick={handleEditClick}>Edit Hours</button>
+          ) : (
+            <>
+              <button onClick={handleSubmitClick}>Submit</button>
+              <button onClick={handleCancelClick}>Cancel</button>
+            </>
+          )}
+        </div>
         <div className="col-selector">
           <div className="hide-empty">
             Hide employees with no hours
@@ -174,32 +237,51 @@ const Hours: React.FC = () => {
                   <tr key={employeeIndex}>
                     <td>{employee.firstName}</td>
                     {weekDates.map((date, colIndex) => {
+                      const dateString = date.toISOString().split("T")[0];
                       const employeeHours = getEmployeeHours(
                         employee.uid,
                         date
                       );
-                      const isEditable =
-                        editCell?.row === employeeIndex &&
-                        editCell?.col === colIndex;
+                      const isEditable = isEditing;
+                      const starttime =
+                        editedHours[employee.uid]?.[dateString]?.starttime ||
+                        employeeHours?.starttime ||
+                        "";
+                      const endtime =
+                        editedHours[employee.uid]?.[dateString]?.endtime ||
+                        employeeHours?.endtime ||
+                        "";
 
                       return (
                         <td key={colIndex}>
                           <>
-                            <TimePicker
+                            <input
+                              type="time"
                               className="timepicker"
-                              clearIcon={null}
-                              disableClock={true}
-                              value={employeeHours?.starttime || ""}
-                              onChange={(time) => timeUpdate}
-                              onFocus={handleBlur}
+                              value={starttime}
+                              onChange={(e) =>
+                                handleTimeChange(
+                                  employee.uid,
+                                  date,
+                                  "starttime",
+                                  e.target.value
+                                )
+                              }
+                              disabled={!isEditable}
                             />
-                            <TimePicker
+                            <input
+                              type="time"
                               className="timepicker"
-                              clearIcon={null}
-                              disableClock={true}
-                              value={employeeHours?.endtime || ""}
-                              onChange={(time) => timeUpdate}
-                              onFocus={handleBlur}
+                              value={endtime}
+                              onChange={(e) =>
+                                handleTimeChange(
+                                  employee.uid,
+                                  date,
+                                  "endtime",
+                                  e.target.value
+                                )
+                              }
+                              disabled={!isEditable}
                             />
                           </>
                         </td>
