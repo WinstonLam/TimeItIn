@@ -11,24 +11,33 @@ interface Employee {
   lastName: string;
 }
 
-interface EmployeeHours {
-  starttime?: string;
-  endtime?: string;
+interface HoursData {
+  starttime: string;
+  endtime: string | null;
+}
+
+interface Hours {
+  [date: string]: {
+    [employeeId: string]: HoursData;
+  };
 }
 
 const Hours: React.FC = () => {
-  const { loading, employees, getEmployeeHours, uid, token } =
+  const { loading, employees, getMonthIdx, getDayIdx, hours, uid, token } =
     useContext(AdminContext);
   const [visibleCols, setVisibleCols] = useState<number>(1);
   const [sorted, setSorted] = useState(false);
   const [hideEmptyEmployees, setHideEmptyEmployees] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [isEditing, setIsEditing] = useState(false);
-  const [editedHours, setEditedHours] = useState<{ [employeeId: string]: EmployeeHours; }>({});
+
+  const [editedHours, setEditedHours] = useState<Hours>(hours);
   const [sortConfig, setSortConfig] = useState({
     key: "firstName",
     direction: "ascending",
   });
+
+  console.log(hours);
 
   const employeeComparator = (a: Employee, b: Employee) => {
     const key = sortConfig.key as keyof Employee;
@@ -49,7 +58,20 @@ const Hours: React.FC = () => {
   };
 
   const hasHours = (employee: Employee, dates: Date[]): boolean => {
-    return dates.some((date) => getEmployeeHours(employee.uid, date));
+    for (const date of dates) {
+      const monthIdx = date
+        .toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })
+        .split("/")
+        .join("-");
+      if (hours && hours[monthIdx] && hours[monthIdx][employee.uid]) {
+        return true;
+      }
+    }
+    return false;
   };
 
   const handleHideEmptyEmployeesChange = (
@@ -112,24 +134,25 @@ const Hours: React.FC = () => {
   };
   const handleSubmitClick = async () => {
     // Submit the edited hours
-    const hoursToUpdate: { [employeeId: string]: { starttime?: string; endtime?: string } } = {};
+    const hoursToUpdate: {
+      [employeeId: string]: { starttime?: Date; endtime?: Date };
+    } = {};
     const currentDate = selectedDate ? selectedDate : new Date();
-
+    const datePart = currentDate.toISOString().split("T")[0];
     for (const employeeId in editedHours) {
-
-      const { starttime, endtime } = editedHours[employeeId]
+      const { starttime, endtime } = editedHours[employeeId];
       if (starttime || endtime) {
         if (!hoursToUpdate[employeeId]) {
           hoursToUpdate[employeeId] = {};
         }
         hoursToUpdate[employeeId] = {
-          starttime: starttime ? new Date(`${currentDate}T${starttime}:00`).toISOString() : undefined,
-          endtime: endtime ? new Date(`${currentDate}T${endtime}:00`).toISOString() : undefined,
+          starttime: starttime
+            ? new Date(`${datePart}T${starttime}:00`)
+            : undefined,
+          endtime: endtime ? new Date(`${datePart}T${endtime}:00`) : undefined,
         };
       }
-
     }
-
 
     try {
       await editHours(uid, token, currentDate.toISOString(), hoursToUpdate);
@@ -142,16 +165,20 @@ const Hours: React.FC = () => {
     setEditedHours({});
   };
   const handleTimeChange = (
+    date: string,
     employeeId: string,
-    field: string,
+    field: keyof HoursData,
     value: string | null
   ) => {
     setEditedHours((prevState) => ({
       ...prevState,
-      [employeeId]: {
-        ...prevState[employeeId],
-        [field]: value || undefined
-      }
+      [date]: {
+        ...prevState[date],
+        [employeeId]: {
+          ...prevState[date]?.[employeeId],
+          [field]: value || undefined,
+        },
+      },
     }));
   };
 
@@ -160,8 +187,6 @@ const Hours: React.FC = () => {
   for (let i = 0; i < dates.length; i += 7) {
     weeks.push(dates.slice(i, i + 7));
   }
-
-  console.log(editedHours)
 
   return (
     <div className="hours-container">
@@ -229,19 +254,17 @@ const Hours: React.FC = () => {
                   <tr key={employeeIndex}>
                     <td>{employee.firstName}</td>
                     {weekDates.map((date, colIndex) => {
-                      const dateString = date.toISOString().split("T")[0];
-                      const employeeHours = getEmployeeHours(
-                        employee.uid,
-                        date
-                      );
+                      const dayIdx = getDayIdx(date);
+                      const monthIdx = getMonthIdx(date);
+
                       const isEditable = isEditing;
                       const starttime =
-                        editedHours[employee.uid]?.starttime ||
-                        employeeHours?.starttime ||
+                        editedHours[monthIdx]?.[employee.uid]?.starttime ||
+                        (hours as Hours)[monthIdx]?.[employee.uid]?.starttime ||
                         "";
                       const endtime =
-                        editedHours[employee.uid]?.endtime ||
-                        employeeHours?.endtime ||
+                        editedHours[monthIdx]?.[employee.uid]?.endtime ||
+                        (hours as Hours)[monthIdx]?.[employee.uid]?.endtime ||
                         "";
 
                       return (
@@ -251,8 +274,10 @@ const Hours: React.FC = () => {
                               type="time"
                               className="timepicker"
                               value={starttime}
+                              placeholder="12:00"
                               onChange={(e) =>
                                 handleTimeChange(
+                                  dayIdx,
                                   employee.uid,
                                   "starttime",
                                   e.target.value
@@ -266,6 +291,7 @@ const Hours: React.FC = () => {
                               value={endtime}
                               onChange={(e) =>
                                 handleTimeChange(
+                                  dayIdx,
                                   employee.uid,
                                   "endtime",
                                   e.target.value

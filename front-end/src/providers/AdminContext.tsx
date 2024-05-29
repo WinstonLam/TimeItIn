@@ -32,7 +32,12 @@ interface AdminContextProps {
   setEmployees: React.Dispatch<React.SetStateAction<Employee[]>>;
   hours: Hours;
   setHours: React.Dispatch<React.SetStateAction<Hours>>;
-  getEmployeeHours: (uid: string, date: Date) => HoursData | null;
+  getEmployeeHours: (
+    employeeId: string,
+    date: Date
+  ) => Promise<HoursData | null>;
+  getMonthIdx: (date: Date) => string;
+  getDayIdx: (date: Date) => string;
 }
 
 const defaultState: AdminContextProps = {
@@ -50,7 +55,9 @@ const defaultState: AdminContextProps = {
   setEmployees: () => {},
   hours: {},
   setHours: () => {},
-  getEmployeeHours: () => null,
+  getEmployeeHours: async () => null,
+  getMonthIdx: (date: Date) => "",
+  getDayIdx: (date: Date) => "",
 };
 
 export const AdminContext = createContext<AdminContextProps>(defaultState);
@@ -76,10 +83,8 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
       : [];
   });
 
-  const getEmployeeHours = (uid: string, date: Date) => {
-    let employeeHours = null;
-    // transform date to string of dd-mm-yyyy
-    const dateIdx = date
+  const getMonthIdx = (date: Date) => {
+    return date
       .toLocaleDateString("en-GB", {
         day: "2-digit",
         month: "2-digit",
@@ -87,10 +92,24 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
       })
       .split("/")
       .join("-");
-    if (hours && hours[dateIdx] && hours[dateIdx][uid]) {
+  };
+
+  const getDayIdx = (date: Date): string => {
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0"); // getMonth() is zero-based
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
+  const getEmployeeHours = async (employeeId: string, date: Date) => {
+    let employeeHours = null;
+    // transform date to string of dd-mm-yyyy
+    const dateIdx = getMonthIdx(date);
+
+    if (hours && hours[dateIdx] && hours[dateIdx][employeeId]) {
       employeeHours = {
-        starttime: hours[dateIdx][uid].starttime,
-        endtime: hours[dateIdx][uid].endtime,
+        starttime: hours[dateIdx][employeeId].starttime,
+        endtime: hours[dateIdx][employeeId].endtime,
       };
     }
 
@@ -158,6 +177,8 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
     hours,
     setHours,
     getEmployeeHours,
+    getMonthIdx,
+    getDayIdx,
   };
 
   return (

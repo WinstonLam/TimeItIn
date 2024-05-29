@@ -49,18 +49,23 @@ const HourRegistration: FC = () => {
         )
       : [];
 
-  const handleChange = (uid: string, name: string) => {
+  const handleChange = async (employeeId: string, name: string) => {
     setErrMessage("");
     setSelectedName(name);
+    setSelectedUid(employeeId);
 
-    const employeeHours = getEmployeeHours(uid, new Date());
+    try {
+      const employeeHours = await getEmployeeHours(employeeId, new Date());
 
-    if (employeeHours) {
-      setStartTime(employeeHours.starttime);
-      setEndTime(employeeHours.endtime || "");
-    } else {
-      setStartTime("");
-      setEndTime("");
+      if (employeeHours) {
+        setStartTime(employeeHours.starttime);
+        setEndTime(employeeHours.endtime || "");
+      } else {
+        setStartTime("");
+        setEndTime("");
+      }
+    } catch (err) {
+      console.error("Error fetching employee hours:", err);
     }
   };
 

@@ -208,13 +208,13 @@ export const setTime = (uid, token, employeeId, date) => {
     });
 };
 
-export const editHours = (uid, token, employeeId, date, hours) => {
+export const editHours = (uid, token, date, hours) => {
   console.log("editHours");
 
   return axios
     .post(
       `${BASE_URL}/edit-hours/${uid}`,
-      { employeeId, date, hours },
+      { date, hours },
       {
         headers: {
           "Content-Type": "application/json",

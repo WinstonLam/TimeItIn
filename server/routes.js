@@ -2,6 +2,7 @@
 const express = require("express");
 const admin = require("firebase-admin");
 const crypto = require("crypto");
+const { start } = require("repl");
 const unprotectedRouter = express.Router();
 const protectedRouter = express.Router();
 
@@ -148,6 +149,7 @@ protectedRouter.post("/set-time/:uid", async (req, res) => {
 
   try {
     const userDoc = await db.collection("users").doc(uid).get();
+
     if (!userDoc.exists) {
       res.status(404).send({ error: "User not found" });
       return;
@@ -229,13 +231,14 @@ protectedRouter.post("/set-time/:uid", async (req, res) => {
   }
 });
 
-protectedRouter.get("/edit-hours/:uid", async (req, res) => {
-  console.log("Updating hours for employeeId:", req.body.employeeId);
+protectedRouter.post("/edit-hours/:uid", async (req, res) => {
+  console.log("Updating hours for user:", req.params.uid);
+  const userId = req.params.uid;
   const date = new Date(req.body.date);
   const hours = req.body.hours;
 
   try {
-    const userDoc = await db.collection("users").doc(uid).get();
+    const userDoc = await db.collection("users").doc(userId).get();
     if (!userDoc.exists) {
       res.status(404).send({ error: "User not found" });
       return;
@@ -258,17 +261,26 @@ protectedRouter.get("/edit-hours/:uid", async (req, res) => {
     const updates = {};
 
     for (const employeeId in hours) {
+      updates[employeeId] = {};
       const { starttime, endtime } = hours[employeeId];
-      updates[`${dayId}.${employeeId}.starttime`] = starttime;
-      updates[`${dayId}.${employeeId}.endtime`] = endtime;
+      if (starttime) {
+        updates[employeeId]["starttime"] = admin.firestore.Timestamp.fromDate(
+          new Date(starttime)
+        );
+      }
+      if (endtime) {
+        updates[employeeId]["endtime"] = admin.firestore.Timestamp.fromDate(
+          new Date(endtime)
+        );
+      }
     }
 
     // If no document exists for this month, create one with the start and end times
     if (!monthDoc.exists) {
-      await monthDoc.ref.set(updates);
+      await monthDoc.ref.set({ [dayId]: updates });
     } else {
       // If the document for this month exists, update the start and end times
-      await monthDoc.ref.update(updates);
+      await monthDoc.ref.update({ [dayId]: updates });
     }
 
     // Fetch the updated document
