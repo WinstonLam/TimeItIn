@@ -3,7 +3,8 @@ import { AdminContext } from "../providers/AdminContext";
 import DatePicker from "react-datepicker";
 import SortSvg from "../icons/sort";
 import "../styles/Hours.css";
-import { setTime, editHours } from "../api"; // Import the setTime function
+import { getHours, editHours } from "../api"; // Import the setTime function
+import Button from "../components/button";
 
 interface Employee {
   uid: string;
@@ -23,7 +24,7 @@ interface Hours {
 }
 
 const Hours: React.FC = () => {
-  const { loading, employees, getMonthIdx, getDayIdx, hours, uid, token } =
+  const { setHours, employees, transformDate, hours, uid, token } =
     useContext(AdminContext);
   const [visibleCols, setVisibleCols] = useState<number>(1);
   const [sorted, setSorted] = useState(false);
@@ -36,8 +37,6 @@ const Hours: React.FC = () => {
     key: "firstName",
     direction: "ascending",
   });
-
-  console.log(hours);
 
   const employeeComparator = (a: Employee, b: Employee) => {
     const key = sortConfig.key as keyof Employee;
@@ -77,7 +76,7 @@ const Hours: React.FC = () => {
   const handleHideEmptyEmployeesChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setHideEmptyEmployees(event.target.checked);
+    setHideEmptyEmployees(!hideEmptyEmployees);
   };
 
   const handleColChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -130,39 +129,23 @@ const Hours: React.FC = () => {
 
   const handleCancelClick = () => {
     setIsEditing(false);
-    setEditedHours({});
   };
   const handleSubmitClick = async () => {
     // Submit the edited hours
-    const hoursToUpdate: {
-      [employeeId: string]: { starttime?: Date; endtime?: Date };
-    } = {};
+
     const currentDate = selectedDate ? selectedDate : new Date();
-    const datePart = currentDate.toISOString().split("T")[0];
-    for (const employeeId in editedHours) {
-      const { starttime, endtime } = editedHours[employeeId];
-      if (starttime || endtime) {
-        if (!hoursToUpdate[employeeId]) {
-          hoursToUpdate[employeeId] = {};
-        }
-        hoursToUpdate[employeeId] = {
-          starttime: starttime
-            ? new Date(`${datePart}T${starttime}:00`)
-            : undefined,
-          endtime: endtime ? new Date(`${datePart}T${endtime}:00`) : undefined,
-        };
-      }
-    }
 
     try {
-      await editHours(uid, token, currentDate.toISOString(), hoursToUpdate);
+      console.log(editedHours);
+      await editHours(uid, token, currentDate.toISOString(), editedHours);
       console.log("Successfully edited hours");
+      const resHours = await getHours(uid, token, currentDate);
+      setHours(resHours);
     } catch (err) {
       console.error("Error editing hours:", err);
     }
 
     setIsEditing(false);
-    setEditedHours({});
   };
   const handleTimeChange = (
     date: string,
@@ -170,16 +153,32 @@ const Hours: React.FC = () => {
     field: keyof HoursData,
     value: string | null
   ) => {
+    if (!value) return;
+
+    let p = date.split("-");
+    let day = parseInt(p[0], 10);
+    let month = parseInt(p[1], 10) - 1; // Month is 0-based in JavaScript Date
+    let year = parseInt(p[2], 10);
+
+    const datePart = new Date(year, month, day).toISOString().split("T")[0];
+    const time = new Date(`${datePart}T${value}:00`);
+
     setEditedHours((prevState) => ({
       ...prevState,
       [date]: {
         ...prevState[date],
         [employeeId]: {
           ...prevState[date]?.[employeeId],
-          [field]: value || undefined,
+          [field]: time || undefined,
         },
       },
     }));
+  };
+
+  const getTime = (date: string | null) => {
+    if (!date) return "";
+    const newDate = new Date(date);
+    return transformDate(newDate, { time: true });
   };
 
   const dates = generateDates(selectedDate, visibleCols);
@@ -187,28 +186,36 @@ const Hours: React.FC = () => {
   for (let i = 0; i < dates.length; i += 7) {
     weeks.push(dates.slice(i, i + 7));
   }
-
   return (
     <div className="hours-container">
       <div className="hours-table-top-content">
         <div className="hours-container-header">
           <h1>Hours</h1>
-          {!isEditing ? (
-            <button onClick={handleEditClick}>Edit Hours</button>
-          ) : (
-            <>
-              <button onClick={handleSubmitClick}>Submit</button>
-              <button onClick={handleCancelClick}>Cancel</button>
-            </>
-          )}
+          <div className="hours-cointainer-header-actions">
+            {!isEditing ? (
+              <Button text="Edit Hours" onClick={handleEditClick} />
+            ) : (
+              <>
+                <Button
+                  text="Submit"
+                  onClick={handleSubmitClick}
+                  type="submit"
+                />
+                <Button
+                  text="Cancel"
+                  onClick={handleCancelClick}
+                  type="reset"
+                  style={{ cancel: true }}
+                />
+              </>
+            )}
+          </div>
         </div>
         <div className="col-selector">
           <div className="hide-empty">
-            Hide employees with no hours
-            <input
-              type="checkbox"
-              checked={hideEmptyEmployees}
-              onChange={handleHideEmptyEmployeesChange}
+            <Button
+              text="Hide No Hours"
+              onClick={handleHideEmptyEmployeesChange}
             />
           </div>
           <div className="datepicker">
@@ -218,7 +225,6 @@ const Hours: React.FC = () => {
             />
           </div>
           <div className="display">
-            Display Columns
             <select onChange={handleColChange}>
               <option value={1}>Day</option>
               <option value={7}>Week</option>
@@ -254,17 +260,19 @@ const Hours: React.FC = () => {
                   <tr key={employeeIndex}>
                     <td>{employee.firstName}</td>
                     {weekDates.map((date, colIndex) => {
-                      const dayIdx = getDayIdx(date);
-                      const monthIdx = getMonthIdx(date);
+                      const dayIdx = transformDate(date, {
+                        day: true,
+                        month: true,
+                        year: true,
+                      });
 
                       const isEditable = isEditing;
                       const starttime =
-                        editedHours[monthIdx]?.[employee.uid]?.starttime ||
-                        (hours as Hours)[monthIdx]?.[employee.uid]?.starttime ||
-                        "";
+                        getTime(
+                          editedHours[dayIdx]?.[employee.uid]?.starttime
+                        ) || "";
                       const endtime =
-                        editedHours[monthIdx]?.[employee.uid]?.endtime ||
-                        (hours as Hours)[monthIdx]?.[employee.uid]?.endtime ||
+                        getTime(editedHours[dayIdx]?.[employee.uid]?.endtime) ||
                         "";
 
                       return (

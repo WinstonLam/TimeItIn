@@ -24,8 +24,15 @@ const HourRegistration: FC = () => {
   const [startTime, setStartTime] = useState<string | "">("");
   const [endTime, setEndTime] = useState<string | "">("");
 
-  const { token, uid, loading, employees, getEmployeeHours, setHours } =
-    useContext(AdminContext);
+  const {
+    token,
+    uid,
+    loading,
+    employees,
+    getEmployeeHours,
+    setHours,
+    transformDate,
+  } = useContext(AdminContext);
 
   useEffect(() => {
     if (selectedName !== "") {
@@ -49,6 +56,12 @@ const HourRegistration: FC = () => {
         )
       : [];
 
+  const getTime = (date: string | null) => {
+    if (!date) return "";
+    const newDate = new Date(date);
+    return transformDate(newDate, { time: true });
+  };
+
   const handleChange = async (employeeId: string, name: string) => {
     setErrMessage("");
     setSelectedName(name);
@@ -58,8 +71,8 @@ const HourRegistration: FC = () => {
       const employeeHours = await getEmployeeHours(employeeId, new Date());
 
       if (employeeHours) {
-        setStartTime(employeeHours.starttime);
-        setEndTime(employeeHours.endtime || "");
+        setStartTime(getTime(employeeHours.starttime));
+        setEndTime(getTime(employeeHours.endtime));
       } else {
         setStartTime("");
         setEndTime("");
@@ -76,13 +89,13 @@ const HourRegistration: FC = () => {
     }
 
     try {
-      const currentDate = new Date().toISOString();
+      const currentDate = new Date();
       const res = await setTime(uid, token, selectedUid, currentDate);
       const resHours = await getHours(uid, token, currentDate);
       setHours(resHours);
 
-      setStartTime(res.starttime);
-      setEndTime(res.endtime);
+      setStartTime(getTime(res.starttime));
+      setEndTime(getTime(res.endtime));
     } catch (err) {
       const networkError = err as NetworkError;
       // if error code is 400 it means the employee is already clocked in

@@ -36,8 +36,10 @@ interface AdminContextProps {
     employeeId: string,
     date: Date
   ) => Promise<HoursData | null>;
-  getMonthIdx: (date: Date) => string;
-  getDayIdx: (date: Date) => string;
+  transformDate: (
+    date: Date,
+    options: { day?: boolean; month?: boolean; year?: boolean; time?: boolean }
+  ) => string;
 }
 
 const defaultState: AdminContextProps = {
@@ -56,8 +58,7 @@ const defaultState: AdminContextProps = {
   hours: {},
   setHours: () => {},
   getEmployeeHours: async () => null,
-  getMonthIdx: (date: Date) => "",
-  getDayIdx: (date: Date) => "",
+  transformDate: () => "",
 };
 
 export const AdminContext = createContext<AdminContextProps>(defaultState);
@@ -83,28 +84,47 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
       : [];
   });
 
-  const getMonthIdx = (date: Date) => {
-    return date
-      .toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      })
-      .split("/")
-      .join("-");
-  };
+  const transformDate = (
+    date: Date,
+    options: { day?: boolean; month?: boolean; year?: boolean; time?: boolean }
+  ): string => {
+    const { day, month, year, time } = options;
 
-  const getDayIdx = (date: Date): string => {
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0"); // getMonth() is zero-based
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
+    // Ensure time cannot be true if any of the date arguments are true
+    if (time && (day || month || year)) {
+      throw new Error(
+        "The 'time' option cannot be true if any of 'day', 'month', or 'year' are true."
+      );
+    }
+
+    if (time) {
+      const timeOptions: Intl.DateTimeFormatOptions = {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      };
+      return date.toLocaleTimeString("en-GB", timeOptions); // en-GB ensures 24-hour format
+    } else {
+      let dateString = "";
+      if (day) {
+        dateString += date.getDate().toString().padStart(2, "0");
+      }
+      if (month) {
+        if (dateString) dateString += "-";
+        dateString += (date.getMonth() + 1).toString().padStart(2, "0"); // getMonth() is zero-based
+      }
+      if (year) {
+        if (dateString) dateString += "-";
+        dateString += date.getFullYear();
+      }
+      return dateString;
+    }
   };
 
   const getEmployeeHours = async (employeeId: string, date: Date) => {
     let employeeHours = null;
     // transform date to string of dd-mm-yyyy
-    const dateIdx = getMonthIdx(date);
+    const dateIdx = transformDate(date, { day: true, month: true, year: true });
 
     if (hours && hours[dateIdx] && hours[dateIdx][employeeId]) {
       employeeHours = {
@@ -177,8 +197,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
     hours,
     setHours,
     getEmployeeHours,
-    getMonthIdx,
-    getDayIdx,
+    transformDate,
   };
 
   return (

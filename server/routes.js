@@ -156,7 +156,7 @@ protectedRouter.post("/set-time/:uid", async (req, res) => {
     }
 
     const { roundTime, timeBetween } = userDoc.data().settings.clockin;
-
+    console.log(currentTime);
     // Round the current time to the nearest multiple of `roundTime` minutes
     currentTime.setMinutes(
       Math.round(currentTime.getMinutes() / roundTime) * roundTime
@@ -259,30 +259,29 @@ protectedRouter.post("/edit-hours/:uid", async (req, res) => {
 
     // Populate the updates with the given object
     const updates = {};
-
-    for (const employeeId in hours) {
-      updates[employeeId] = {};
-      const { starttime, endtime } = hours[employeeId];
-      if (starttime) {
-        updates[employeeId]["starttime"] = admin.firestore.Timestamp.fromDate(
-          new Date(starttime)
-        );
-      }
-      if (endtime) {
-        updates[employeeId]["endtime"] = admin.firestore.Timestamp.fromDate(
-          new Date(endtime)
-        );
+    for (day in hours) {
+      updates[day] = {};
+      for (const employeeId in hours[day]) {
+        updates[day][employeeId] = {};
+        const { starttime, endtime } = hours[day][employeeId];
+        if (starttime) {
+          updates[day][employeeId]["starttime"] =
+            admin.firestore.Timestamp.fromDate(new Date(starttime));
+        }
+        if (endtime) {
+          updates[day][employeeId]["endtime"] =
+            admin.firestore.Timestamp.fromDate(new Date(endtime));
+        }
       }
     }
 
     // If no document exists for this month, create one with the start and end times
     if (!monthDoc.exists) {
-      await monthDoc.ref.set({ [dayId]: updates });
+      await userDoc.ref.collection("hours").doc(monthId).set(updates);
     } else {
       // If the document for this month exists, update the start and end times
-      await monthDoc.ref.update({ [dayId]: updates });
+      await userDoc.ref.collection("hours").doc(monthId).update(updates);
     }
-
     // Fetch the updated document
     const updatedMonthDoc = await monthDoc.ref.get();
     const updatedDayData = updatedMonthDoc.data()[dayId] || {};

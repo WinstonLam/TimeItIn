@@ -187,19 +187,7 @@ export const setTime = (uid, token, employeeId, date) => {
       }
     )
     .then((response) => {
-      // Convert starttime and endtime to "hh:mm" format
-      const convertToTime = (isoString) => {
-        if (!isoString) return null;
-        const date = new Date(isoString);
-        const hours = date.getHours().toString().padStart(2, "0");
-        const minutes = date.getMinutes().toString().padStart(2, "0");
-        return `${hours}:${minutes}`;
-      };
-
       const data = response.data;
-      data.starttime = convertToTime(data.starttime);
-      data.endtime = convertToTime(data.endtime);
-
       return data;
     })
     .catch((error) => {
@@ -241,22 +229,7 @@ export const getHours = (uid, token, date) => {
       },
     })
     .then((response) => {
-      const convertToTime = (isoString) => {
-        if (!isoString) return null;
-        const date = new Date(isoString);
-        const hours = date.getHours().toString().padStart(2, "0");
-        const minutes = date.getMinutes().toString().padStart(2, "0");
-        return `${hours}:${minutes}`;
-      };
-
       const hoursData = response.data.hoursData;
-      for (const dateKey in hoursData) {
-        for (const employeeId in hoursData[dateKey]) {
-          const data = hoursData[dateKey][employeeId];
-          data.starttime = convertToTime(data.starttime);
-          data.endtime = convertToTime(data.endtime);
-        }
-      }
 
       return hoursData;
     })
