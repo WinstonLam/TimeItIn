@@ -43,6 +43,7 @@ unprotectedRouter.post("/register", async (req, res) => {
     // Store user data in Firestore
     await db.collection("users").doc(userRecord.uid).set({
       auth: {
+        email,
         pincode,
       },
       settings,
@@ -145,6 +146,7 @@ protectedRouter.post("/set-time/:uid", async (req, res) => {
   console.log("Setting time for employeeId:", req.body.employeeId);
   const employeeId = req.body.employeeId;
   const uid = req.params.uid;
+
   const currentTime = new Date(req.body.date); // Get date from frontend
 
   try {
@@ -156,11 +158,15 @@ protectedRouter.post("/set-time/:uid", async (req, res) => {
     }
 
     const { roundTime, timeBetween } = userDoc.data().settings.clockin;
-    console.log(currentTime);
+    console.log("Original Current Time:", currentTime);
+
     // Round the current time to the nearest multiple of `roundTime` minutes
-    currentTime.setMinutes(
-      Math.round(currentTime.getMinutes() / roundTime) * roundTime
-    );
+    const minutes = currentTime.getMinutes();
+    const roundedMinutes = Math.round(minutes / roundTime) * roundTime;
+    currentTime.setMinutes(roundedMinutes);
+    currentTime.setSeconds(0, 0); // Reset seconds and milliseconds
+
+    console.log("Rounded Current Time:", currentTime);
 
     // Format the current time as 'mm-yyyy' for month and 'dd-mm-yyyy' for day
     const monthOptions = { year: "numeric", month: "2-digit" };
@@ -191,7 +197,9 @@ protectedRouter.post("/set-time/:uid", async (req, res) => {
         });
       } else {
         // If there's already a start time, check if the current time is at least `timeBetween` minutes later
-        const startTime = employeeData.starttime.toDate();
+        const startTime = employeeData.starttime.toDate
+          ? employeeData.starttime.toDate()
+          : new Date(employeeData.starttime);
         const minutesElapsed =
           (currentTime.getTime() - startTime.getTime()) / 60000;
 
@@ -344,6 +352,67 @@ protectedRouter.get("/get-hours/:uid", async (req, res) => {
     }
   } catch (error) {
     console.error("Error fetching hours:", error);
+    res.status(500).send({ error: error.message });
+  }
+});
+
+protectedRouter.get("/get-settings/:uid", async (req, res) => {
+  const userId = req.params.uid;
+  console.log("Fetching settings for userId:", userId);
+
+  try {
+    const doc = await db.collection("users").doc(userId).get();
+    if (!doc.exists) {
+      res.status(404).send({ error: "User not found" });
+    } else {
+      const userData = doc.data();
+      res.status(200).send({
+        email: userData.auth.email,
+        clockin: userData.settings.clockin,
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching settings:", error);
+    res.status(500).send({ error: error.message });
+  }
+});
+
+protectedRouter.post("/edit-settings/:uid", async (req, res) => {
+  const userId = req.params.uid;
+  const settings = req.body.settings;
+  const { email, pincode, password } = settings.auth;
+  const { roundTime, timeBetween } = settings.clockin;
+
+  console.log("Updating settings for userId:", userId);
+
+  try {
+    const doc = await db.collection("users").doc(userId).get();
+    if (!doc.exists) {
+      res.status(404).send({ error: "User not found" });
+    } else {
+      // update roundtime and timebetween casted to integers from string
+      await doc.ref.update({
+        "settings.clockin.roundTime": parseInt(roundTime),
+        "settings.clockin.timeBetween": parseInt(timeBetween),
+      });
+      // check if email changed
+      if (email !== doc.data().auth.email) {
+        await admin.auth().updateUser(userId, { email });
+        await doc.ref.update({ "auth.email": email });
+      }
+
+      if (pincode) {
+        await doc.ref.update({ "auth.pincode": pincode });
+      }
+
+      if (password) {
+        await admin.auth().updateUser(userId, { password });
+      }
+
+      res.status(200).send({ success: true });
+    }
+  } catch (error) {
+    console.error("Error updating settings:", error);
     res.status(500).send({ error: error.message });
   }
 });

@@ -12,6 +12,7 @@ interface FormFieldProps {
   sensitive?: boolean;
   limit?: number;
   strict?: string;
+  disbabled?: boolean;
 }
 
 const FormField: React.FC<FormFieldProps> = ({
@@ -24,11 +25,16 @@ const FormField: React.FC<FormFieldProps> = ({
   sensitive,
   limit,
   strict,
+  disbabled,
 }) => {
-  const [hasValue, setHasValue] = useState(false);
+  const [hasValue, setHasValue] = useState(value !== "");
   const [showValue, setShowValue] = useState(sensitive === true);
   const [error, setError] = useState("");
-  useEffect(() => {}, [value]);
+
+  useEffect(() => {
+    setHasValue(value !== "");
+  }, [value]);
+
   useEffect(() => {
     if (formSubmitted) {
       if (!hasValue && required) {
@@ -65,6 +71,7 @@ const FormField: React.FC<FormFieldProps> = ({
         onChange={checkValue}
         className={hasValue ? "has-value" : ""}
         maxLength={limit}
+        disabled={disbabled}
       />
 
       <label htmlFor={id}>{label}</label>

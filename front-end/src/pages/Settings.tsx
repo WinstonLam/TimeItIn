@@ -77,7 +77,7 @@ const Settings: FC<SettingsProps> = ({ active, setActive }) => {
               title="Hours"
             />
             <IconCard
-              onClick={() => handleNav("employees")}
+              onClick={() => handleNav("advanced-settings")}
               icon={<GearSvg className="icon" />}
               title="Advanced"
             />

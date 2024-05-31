@@ -123,7 +123,8 @@ const Hours: React.FC = () => {
     return dates;
   };
 
-  const handleEditClick = () => {
+  const handleEditClick = (event: React.MouseEvent) => {
+    event.preventDefault();
     setIsEditing(true);
   };
 
@@ -280,7 +281,9 @@ const Hours: React.FC = () => {
                           <>
                             <input
                               type="time"
-                              className="timepicker"
+                              className={`timepicker${
+                                isEditable ? `-enabled` : ""
+                              }`}
                               value={starttime}
                               placeholder="12:00"
                               onChange={(e) =>
@@ -295,7 +298,9 @@ const Hours: React.FC = () => {
                             />
                             <input
                               type="time"
-                              className="timepicker"
+                              className={`timepicker${
+                                isEditable ? `-enabled` : ""
+                              }`}
                               value={endtime}
                               onChange={(e) =>
                                 handleTimeChange(

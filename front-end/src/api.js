@@ -174,6 +174,7 @@ export const createEmployee = (uid, token, employee) => {
 
 export const setTime = (uid, token, employeeId, date) => {
   console.log("setTime");
+  console.log("date", date);
 
   return axios
     .post(
@@ -198,6 +199,7 @@ export const setTime = (uid, token, employeeId, date) => {
 
 export const editHours = (uid, token, date, hours) => {
   console.log("editHours");
+  console.log("hours", hours);
 
   return axios
     .post(
@@ -235,6 +237,44 @@ export const getHours = (uid, token, date) => {
     })
     .catch((error) => {
       console.error("Error retrieving hours:", error);
+      throw error;
+    });
+};
+
+export const getSettings = (uid, token) => {
+  return axios
+    .get(`${BASE_URL}/get-settings/${uid}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => {
+      return response.data;
+    })
+    .catch((error) => {
+      console.error("Error retrieving settings:", error);
+      throw error;
+    });
+};
+
+export const editSettings = (uid, token, settings) => {
+  return axios
+    .post(
+      `${BASE_URL}/edit-settings/${uid}`,
+      { settings },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      console.error("Error editing settings:", error);
       throw error;
     });
 };

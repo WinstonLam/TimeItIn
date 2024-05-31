@@ -13,6 +13,7 @@ import Settings from "./pages/Settings";
 import LoginPage from "./pages/LoginPage";
 import Employees from "./pages/Employees";
 import Hours from "./pages/Hours";
+import AdvancedSettings from "./pages/AdvancedSettings";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function AppContent() {
               <Route path="/" element={<HourRegistration />} />
               <Route path="/employees" element={<Employees />} />
               <Route path="/hours" element={<Hours />} />
+              <Route path="/advanced-settings" element={<AdvancedSettings />} />
             </Routes>
           ) : (
             <Routes>
