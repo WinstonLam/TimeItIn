@@ -84,7 +84,7 @@ const HourRegistration: FC = () => {
 
   const handleSubmit = async () => {
     if (!selectedUid) {
-      console.error("No employee selected");
+      setErrMessage("Please select an employee");
       return;
     }
 

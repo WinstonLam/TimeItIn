@@ -59,8 +59,9 @@
     pointer-events: none;
     font-weight: bold;
     font-size: 16px;
-    margin-top: 5px;
+    margin: 0 0 0 15px;
     transition: all 0.3s ease-in-out;
+    text-align: left;
   }
 
   .form-field .form-error-show{
@@ -71,8 +72,9 @@
     pointer-events: none;
     font-weight: bold;
     font-size: 16px;
-    margin-top: 5px;
+    margin: 5px 0 0 15px;
     transition: all 0.3s ease-in-out;
+    text-align: left;
   }
 
   .form-field .eye-show, 
@@ -92,3 +94,8 @@
     fill: rgb(var(--primary-color));
 
   }
+
+  .user-settings .email{
+    margin-top: 20px;
+  }
+

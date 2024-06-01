@@ -52,6 +52,12 @@
     margin: 10px;
 }
 
-.advanced-settings-form input{
+.advanced-settings-header{
+    color: rgb(var(--second-color));
+    text-shadow: -1px 1px 1px black;
+    font-size: 25px;
+}
 
+.advanced-settings-form h2{
+    margin-bottom: 30px;
 }

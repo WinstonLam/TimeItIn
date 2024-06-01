@@ -1,241 +1,267 @@
 .hours-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    max-width: 100%;
-    height: 100%;
-    overflow: auto;
-  }
-  
-  .hours-table {
-    display: flex;
-    flex-direction: column;
-    width: 80%;
-    overflow: scroll;
-    max-width: 1280px;
-    max-height: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
-  }
-  .hours-table-sort{
-    cursor: pointer;
-    width: 25px;
-    height: 25px;
-    fill: transparent;
-    stroke: rgb(var(--second-color));
-    transition: all 0.3s ease-in-out;
-    filter: drop-shadow(-1px 1px 1px black)
-   
-  }
-
-  .hours-table-sort.clicked {
-    fill: rgb(var(--second-color));
-    transition: all 0.3s ease-in-out;
-  }
-
-  .hours-table::-webkit-scrollbar{
-    display: auto;
-    width: 7.5px;
-    height: 7.5px;
-    margin: 10px;
-  }
-  
-  .hours-table::-webkit-scrollbar-thumb{
-    border-radius: 2rem;
-    background-color: rgb(var(--second-color));
-  }
-  
-  .hours-table::-webkit-scrollbar-track{
-    background-color:transparent;
-  }
-  .hours-table::-webkit-scrollbar-corner {
-    background: transparent;
+  height: 100%;
+  overflow: auto;
 }
 
-  
-  .hours-table table {
+.hours-container.one-col .hours-table th,
+.hours-container.one-col .hours-table td {
+  min-width: 400px;
+}
 
-    width: 96%;
-    height: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-    max-width: 1250px;
-    overflow: scroll;
-    margin: 10px;
-  }
-  
-  .hours-table th,
-  .hours-table td {
-    padding: 8px;
-    min-width: 180px;
-    width: 100%;
-    height: 50px;
-    text-align: left;
-    border: 1px solid #ddd;
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    color: rgb(var(--second-color));
-    font-size: 20px;
-    min-width: 400px;
-  }
+.hours-container.one-col .hours-table {
+  height: 500px;
+  width: 90%;
+}
 
-  .hours-table td input{
-    width: 30%;
-    border-radius: 2rem;
-    padding: 0.5rem;
-    text-align: center;
-    background-color: transparent;
-    border: 3px solid rgb(var(--second-color));
-    font-size: 20px;
-    color: rgba(var(--second-color));
-    filter: drop-shadow(-1px 2px 5px rgb(0, 0, 0 0.5));
-    
+.hours-container.seven-cols .hours-table{
+  width: 100%;	
+}
 
-  }
-  .hours-table td input::placeholder{
-    color: rgba(var(--second-color));
-  }
-  
+.hours-container.thirty-one-cols .hours-table {
+  height: 800px;
+  width: 100%;
+}
 
-  .hours-table tr {
-    display: flex;
-  }
-  
-  .hours-table th {
-    color: rgb(var(--second-color));
-    font-size: 20px;
-  }
-  
-  .hours-table-top-content {
-    text-shadow: -1px 1px 1px black;
-    display: flex;
-    width: 75%;
-    align-items: center;
-    justify-content: space-between;
-    color: rgb(var(--second-color));
-  }
+.hours-container.seven-cols .hours-table th,
+.hours-container.seven-cols .hours-table td {
+  min-width: 290px;
+}
 
-  .hours-container-header{
-    text-align: left;
-    width: 20%;
-  }
-  .hours-cointainer-header-actions{
-    display: flex;
-    flex-direction: row;
-    margin-left: -15px;
-  }
-  
-  .hours-table-top-content th {
-    border: none;
-    min-width: 220px;
-    height: 120px;
-  }
-  
-  .hours-table-top-content .title {
-    display: flex;
-    justify-content: flex-start;
-  }
+.hours-container.thirty-one-cols .hours-table th,
+.hours-container.thirty-one-cols .hours-table td {
+  min-width: 290px;
+}
 
-  
-  .hours-table-top-content .col-selector {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-direction: row;
-    margin-bottom: 5px;
-    width: 65%;
-    cursor: pointer;
-  }
-  
-  .hours-table-top-content .col-selector select {
-    height: 50px;
-    background-color: rgb(var(--primary-color));
-    border: 3px solid black;
-    border-radius: 2rem;
-    font-size: 20px;
-    color: white;
-    outline: none;
-    padding: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-  }
+.hours-table {
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+  max-width: 1280px;
+}
 
-  .hours-table-top-content .col-selector select:hover{
-    background-color: rgb(var(--second-color));
-  }
+.hours-table-sort {
+  cursor: pointer;
+  width: 25px;
+  height: 25px;
+  fill: transparent;
+  stroke: rgb(var(--second-color));
+  transition: all 0.3s ease-in-out;
+  filter: drop-shadow(-1px 1px 1px black);
+}
 
-  .hours-table-top-content .col-selector .datepicker input{
-    border-radius: 2rem;
-    background-color: transparent;
-    border: 3px solid black;
-    font-size: 20px;
-    color: white;
-    text-align: center;
-    cursor: pointer;
-    box-shadow: -1px 2px 5px rgb(0, 0, 0 0.5);
-    height: 35px;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-  }
+.hours-table-sort.clicked {
+  fill: rgb(var(--second-color));
+  transition: all 0.3s ease-in-out;
+}
 
-  .hours-table-top-content .col-selector .datepicker input:hover{
-    background-color: rgb(var(--second-color));
-  }
+.hours-table::-webkit-scrollbar {
+  display: auto;
+  width: 15px;
+  height: 15px;
+  margin: 10px;
+}
 
-  .hours-table-top-content .col-selector .display{
-    display: flex;
-    flex-direction: column;
-    color: white;
-    font-size: 25px;
-    text-align: left;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-  }
+.hours-table::-webkit-scrollbar-thumb {
+  border-radius: 2rem;
+  background-color: rgb(var(--second-color));
+  cursor: pointer;
+}
 
-  .hours-container .timepicker {
-    padding-left: 10px; 
-    width: 25%;
-    border-radius: 2rem;
-    text-align: center;
-    background-color: transparent;
-    border: 3px solid rgb(var(--second-color));
-    font-size: 25px;
-    color: white;
-    transition: all 0.3s ease-in-out;
-  }
+.hours-table::-webkit-scrollbar-track {
+  background-color: transparent;
+}
 
-  .hours-container .timepicker-enabled {
-    padding-left: 10px; 
-    width: 25%;
-    border-radius: 2rem;
-    text-align: center;
-    background-color: rgb(var(--second-color));
-    border: 3px solid black;
-    font-size: 25px;
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-  }
+.hours-table::-webkit-scrollbar-corner {
+  background: transparent;
+}
 
-  .hours-container .timepicker span{
-    font-size: 16px;
-    font-weight: bold;
-  }
-  .hours-container .timepicker input{
-    cursor: pointer;
-    background-color: transparent;
-    font-size: 16px;
-    border: none;
-    color: rgba(var(--second-color));
-    min-width: 50px;
-    min-height: 25px;
-  }
-  .hours-container .timepicker ::placeholder{
-    color: rgb(var(--second-color))
-  }
+.hours-table table {
+  width: 96%;
+  height: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  max-width: 1250px;
+  overflow: scroll;
+  margin: 10px;
+}
 
-  input[type="time"]::-webkit-calendar-picker-indicator {
-    display: none;
-    -webkit-appearance: none;
+.hours-table th,
+.hours-table td {
+  padding: 8px;
+  min-width: 180px;
+  width: 100%;
+  height: 50px;
+  text-align: left;
+  border: 1px solid #ddd;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  color: rgb(var(--second-color));
+  font-size: 20px;
+}
+
+.hours-table td input {
+  width: 30%;
+  border-radius: 2rem;
+  padding: 0.5rem;
+  text-align: center;
+  background-color: transparent;
+  border: 3px solid rgb(var(--second-color));
+  font-size: 20px;
+  color: rgba(var(--second-color));
+  filter: drop-shadow(-1px 2px 5px rgb(0, 0, 0 0.5));
+}
+
+.hours-table td input::placeholder {
+  color: rgba(var(--second-color));
+}
+
+.hours-table tr {
+  display: flex;
+}
+
+.hours-table th {
+  color: rgb(var(--second-color));
+  font-size: 20px;
+}
+
+.hours-table-top-content {
+  text-shadow: -1px 1px 1px black;
+  display: flex;
+  font-size: 25px;
+  width: 85%;
+  align-items: center;
+  justify-content: space-between;
+  color: rgb(var(--second-color));
+}
+
+.hours-container-header {
+  text-align: left;
+  width: 20%;
+}
+
+.hours-cointainer-header-actions {
+  display: flex;
+  flex-direction: row;
+  margin-left: -15px;
+}
+
+.hours-table-top-content th {
+  border: none;
+  min-width: 220px;
+  height: 120px;
+}
+
+.hours-table-top-content .title {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.hours-table-top-content .col-selector {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+  margin-bottom: 5px;
+  width: 65%;
+  cursor: pointer;
+}
+
+.hours-table-top-content .col-selector select {
+  height: 50px;
+  background-color: rgb(var(--primary-color));
+  border: 3px solid black;
+  border-radius: 2rem;
+  font-size: 20px;
+  color: white;
+  outline: none;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.hours-table-top-content .col-selector select:hover {
+  background-color: rgb(var(--second-color));
+}
+
+.hours-table-top-content .col-selector .datepicker input {
+  border-radius: 2rem;
+  background-color: transparent;
+  border: 3px solid black;
+  font-size: 20px;
+  color: white;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: -1px 2px 5px rgb(0, 0, 0 0.5);
+  height: 35px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.hours-table-top-content .col-selector .datepicker input:hover {
+  background-color: rgb(var(--second-color));
+}
+
+.hours-table-top-content .col-selector .display {
+  display: flex;
+  flex-direction: column;
+  color: white;
+  font-size: 25px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.hours-container .timepicker {
+  padding-left: 10px;
+  width: 25%;
+  border-radius: 2rem;
+  text-align: center;
+  background-color: transparent;
+  border: 3px solid rgb(var(--second-color));
+  font-size: 25px;
+  color: white;
+  transition: all 0.3s ease-in-out;
+}
+
+.hours-container .timepicker-enabled {
+  padding-left: 10px;
+  width: 25%;
+  border-radius: 2rem;
+  text-align: center;
+  background-color: rgb(var(--second-color));
+  border: 3px solid black;
+  font-size: 25px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.hours-container .timepicker span {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.hours-container .timepicker input {
+  cursor: pointer;
+  background-color: transparent;
+  font-size: 16px;
+  border: none;
+  color: rgba(var(--second-color));
+  min-width: 50px;
+  min-height: 25px;
+}
+
+.hours-container .timepicker ::placeholder {
+  color: rgb(var(--second-color));
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
 }

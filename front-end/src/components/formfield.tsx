@@ -13,6 +13,7 @@ interface FormFieldProps {
   limit?: number;
   strict?: string;
   disbabled?: boolean;
+  span?: string;
 }
 
 const FormField: React.FC<FormFieldProps> = ({
@@ -26,10 +27,12 @@ const FormField: React.FC<FormFieldProps> = ({
   limit,
   strict,
   disbabled,
+  span,
 }) => {
   const [hasValue, setHasValue] = useState(value !== "");
   const [showValue, setShowValue] = useState(sensitive === true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(false);
+  const [message, setMessage] = useState(span || "");
 
   useEffect(() => {
     setHasValue(value !== "");
@@ -38,8 +41,12 @@ const FormField: React.FC<FormFieldProps> = ({
   useEffect(() => {
     if (formSubmitted) {
       if (!hasValue && required) {
-        setError("This field is required");
+        setError(true);
+        setMessage("This field is required");
       }
+    }
+    if (span) {
+      setError(true);
     }
   }, [formSubmitted, hasValue, required]);
 
@@ -48,14 +55,17 @@ const FormField: React.FC<FormFieldProps> = ({
     setHasValue(event.target.value !== "");
 
     if (strict === "digit" && !/^\d*$/.test(event.target.value)) {
-      setError("Input must only contain digits");
+      setError(true);
+      setMessage("Input must only contain digits");
     } else {
-      setError("");
+      setError(false);
+      setMessage(span || "");
     }
   };
 
-  const clearError = () => {
-    setError("");
+  const handleFocus = () => {
+    setError(false);
+    setMessage(span || "");
   };
 
   const toggleShowValue = () => {
@@ -69,6 +79,7 @@ const FormField: React.FC<FormFieldProps> = ({
         type={!showValue ? "text" : "password"}
         id={id}
         onChange={checkValue}
+        onFocus={handleFocus}
         className={hasValue ? "has-value" : ""}
         maxLength={limit}
         disabled={disbabled}
@@ -76,7 +87,7 @@ const FormField: React.FC<FormFieldProps> = ({
 
       <label htmlFor={id}>{label}</label>
 
-      <div className={`form-error${error ? "-show" : ""}`}>{error}</div>
+      <div className={`form-error${error ? "-show" : ""}`}>{message}</div>
 
       {sensitive && (
         <EyeSvg

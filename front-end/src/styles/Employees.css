@@ -76,7 +76,6 @@
   }
 
   .employees-table-top-content{
-
     text-shadow: -1px 1px 1px black;
     color: rgb(var(--second-color));
   }
@@ -88,6 +87,7 @@
   .employees-table-top-content .title{
     display: flex;
     justify-content: flex-start;
+    font-size: 25px;
   }
 
 

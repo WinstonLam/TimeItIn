@@ -188,7 +188,17 @@ const Hours: React.FC = () => {
     weeks.push(dates.slice(i, i + 7));
   }
   return (
-    <div className="hours-container">
+    <div
+      className={`hours-container ${
+        visibleCols === 1
+          ? "one-col"
+          : visibleCols === 7
+          ? "seven-cols"
+          : visibleCols === 31
+          ? "thirty-one-cols"
+          : ""
+      }`}
+    >
       <div className="hours-table-top-content">
         <div className="hours-container-header">
           <h1>Hours</h1>

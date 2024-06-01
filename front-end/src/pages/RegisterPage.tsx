@@ -24,7 +24,6 @@ interface Data {
 }
 
 const RegisterPage: React.FC<RegisterPageProps> = ({ setRegister }) => {
-  const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
   const [countdown, setCountdown] = useState(5);
@@ -38,7 +37,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ setRegister }) => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    setErrorMessage(null);
     setFormSubmitted(true);
 
     if (!data.email || !data.password || !data.pincode) return;
@@ -65,6 +64,11 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ setRegister }) => {
         setErrorMessage("An unknown error occurred.");
       }
     }
+  };
+
+  const handleChange = (field: string) => (value: string) => {
+    setErrorMessage(null);
+    setData({ ...data, [field]: value });
   };
 
   return (
@@ -95,7 +99,8 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ setRegister }) => {
               id="email"
               required={true}
               formSubmitted={formSubmitted}
-              onChange={(value) => setData({ ...data, email: value })}
+              onChange={handleChange("email")}
+              limit={50}
             />
             <FormField
               value={data.password}
@@ -103,8 +108,9 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ setRegister }) => {
               id="password"
               required={true}
               formSubmitted={formSubmitted}
-              onChange={(value) => setData({ ...data, password: value })}
+              onChange={handleChange("password")}
               sensitive={true}
+              limit={20}
             />
             <FormField
               value={data.pincode}
@@ -112,7 +118,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ setRegister }) => {
               id="pincode"
               required={true}
               formSubmitted={formSubmitted}
-              onChange={(value) => setData({ ...data, pincode: value })}
+              onChange={handleChange("pincode")}
               sensitive={true}
               limit={4}
               strict="digit"

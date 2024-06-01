@@ -90,6 +90,8 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
                 formSubmitted={false}
                 onChange={handleChange("clockin", "roundTime")}
                 disbabled={!isEditing}
+                limit={2}
+                strict="digit"
               />
               <FormField
                 value={
@@ -103,6 +105,8 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
                 formSubmitted={false}
                 onChange={handleChange("clockin", "timeBetween")}
                 disbabled={!isEditing}
+                limit={2}
+                strict="digit"
               />
             </div>
             <hr className="split" />
@@ -123,6 +127,7 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
                 strict="digit"
                 limit={4}
                 disbabled={!isEditing}
+                span="Not shown due to security"
               />
               <FormField
                 value={
@@ -137,18 +142,21 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
                 sensitive={true}
                 onChange={handleChange("auth", "password")}
                 disbabled={!isEditing}
+                span="Not shown due to security"
               />
-              <FormField
-                value={
-                  isEditing ? editedSettings.auth.email : settings.auth.email
-                }
-                label="Email"
-                id="email"
-                required={true}
-                formSubmitted={false}
-                onChange={handleChange("auth", "email")}
-                disbabled={!isEditing}
-              />
+              <div className="email">
+                <FormField
+                  value={
+                    isEditing ? editedSettings.auth.email : settings.auth.email
+                  }
+                  label="Email"
+                  id="email"
+                  required={true}
+                  formSubmitted={false}
+                  onChange={handleChange("auth", "email")}
+                  disbabled={!isEditing}
+                />
+              </div>
             </div>
 
             <div className="actions">
