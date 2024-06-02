@@ -5,7 +5,7 @@ import Button from "../components/button";
 import { AdminContext } from "../providers/AdminContext";
 import "../styles/AdvancedSettings.css";
 
-interface AdvancedSettingsProps {}
+interface AdvancedSettingsProps { }
 
 const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
   const { uid, token } = React.useContext(AdminContext);
@@ -16,6 +16,7 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
 
   const [editedSettings, setEditedSettings] = useState(settings);
   const [isEditing, setIsEditing] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     const fetchSettings = async () => {

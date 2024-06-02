@@ -5,11 +5,13 @@ import FormField from "./formfield";
 interface AutocompleteInputProps {
   suggestions: [string, string][];
   onSelect: (uid: string, name: string) => void;
+  title?: string;
 }
 
 const AutocompleteInput: FC<AutocompleteInputProps> = ({
   suggestions,
   onSelect,
+  title,
 }) => {
   const [inputValue, setInputValue] = useState<string>("");
   const [filteredSuggestions, setFilteredSuggestions] = useState<
@@ -73,7 +75,8 @@ const AutocompleteInput: FC<AutocompleteInputProps> = ({
 
   return (
     <div className="autocomplete-input" ref={autocompleteRef}>
-      <div className="title">Select Name:</div>
+
+      {{ title } && <div className="title">{title}</div>}
       <div className="selector">
         <FormField
           required={false}

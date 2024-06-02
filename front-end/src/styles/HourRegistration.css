@@ -22,7 +22,15 @@
 
 .hour-registration-modal .autocomplete-input{
     margin-bottom: 15%;
+}
 
+.hour-registration-modal .autocomplete-input .selector .form-field-optional{
+    font-size: 20px;
+    color: rgb(var(--second-color));
+}
+
+.hour-registration-modal .autocomplete-input .selector .suggestions li{
+    background-color: white;
 }
 
 .hour-registration-modal .times{
