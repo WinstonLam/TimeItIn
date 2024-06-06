@@ -1,6 +1,7 @@
 // server.js
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const admin = require("firebase-admin");
 require("dotenv").config();
 
@@ -16,7 +17,8 @@ admin.initializeApp({
 
 const db = admin.database();
 
-app.use(cors());
+app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 app.use(express.json());
+app.use(cookieParser());
 
 module.exports = { app, db, admin };

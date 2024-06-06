@@ -13,6 +13,9 @@ const BASE_URL = process.env.REACT_APP_BACKEND_URL;
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+// Ensure cookies are included in requests
+axios.defaults.withCredentials = true;
+
 export const registerUser = (data) => {
   console.log("registerUser");
 
@@ -46,11 +49,28 @@ export const loginUser = async (email, password) => {
       email,
       password
     );
-    // Get the ID token
+
     const token = await userCredential.user.getIdToken();
 
-    // Return both the uid and the ID token
-    return { uid: userCredential.user.uid, token };
+    return axios
+      .post(
+        `${BASE_URL}/login`,
+        { token },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      )
+      .then((response) => {
+        console.log("Successfully logged in user");
+        return response.data;
+      })
+      .catch((error) => {
+        console.error("Error logging in user:", error);
+        throw error;
+      });
   } catch (error) {
     console.error("Error logging in user:", error.code);
     let errorMessage;
@@ -130,12 +150,11 @@ export const getPin = () => {
       throw error;
     });
 };
-export const getEmployees = (uid, token) => {
+export const getEmployees = (uid) => {
   return axios
     .get(`${BASE_URL}/get-employees/${uid}`, {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
     })
     .then((response) => {
@@ -161,6 +180,7 @@ export const createEmployee = (uid, token, employee) => {
         },
       }
     )
+
     .then((response) => {
       console.log("Successfully created employee");
       console.log("response.data", response.data);

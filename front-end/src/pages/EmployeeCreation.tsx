@@ -47,7 +47,7 @@ const EmployeeCreation: React.FC<EmployeeCreationProps> = ({ setAddUser }) => {
       await handleCreateEmployee({ firstname: firstName, lastname: lastName });
 
       // Fetch the employees again to update the list
-      const res = await getEmployees(uid, token);
+      const res = await getEmployees(uid);
       const employeesArray: Employee[] = Object.values(res);
 
       await setEmployees(employeesArray);

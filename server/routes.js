@@ -1,22 +1,18 @@
 // routes.js
 const express = require("express");
 const admin = require("firebase-admin");
-const crypto = require("crypto");
-const { start } = require("repl");
 const unprotectedRouter = express.Router();
 const protectedRouter = express.Router();
 
 const db = admin.firestore();
 
 unprotectedRouter.post("/login", async (req, res) => {
-  const { email, password } = req.body.data;
+  console.log("Logging in user");
+  const { token } = req.body;
 
   try {
-    const userCredential = await admin
-      .auth()
-      .signInWithEmailAndPassword(email, password);
-    const token = await userCredential.user.getIdToken();
-
+    console.log(req.user);
+    const userId = req.user.uid;
     // Set the token in an HTTP-only cookie
     res.cookie("token", token, {
       httpOnly: true,
@@ -24,7 +20,7 @@ unprotectedRouter.post("/login", async (req, res) => {
       maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
     });
 
-    res.status(200).send({ status: "success" });
+    res.status(200).send({ status: "success", userId: userId });
   } catch (error) {
     res.status(500).send({ error: error.message });
     console.error("Login error:", error);

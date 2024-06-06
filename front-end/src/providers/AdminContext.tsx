@@ -145,7 +145,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
 
     try {
       const currentDate = new Date().toISOString();
-      const resEmployees = await getEmployees(uid, token);
+      const resEmployees = await getEmployees(uid);
       const resHours = await getHours(uid, token, currentDate);
 
       const employeesArray: Employee[] = Object.values(resEmployees);

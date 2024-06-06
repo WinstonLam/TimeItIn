@@ -21,6 +21,7 @@ const LoginPage = () => {
 
     try {
       const res = await loginUser(email, password);
+      console.log(res);
       login(res.uid, res.token);
     } catch (err) {
       if (err instanceof Error) {
