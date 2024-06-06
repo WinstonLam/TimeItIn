@@ -48,12 +48,12 @@ const HourRegistration: FC = () => {
   const names =
     employees && employees.length > 0
       ? employees.map(
-          (employee) =>
-            [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
-              string,
-              string
-            ]
-        )
+        (employee) =>
+          [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
+            string,
+            string
+          ]
+      )
       : [];
 
   const getTime = (date: string | null) => {
@@ -115,7 +115,7 @@ const HourRegistration: FC = () => {
 
         <ErrorMessage message={errMessage} show={errMessage ? true : false} />
 
-        <AutocompleteInput suggestions={names} onSelect={handleChange} />
+        <AutocompleteInput suggestions={names} onSelect={handleChange} title="Select Name:" />
         <div className="times">
           <div className="start-time">
             <p>Start Time</p>

@@ -5,6 +5,8 @@ import SortSvg from "../icons/sort";
 import "../styles/Hours.css";
 import { getHours, editHours } from "../api"; // Import the setTime function
 import Button from "../components/button";
+import AutocompleteInput from "../components/autocomplete";
+
 
 interface Employee {
   uid: string;
@@ -31,12 +33,24 @@ const Hours: React.FC = () => {
   const [hideEmptyEmployees, setHideEmptyEmployees] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [isEditing, setIsEditing] = useState(false);
-
+  const [selectedName, setSelectedName] = useState<string>("");
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("");
   const [editedHours, setEditedHours] = useState<Hours>(hours);
   const [sortConfig, setSortConfig] = useState({
     key: "firstName",
     direction: "ascending",
   });
+
+  const names =
+    employees && employees.length > 0
+      ? employees.map(
+        (employee) =>
+          [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
+            string,
+            string
+          ]
+      )
+      : [];
 
   const employeeComparator = (a: Employee, b: Employee) => {
     const key = sortConfig.key as keyof Employee;
@@ -123,6 +137,12 @@ const Hours: React.FC = () => {
     return dates;
   };
 
+  const handleNameChange = (employeeId: string, name: string) => {
+    setSelectedName(name);
+    setSelectedEmployeeId(employeeId);
+
+  }
+
   const handleEditClick = (event: React.MouseEvent) => {
     event.preventDefault();
     setIsEditing(true);
@@ -189,15 +209,14 @@ const Hours: React.FC = () => {
   }
   return (
     <div
-      className={`hours-container ${
-        visibleCols === 1
-          ? "one-col"
-          : visibleCols === 7
+      className={`hours-container ${visibleCols === 1
+        ? "one-col"
+        : visibleCols === 7
           ? "seven-cols"
           : visibleCols === 31
-          ? "thirty-one-cols"
-          : ""
-      }`}
+            ? "thirty-one-cols"
+            : ""
+        }`}
     >
       <div className="hours-table-top-content">
         <div className="hours-container-header">
@@ -228,6 +247,10 @@ const Hours: React.FC = () => {
               text="Hide No Hours"
               onClick={handleHideEmptyEmployeesChange}
             />
+          </div>
+          <div className="namepicker">
+            <AutocompleteInput suggestions={names} onSelect={handleNameChange} />
+
           </div>
           <div className="datepicker">
             <DatePicker
@@ -266,6 +289,11 @@ const Hours: React.FC = () => {
                 .filter((employee) =>
                   hideEmptyEmployees ? hasHours(employee, weekDates) : true
                 )
+                .filter((employee) =>
+                  selectedEmployeeId
+                    ? employee.uid === selectedEmployeeId
+                    : true
+                )
                 .sort(employeeComparator)
                 .map((employee, employeeIndex) => (
                   <tr key={employeeIndex}>
@@ -291,11 +319,9 @@ const Hours: React.FC = () => {
                           <>
                             <input
                               type="time"
-                              className={`timepicker${
-                                isEditable ? `-enabled` : ""
-                              }`}
+                              className={`timepicker${isEditable ? `-enabled` : ""
+                                }`}
                               value={starttime}
-                              placeholder="12:00"
                               onChange={(e) =>
                                 handleTimeChange(
                                   dayIdx,
@@ -308,9 +334,8 @@ const Hours: React.FC = () => {
                             />
                             <input
                               type="time"
-                              className={`timepicker${
-                                isEditable ? `-enabled` : ""
-                              }`}
+                              className={`timepicker${isEditable ? `-enabled` : ""
+                                }`}
                               value={endtime}
                               onChange={(e) =>
                                 handleTimeChange(

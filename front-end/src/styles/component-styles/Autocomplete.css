@@ -40,18 +40,29 @@
     list-style-type: none;
     margin: 0;
     max-height: 200px;
-    overflow-y: scroll;
+    overflow-y: scroll; /* Keep scrolling enabled */
+    overflow-x: hidden;
     padding: 0;
     width: calc(100% - 2px);
     top: 80%;
     left: 0;
     border-radius: 0 0 2rem 2rem;
+    transition: all 0.3s ease-in-out;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE 10+ */
+  }
+  
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .suggestions::-webkit-scrollbar {
+    display: none;
   }
   
   .suggestions li {
     background-color: #fff;
     padding: 10px;
     cursor: pointer;
+    width: 90%;
+    overflow: hidden;
   }
   
   .suggestions li:hover {

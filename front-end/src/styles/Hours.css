@@ -3,7 +3,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
   height: 100%;
   overflow: auto;
 }
@@ -19,11 +18,12 @@
 }
 
 .hours-container.seven-cols .hours-table{
+  height: 500px;
   width: 100%;	
 }
 
 .hours-container.thirty-one-cols .hours-table {
-  height: 800px;
+  height: 600px;
   width: 100%;
 }
 
@@ -169,6 +169,7 @@
   flex-direction: row;
   margin-bottom: 5px;
   width: 65%;
+  min-width: 580px;
   cursor: pointer;
 }
 
@@ -189,6 +190,8 @@
   background-color: rgb(var(--second-color));
 }
 
+
+
 .hours-table-top-content .col-selector .datepicker input {
   border-radius: 2rem;
   background-color: transparent;
@@ -200,10 +203,58 @@
   box-shadow: -1px 2px 5px rgb(0, 0, 0 0.5);
   height: 35px;
   cursor: pointer;
+  width: 120px;
   transition: all 0.3s ease-in-out;
 }
 
+.hours-table-top-content .col-selector .datepicker input .form-field-optional{
+  width: 120px;
+  color: white;
+}
+
 .hours-table-top-content .col-selector .datepicker input:hover {
+  background-color: rgb(var(--second-color));
+}
+
+
+
+.hours-table-top-content .col-selector .namepicker input {
+  border-radius: 2rem;
+  background-color: transparent;
+  border: 3px solid black;
+  font-size: 20px;
+  color: white;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: -1px 2px 5px rgb(0, 0, 0 0.5);
+  height: 35px;
+  cursor: pointer;
+  width: 120px;
+  transition: all 0.3s ease-in-out;
+}
+
+.hours-table-top-content .col-selector .namepicker .form-field-optional{
+  width: 120px;
+  color: white;
+}
+
+.hours-table-top-content .col-selector .namepicker .suggestions{
+  border: none;
+  top: 118%;
+  border-radius: 0.5rem;
+}
+
+.hours-table-top-content .col-selector .namepicker .suggestions li{
+  font-size: 16px;
+  background-color: rgb(var(--second-color));
+  color: white;
+}
+
+.hours-table-top-content .col-selector .namepicker .autocomplete-input button{
+  color: white;
+}
+
+.hours-table-top-content .col-selector .namepicker input:hover {
   background-color: rgb(var(--second-color));
 }
 
@@ -212,9 +263,12 @@
   flex-direction: column;
   color: white;
   font-size: 25px;
+  height: 35px;
   text-align: left;
   cursor: pointer;
   transition: all 0.3s ease-in-out;
+  align-items: center;
+  justify-content: center;
 }
 
 .hours-container .timepicker {
