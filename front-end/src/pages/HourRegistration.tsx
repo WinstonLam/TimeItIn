@@ -25,8 +25,6 @@ const HourRegistration: FC = () => {
   const [endTime, setEndTime] = useState<string | "">("");
 
   const {
-    token,
-    uid,
     loading,
     employees,
     getEmployeeHours,
@@ -90,8 +88,8 @@ const HourRegistration: FC = () => {
 
     try {
       const currentDate = new Date();
-      const res = await setTime(uid, token, selectedUid, currentDate);
-      const resHours = await getHours(uid, token, currentDate);
+      const res = await setTime(selectedUid, currentDate);
+      const resHours = await getHours(currentDate);
       setHours(resHours);
 
       setStartTime(getTime(res.starttime));

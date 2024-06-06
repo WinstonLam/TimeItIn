@@ -32,7 +32,7 @@ const EmployeeCreation: React.FC<EmployeeCreationProps> = ({ setAddUser }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const { token, uid, setEmployees } = useContext(AdminContext);
+  const { setEmployees } = useContext(AdminContext);
 
   const { handleCreateEmployee } = useCreateEmployee();
 
@@ -47,7 +47,7 @@ const EmployeeCreation: React.FC<EmployeeCreationProps> = ({ setAddUser }) => {
       await handleCreateEmployee({ firstname: firstName, lastname: lastName });
 
       // Fetch the employees again to update the list
-      const res = await getEmployees(uid);
+      const res = await getEmployees();
       const employeesArray: Employee[] = Object.values(res);
 
       await setEmployees(employeesArray);

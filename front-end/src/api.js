@@ -16,6 +16,22 @@ const auth = getAuth(app);
 // Ensure cookies are included in requests
 axios.defaults.withCredentials = true;
 
+export const checkAuthStatus = () => {
+  return axios
+    .get(`${BASE_URL}/auth-status`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    .then((response) => {
+      return response.data.isAuthenticated;
+    })
+    .catch((error) => {
+      console.error("Error checking authentication status:", error);
+      return false;
+    });
+};
+
 export const registerUser = (data) => {
   console.log("registerUser");
 
@@ -60,7 +76,6 @@ export const loginUser = async (email, password) => {
           headers: {
             "Content-Type": "application/json",
           },
-          withCredentials: true,
         }
       )
       .then((response) => {
@@ -115,22 +130,6 @@ export const logoutUser = () => {
     });
 };
 
-export const checkAuthStatus = () => {
-  return axios
-    .get(`${BASE_URL}/auth-status`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    .then((response) => {
-      return response.data.isAuthenticated;
-    })
-    .catch((error) => {
-      console.error("Error checking authentication status:", error);
-      return false;
-    });
-};
-
 export const getPin = () => {
   console.log("getPin");
 
@@ -150,12 +149,13 @@ export const getPin = () => {
       throw error;
     });
 };
-export const getEmployees = (uid) => {
+export const getEmployees = () => {
   return axios
-    .get(`${BASE_URL}/get-employees/${uid}`, {
+    .get(`${BASE_URL}/get-employees`, {
       headers: {
         "Content-Type": "application/json",
       },
+      withCredentials: true,
     })
     .then((response) => {
       return response.data.employees;
@@ -166,18 +166,18 @@ export const getEmployees = (uid) => {
     });
 };
 
-export const createEmployee = (uid, token, employee) => {
+export const createEmployee = (employee) => {
   console.log("createEmployee");
 
   return axios
     .post(
-      `${BASE_URL}/create-employee/${uid}`,
+      `${BASE_URL}/create-employee`,
       { employee }, // send the employee data as an object
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        withCredentials: true,
       }
     )
 
@@ -192,19 +192,18 @@ export const createEmployee = (uid, token, employee) => {
     });
 };
 
-export const setTime = (uid, token, employeeId, date) => {
+export const setTime = (employeeId, date) => {
   console.log("setTime");
-  console.log("date", date);
 
   return axios
     .post(
-      `${BASE_URL}/set-time/${uid}`,
+      `${BASE_URL}/set-time`,
       { employeeId, date },
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        withCredentials: true,
       }
     )
     .then((response) => {
@@ -217,19 +216,18 @@ export const setTime = (uid, token, employeeId, date) => {
     });
 };
 
-export const editHours = (uid, token, date, hours) => {
+export const editHours = (date, hours) => {
   console.log("editHours");
-  console.log("hours", hours);
 
   return axios
     .post(
-      `${BASE_URL}/edit-hours/${uid}`,
+      `${BASE_URL}/edit-hours`,
       { date, hours },
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        withCredentials: true,
       }
     )
     .then((response) => {
@@ -241,14 +239,14 @@ export const editHours = (uid, token, date, hours) => {
     });
 };
 
-export const getHours = (uid, token, date) => {
+export const getHours = (date) => {
   return axios
-    .get(`${BASE_URL}/get-hours/${uid}`, {
+    .get(`${BASE_URL}/get-hours`, {
       params: { date: date },
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
+      withCredentials: true,
     })
     .then((response) => {
       const hoursData = response.data.hoursData;
@@ -261,13 +259,13 @@ export const getHours = (uid, token, date) => {
     });
 };
 
-export const getSettings = (uid, token) => {
+export const getSettings = () => {
   return axios
-    .get(`${BASE_URL}/get-settings/${uid}`, {
+    .get(`${BASE_URL}/get-settings`, {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
+      withCredentials: true,
     })
     .then((response) => {
       return response.data;
@@ -278,16 +276,16 @@ export const getSettings = (uid, token) => {
     });
 };
 
-export const editSettings = (uid, token, settings) => {
+export const editSettings = (settings) => {
   return axios
     .post(
-      `${BASE_URL}/edit-settings/${uid}`,
+      `${BASE_URL}/edit-settings`,
       { settings },
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        withCredentials: true,
       }
     )
     .then((response) => {

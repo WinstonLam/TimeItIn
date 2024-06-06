@@ -10,14 +10,13 @@ interface Employee {
 
 export const useCreateEmployee = () => {
   const [loading, setLoading] = useState(true);
-  const { uid, token } = useContext(AdminContext);
   const [response, setResponse] = useState<any>(null);
 
   const handleCreateEmployee = async (employeeData: Employee) => {
-    if (!token) return;
+
 
     try {
-      const res = await createEmployee(uid, token, employeeData);
+      const res = await createEmployee(employeeData);
       setResponse(res);
     } catch (error) {
       console.error(error);

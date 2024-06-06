@@ -6,27 +6,47 @@ const protectedRouter = express.Router();
 
 const db = admin.firestore();
 
+// Check validation of token
+unprotectedRouter.get("/auth-status", async (req, res) => {
+  try {
+    const idToken = req.cookies.token;
+    if (!idToken) {
+      return res.status(200).send({ isAuthenticated: false });
+    }
+
+    const decodedIdToken = await admin.auth().verifyIdToken(idToken);
+    if (decodedIdToken) {
+      return res.status(200).send({ isAuthenticated: true });
+    } else {
+      return res.status(200).send({ isAuthenticated: false });
+    }
+  } catch (error) {
+    return res.status(200).send({ isAuthenticated: false });
+  }
+});
+
+// Login user
 unprotectedRouter.post("/login", async (req, res) => {
   console.log("Logging in user");
   const { token } = req.body;
 
   try {
-    console.log(req.user);
-    const userId = req.user.uid;
     // Set the token in an HTTP-only cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true, // Uncomment this line if you're using HTTPS
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+      secure: true,
+      // maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+      maxAge: 1000 * 5, // 5 seconds for testing
     });
 
-    res.status(200).send({ status: "success", userId: userId });
+    res.status(200).send({ loggedIn: true });
   } catch (error) {
     res.status(500).send({ error: error.message });
     console.error("Login error:", error);
   }
 });
 
+// Register user
 unprotectedRouter.post("/register", async (req, res) => {
   const { email, password, pincode, settings } = req.body.data;
 
@@ -52,7 +72,8 @@ unprotectedRouter.post("/register", async (req, res) => {
   }
 });
 
-protectedRouter.post("/logout", (req, res) => {
+// Logout user
+unprotectedRouter.post("/logout", (req, res) => {
   try {
     res.clearCookie("token");
     res.status(200).send({ message: "Logged out successfully" });
@@ -62,7 +83,7 @@ protectedRouter.post("/logout", (req, res) => {
   }
 });
 
-// Get pin for a specific admin
+// Get pin for a specific user
 protectedRouter.get("/get-pin", async (req, res) => {
   const userId = req.cookies.userId;
   console.log("Fetching pin for adminId:", userId);
@@ -80,9 +101,9 @@ protectedRouter.get("/get-pin", async (req, res) => {
   }
 });
 
-// Get employees for a specific admin
-protectedRouter.get("/get-employees/:uid", async (req, res) => {
-  const userId = req.params.uid;
+// Get employees for a specific user
+protectedRouter.get("/get-employees", async (req, res) => {
+  const userId = req.user.uid;
   console.log("Fetching employees for adminId:", userId);
 
   try {
@@ -103,9 +124,9 @@ protectedRouter.get("/get-employees/:uid", async (req, res) => {
   }
 });
 
-// Create employee for a specific admin
-protectedRouter.post("/create-employee/:uid", async (req, res) => {
-  const userId = req.params.uid;
+// Create employee for a specific user
+protectedRouter.post("/create-employee", async (req, res) => {
+  const userId = req.user.uid;
   const { firstname, lastname } = req.body.employee;
 
   try {
@@ -138,10 +159,11 @@ protectedRouter.post("/create-employee/:uid", async (req, res) => {
 });
 
 // Set time for employee
-protectedRouter.post("/set-time/:uid", async (req, res) => {
-  console.log("Setting time for employeeId:", req.body.employeeId);
+protectedRouter.post("/set-time", async (req, res) => {
   const employeeId = req.body.employeeId;
-  const uid = req.params.uid;
+  const uid = req.user.uid;
+
+  console.log(`Setting time for employee: ${employeeId} for user: ${uid}`);
 
   const currentTime = new Date(req.body.date); // Get date from frontend
 
@@ -235,9 +257,10 @@ protectedRouter.post("/set-time/:uid", async (req, res) => {
   }
 });
 
-protectedRouter.post("/edit-hours/:uid", async (req, res) => {
-  console.log("Updating hours for user:", req.params.uid);
-  const userId = req.params.uid;
+// Edit hours for user
+protectedRouter.post("/edit-hours", async (req, res) => {
+  console.log("Updating hours for user:", req.user.uid);
+  const userId = req.user.uid;
   const date = new Date(req.body.date);
   const hours = req.body.hours;
 
@@ -296,9 +319,10 @@ protectedRouter.post("/edit-hours/:uid", async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 });
-// Get hours for admin
-protectedRouter.get("/get-hours/:uid", async (req, res) => {
-  const userId = req.params.uid;
+
+// Get hours for user
+protectedRouter.get("/get-hours", async (req, res) => {
+  const userId = req.user.uid;
   const date = new Date(req.query.date);
 
   console.log("Fetching hours for adminId:", userId);
@@ -341,7 +365,6 @@ protectedRouter.get("/get-hours/:uid", async (req, res) => {
               }
             }
           }
-          console.log("Hours data:", hoursData);
           res.status(200).send({ hoursData });
         }
       }
@@ -352,8 +375,9 @@ protectedRouter.get("/get-hours/:uid", async (req, res) => {
   }
 });
 
-protectedRouter.get("/get-settings/:uid", async (req, res) => {
-  const userId = req.params.uid;
+// Get settings for user
+protectedRouter.get("/get-settings", async (req, res) => {
+  const userId = req.user.uid;
   console.log("Fetching settings for userId:", userId);
 
   try {
@@ -373,8 +397,9 @@ protectedRouter.get("/get-settings/:uid", async (req, res) => {
   }
 });
 
-protectedRouter.post("/edit-settings/:uid", async (req, res) => {
-  const userId = req.params.uid;
+// Edit settings for user
+protectedRouter.post("/edit-settings", async (req, res) => {
+  const userId = req.user.uid;
   const settings = req.body.settings;
   const { email, pincode, password } = settings.auth;
   const { roundTime, timeBetween } = settings.clockin;

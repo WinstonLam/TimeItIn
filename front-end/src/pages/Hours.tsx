@@ -26,7 +26,7 @@ interface Hours {
 }
 
 const Hours: React.FC = () => {
-  const { setHours, employees, transformDate, hours, uid, token } =
+  const { setHours, employees, transformDate, hours } =
     useContext(AdminContext);
   const [visibleCols, setVisibleCols] = useState<number>(1);
   const [sorted, setSorted] = useState(false);
@@ -158,9 +158,9 @@ const Hours: React.FC = () => {
 
     try {
       console.log(editedHours);
-      await editHours(uid, token, currentDate.toISOString(), editedHours);
+      await editHours(currentDate.toISOString(), editedHours);
       console.log("Successfully edited hours");
-      const resHours = await getHours(uid, token, currentDate);
+      const resHours = await getHours(currentDate);
       setHours(resHours);
     } catch (err) {
       console.error("Error editing hours:", err);

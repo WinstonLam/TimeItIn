@@ -21,8 +21,8 @@ const LoginPage = () => {
 
     try {
       const res = await loginUser(email, password);
-      console.log(res);
-      login(res.uid, res.token);
+
+      login(res.loggedIn);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -63,7 +63,7 @@ const LoginPage = () => {
                 />
 
                 <div className="actions">
-                  <Button type="submit" text="Login" onClick={() => {}} />
+                  <Button type="submit" text="Login" onClick={() => { }} />
                   <Button
                     text="Register"
                     onClick={() => setRegister(true)}

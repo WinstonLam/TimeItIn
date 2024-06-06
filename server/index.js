@@ -11,11 +11,7 @@ app.use("/", unprotectedRouter);
 
 app.use(cookieParser());
 
-// Use the validateFirebaseIdToken middleware for all other routes
-protectedRouter.use(validateFirebaseIdToken);
-
-// Define protected routes
-app.use("/", protectedRouter);
+app.use("/", validateFirebaseIdToken, protectedRouter);
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

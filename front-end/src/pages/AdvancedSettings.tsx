@@ -2,13 +2,12 @@ import React, { useState, useEffect } from "react";
 import { getSettings, editSettings } from "../api";
 import FormField from "../components/formfield";
 import Button from "../components/button";
-import { AdminContext } from "../providers/AdminContext";
 import "../styles/AdvancedSettings.css";
 
 interface AdvancedSettingsProps { }
 
 const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
-  const { uid, token } = React.useContext(AdminContext);
+
   const [settings, setSettings] = useState({
     auth: { email: "", pincode: "", password: "" },
     clockin: { roundTime: "", timeBetween: "" },
@@ -16,11 +15,11 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
 
   const [editedSettings, setEditedSettings] = useState(settings);
   const [isEditing, setIsEditing] = useState(false);
-  const [success, setSuccess] = useState(false);
+
 
   useEffect(() => {
     const fetchSettings = async () => {
-      const res = await getSettings(uid, token);
+      const res = await getSettings();
       const newSettings = {
         auth: { email: res.email, pincode: "", password: "" },
         clockin: {
@@ -32,7 +31,7 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
       setEditedSettings(newSettings);
     };
     fetchSettings();
-  }, [uid, token]);
+  }, []);
 
   const handleEditClick = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -50,7 +49,7 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
     setSettings(editedSettings);
     setIsEditing(false);
     // Add logic to save changes if necessary
-    editSettings(uid, token, editedSettings);
+    editSettings(editedSettings);
   };
 
   const handleChange =

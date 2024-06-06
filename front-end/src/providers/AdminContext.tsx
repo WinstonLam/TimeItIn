@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import { logoutUser, getEmployees, getHours } from "../api";
+import { logoutUser, getEmployees, getHours, checkAuthStatus } from "../api";
 
 interface Employee {
   uid: string;
@@ -18,16 +18,13 @@ interface Hours {
 }
 
 interface AdminContextProps {
-  uid: string;
-  setUid: React.Dispatch<React.SetStateAction<string>>;
-  token: string;
-  setToken: React.Dispatch<React.SetStateAction<string>>;
+
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   loggedIn: boolean;
   setLoggedin: React.Dispatch<React.SetStateAction<boolean>>;
   logout: () => void;
-  login: (uid: string, token: string) => void;
+  login: (loggedIn: boolean) => void;
   employees: Employee[];
   setEmployees: React.Dispatch<React.SetStateAction<Employee[]>>;
   hours: Hours;
@@ -43,20 +40,16 @@ interface AdminContextProps {
 }
 
 const defaultState: AdminContextProps = {
-  uid: "",
-  setUid: () => {},
-  token: "",
-  setToken: () => {},
   loading: false,
-  setLoading: () => {},
+  setLoading: () => { },
   loggedIn: false,
-  setLoggedin: () => {},
-  logout: () => {},
-  login: () => {},
+  setLoggedin: () => { },
+  logout: () => { },
+  login: () => { },
   employees: [],
-  setEmployees: () => {},
+  setEmployees: () => { },
   hours: {},
-  setHours: () => {},
+  setHours: () => { },
   getEmployeeHours: async () => null,
   transformDate: () => "",
 };
@@ -66,12 +59,11 @@ export const AdminContext = createContext<AdminContextProps>(defaultState);
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [uid, setUid] = useState<string>(localStorage.getItem("uid") || "");
-  const [token, setToken] = useState<string>(
-    localStorage.getItem("token") || ""
-  );
   const [loading, setLoading] = useState<boolean>(false);
-  const [loggedIn, setLoggedin] = useState<boolean>(false);
+  const [loggedIn, setLoggedin] = useState<boolean>(() => {
+    const status = localStorage.getItem("loggedIn");
+    return status && status === "true" ? true : false;
+  });
   const [employees, setEmployees] = useState<Employee[]>(() => {
     const storedEmp = localStorage.getItem("employees");
     return storedEmp && storedEmp !== "undefined" ? JSON.parse(storedEmp) : [];
@@ -136,17 +128,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
     return employeeHours;
   };
 
-  const login = async (uid: string, token: string) => {
+  const login = async (loggedIn: boolean) => {
     setLoading(true);
-    setUid(uid);
-    setToken(token);
-    localStorage.setItem("uid", uid);
-    localStorage.setItem("token", token);
-
     try {
       const currentDate = new Date().toISOString();
-      const resEmployees = await getEmployees(uid);
-      const resHours = await getHours(uid, token, currentDate);
+      const resEmployees = await getEmployees();
+      const resHours = await getHours(currentDate);
 
       const employeesArray: Employee[] = Object.values(resEmployees);
 
@@ -158,34 +145,35 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("Error fetching employees:");
     }
     setLoading(false);
-    setLoggedin(true);
+    localStorage.setItem("loggedIn", loggedIn.toString());
+    setLoggedin(loggedIn);
   };
 
   const logout = () => {
     logoutUser(); // Assuming this function does not need to be awaited
-    localStorage.removeItem("uid");
-    localStorage.removeItem("token");
     localStorage.removeItem("employees");
     localStorage.removeItem("hours");
-    setUid("");
-    setToken("");
+    localStorage.removeItem("loggedIn");
     setEmployees([]);
     setHours({});
     setLoggedin(false);
   };
 
-  // Automatically log in if uid and token are found in localStorage
   useEffect(() => {
-    if (uid && token) {
-      login(uid, token);
+    const checkAuth = async () => {
+      const isAuthenticated = await checkAuthStatus();
+      if (!isAuthenticated) {
+        logout();
+      }
+    };
+
+    if (loggedIn) {
+      checkAuth();
     }
-  }, [uid, token]);
+  }, [loggedIn]);
+
 
   const contextValue = {
-    uid,
-    setUid,
-    token,
-    setToken,
     loading,
     setLoading,
     loggedIn,
