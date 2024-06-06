@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { getSettings, editSettings } from "../api";
+import { AdminContext } from "../providers/AdminContext";
 import FormField from "../components/formfield";
 import Button from "../components/button";
 import "../styles/AdvancedSettings.css";
+import { AxiosError } from "axios";
 
-interface AdvancedSettingsProps { }
+interface AdvancedSettingsProps {}
 
 const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
-
   const [settings, setSettings] = useState({
     auth: { email: "", pincode: "", password: "" },
     clockin: { roundTime: "", timeBetween: "" },
@@ -16,19 +17,29 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
   const [editedSettings, setEditedSettings] = useState(settings);
   const [isEditing, setIsEditing] = useState(false);
 
+  const { logout } = useContext(AdminContext);
 
   useEffect(() => {
     const fetchSettings = async () => {
-      const res = await getSettings();
-      const newSettings = {
-        auth: { email: res.email, pincode: "", password: "" },
-        clockin: {
-          roundTime: res.clockin.roundTime,
-          timeBetween: res.clockin.timeBetween,
-        },
-      };
-      setSettings(newSettings);
-      setEditedSettings(newSettings);
+      try {
+        const res = await getSettings();
+        const newSettings = {
+          auth: { email: res.email, pincode: "", password: "" },
+          clockin: {
+            roundTime: res.clockin.roundTime,
+            timeBetween: res.clockin.timeBetween,
+          },
+        };
+        setSettings(newSettings);
+        setEditedSettings(newSettings);
+      } catch (error) {
+        const err = error as AxiosError;
+        if (err.response && err.response.status === 403) {
+          logout();
+        } else {
+          console.error("Error fetching settings", error);
+        }
+      }
     };
     fetchSettings();
   }, []);
@@ -49,7 +60,14 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
     setSettings(editedSettings);
     setIsEditing(false);
     // Add logic to save changes if necessary
-    editSettings(editedSettings);
+    editSettings(editedSettings).catch((error) => {
+      const err = error as AxiosError;
+      if (err.response && err.response.status === 403) {
+        logout();
+      } else {
+        console.error("Error editing settings", error);
+      }
+    });
   };
 
   const handleChange =

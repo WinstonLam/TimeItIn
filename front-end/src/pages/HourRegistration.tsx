@@ -1,8 +1,8 @@
-import { useState, useEffect, useContext, FC, useRef } from "react";
+import { useState, useEffect, useContext, FC } from "react";
 import "../styles/HourRegistration.css";
 import { AdminContext } from "../providers/AdminContext";
-
 import { setTime, getHours } from "../api";
+import { AxiosError } from "axios";
 
 import AutocompleteInput from "../components/autocomplete";
 import ClockSvg from "../icons/clock";
@@ -30,6 +30,7 @@ const HourRegistration: FC = () => {
     getEmployeeHours,
     setHours,
     transformDate,
+    logout,
   } = useContext(AdminContext);
 
   useEffect(() => {
@@ -46,12 +47,12 @@ const HourRegistration: FC = () => {
   const names =
     employees && employees.length > 0
       ? employees.map(
-        (employee) =>
-          [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
-            string,
-            string
-          ]
-      )
+          (employee) =>
+            [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
+              string,
+              string
+            ]
+        )
       : [];
 
   const getTime = (date: string | null) => {
@@ -88,8 +89,24 @@ const HourRegistration: FC = () => {
 
     try {
       const currentDate = new Date();
-      const res = await setTime(selectedUid, currentDate);
-      const resHours = await getHours(currentDate);
+
+      const res = await setTime(selectedUid, currentDate).catch((error) => {
+        const err = error as AxiosError;
+        if (err.response?.status === 403) {
+          logout();
+        } else {
+          console.error("Error setting time:", error);
+        }
+      });
+      const resHours = await getHours(currentDate).catch((error) => {
+        const err = error as AxiosError;
+        if (err.response?.status === 403) {
+          logout();
+        } else {
+          console.error("Error fetching hours:", error);
+        }
+      });
+
       setHours(resHours);
 
       setStartTime(getTime(res.starttime));
@@ -113,7 +130,11 @@ const HourRegistration: FC = () => {
 
         <ErrorMessage message={errMessage} show={errMessage ? true : false} />
 
-        <AutocompleteInput suggestions={names} onSelect={handleChange} title="Select Name:" />
+        <AutocompleteInput
+          suggestions={names}
+          onSelect={handleChange}
+          title="Select Name:"
+        />
         <div className="times">
           <div className="start-time">
             <p>Start Time</p>

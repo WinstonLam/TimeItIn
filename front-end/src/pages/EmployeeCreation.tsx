@@ -6,6 +6,7 @@ import "../styles/EmployeeCreation.css";
 import Button from "../components/button";
 import { getEmployees } from "../api";
 import { useCreateEmployee } from "../hooks/useCreateEmployee";
+import { AxiosError } from "axios";
 
 interface EmployeeCreationProps {
   setAddUser: (value: boolean) => void;
@@ -15,14 +16,6 @@ interface Employee {
   uid: string;
   firstName: string;
   lastName: string;
-}
-
-interface AxiosError {
-  response?: {
-    data?: {
-      error: string;
-    };
-  };
 }
 
 const EmployeeCreation: React.FC<EmployeeCreationProps> = ({ setAddUser }) => {
@@ -56,9 +49,11 @@ const EmployeeCreation: React.FC<EmployeeCreationProps> = ({ setAddUser }) => {
       setSuccess(true);
     } catch (error) {
       const errorObj = error as AxiosError;
+      if (errorObj.response && errorObj.response.status === 403) {
+      }
       // If the employee could not be created, display an error message
-      if (errorObj.response?.data?.error) {
-        setErrorMessage(errorObj.response.data.error);
+      if (errorObj.response && errorObj.message) {
+        setErrorMessage(errorObj.message);
       } else {
         console.log(error);
         setErrorMessage("An unknown error occurred.");

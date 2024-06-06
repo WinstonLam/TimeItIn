@@ -25,7 +25,6 @@ function App() {
 
 function AppContent() {
   const [settings, setSettings] = React.useState<boolean>(false);
-
   const { loading, loggedIn } = useContext(AdminContext);
 
   return (

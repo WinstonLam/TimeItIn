@@ -6,7 +6,7 @@ import "../styles/Hours.css";
 import { getHours, editHours } from "../api"; // Import the setTime function
 import Button from "../components/button";
 import AutocompleteInput from "../components/autocomplete";
-
+import { AxiosError } from "axios";
 
 interface Employee {
   uid: string;
@@ -26,7 +26,7 @@ interface Hours {
 }
 
 const Hours: React.FC = () => {
-  const { setHours, employees, transformDate, hours } =
+  const { setHours, employees, transformDate, hours, logout } =
     useContext(AdminContext);
   const [visibleCols, setVisibleCols] = useState<number>(1);
   const [sorted, setSorted] = useState(false);
@@ -44,12 +44,12 @@ const Hours: React.FC = () => {
   const names =
     employees && employees.length > 0
       ? employees.map(
-        (employee) =>
-          [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
-            string,
-            string
-          ]
-      )
+          (employee) =>
+            [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
+              string,
+              string
+            ]
+        )
       : [];
 
   const employeeComparator = (a: Employee, b: Employee) => {
@@ -140,8 +140,7 @@ const Hours: React.FC = () => {
   const handleNameChange = (employeeId: string, name: string) => {
     setSelectedName(name);
     setSelectedEmployeeId(employeeId);
-
-  }
+  };
 
   const handleEditClick = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -157,13 +156,16 @@ const Hours: React.FC = () => {
     const currentDate = selectedDate ? selectedDate : new Date();
 
     try {
-      console.log(editedHours);
       await editHours(currentDate.toISOString(), editedHours);
-      console.log("Successfully edited hours");
       const resHours = await getHours(currentDate);
       setHours(resHours);
-    } catch (err) {
-      console.error("Error editing hours:", err);
+    } catch (error) {
+      const err = error as AxiosError;
+      if (err.response && err.response.status === 403) {
+        logout();
+      } else {
+        console.error("Error editing hours:", error);
+      }
     }
 
     setIsEditing(false);
@@ -209,14 +211,15 @@ const Hours: React.FC = () => {
   }
   return (
     <div
-      className={`hours-container ${visibleCols === 1
-        ? "one-col"
-        : visibleCols === 7
+      className={`hours-container ${
+        visibleCols === 1
+          ? "one-col"
+          : visibleCols === 7
           ? "seven-cols"
           : visibleCols === 31
-            ? "thirty-one-cols"
-            : ""
-        }`}
+          ? "thirty-one-cols"
+          : ""
+      }`}
     >
       <div className="hours-table-top-content">
         <div className="hours-container-header">
@@ -249,8 +252,10 @@ const Hours: React.FC = () => {
             />
           </div>
           <div className="namepicker">
-            <AutocompleteInput suggestions={names} onSelect={handleNameChange} />
-
+            <AutocompleteInput
+              suggestions={names}
+              onSelect={handleNameChange}
+            />
           </div>
           <div className="datepicker">
             <DatePicker
@@ -319,8 +324,9 @@ const Hours: React.FC = () => {
                           <>
                             <input
                               type="time"
-                              className={`timepicker${isEditable ? `-enabled` : ""
-                                }`}
+                              className={`timepicker${
+                                isEditable ? `-enabled` : ""
+                              }`}
                               value={starttime}
                               onChange={(e) =>
                                 handleTimeChange(
@@ -334,8 +340,9 @@ const Hours: React.FC = () => {
                             />
                             <input
                               type="time"
-                              className={`timepicker${isEditable ? `-enabled` : ""
-                                }`}
+                              className={`timepicker${
+                                isEditable ? `-enabled` : ""
+                              }`}
                               value={endtime}
                               onChange={(e) =>
                                 handleTimeChange(

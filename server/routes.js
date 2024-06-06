@@ -35,8 +35,8 @@ unprotectedRouter.post("/login", async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
-      // maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
-      maxAge: 1000 * 5, // 5 seconds for testing
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+      // maxAge: 1000 * 5, // 5 seconds for testing
     });
 
     res.status(200).send({ loggedIn: true });

@@ -47,6 +47,15 @@
   width: 90%;
 }
 
+.settings-content-header .header-actions{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 35%;
+
+}
+
 .settings-active{
   opacity: 1;
   pointer-events: all;
@@ -75,10 +84,18 @@
   justify-content: space-evenly;
 }
 
+.settings-lock{
+  fill:  rgba(var(--primary-color));
+  width: 60px;
+  cursor: pointer;
+  filter: drop-shadow(-2px 2px 2px rgba(0, 0, 0, 0.5));
+  transition: transform 0.1s ease-in-out,
+              filter 0.1s ease-in-out,
+              fill 0.5s ease-in-out,
+              color 0.5s ease-in-out;
+
+}
 .settings-signout{
-  position: absolute;
-  right: 0;
-  top: 10px;
   color: rgba(var(--primary-color));
   fill: rgba(var(--primary-color));
   cursor: pointer;
@@ -89,15 +106,17 @@
               color 0.5s ease-in-out;
 }
 
-.settings-signout:hover{
+.settings-signout:hover,
+.settings-lock:hover {
   color: rgba(var(--third-color));
   fill: rgba(var(--third-color));
 }
-.settings-signout p{
-  
+.settings-signout p,
+.settings-lock p{  
   margin: -5px 0px 0px -5px;
 }
-.settings-signout:active{
+.settings-signout:active,
+.settings-lock:active{
   transform: translate(-2px, 2px);
   filter: none;
 }

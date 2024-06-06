@@ -18,7 +18,6 @@ interface Hours {
 }
 
 interface AdminContextProps {
-
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   loggedIn: boolean;
@@ -41,15 +40,15 @@ interface AdminContextProps {
 
 const defaultState: AdminContextProps = {
   loading: false,
-  setLoading: () => { },
+  setLoading: () => {},
   loggedIn: false,
-  setLoggedin: () => { },
-  logout: () => { },
-  login: () => { },
+  setLoggedin: () => {},
+  logout: () => {},
+  login: () => {},
   employees: [],
-  setEmployees: () => { },
+  setEmployees: () => {},
   hours: {},
-  setHours: () => { },
+  setHours: () => {},
   getEmployeeHours: async () => null,
   transformDate: () => "",
 };
@@ -141,7 +140,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
       localStorage.setItem("hours", JSON.stringify(resHours));
       setEmployees(employeesArray);
       setHours(resHours);
-    } catch (error) {
+    } catch (err) {
       console.error("Error fetching employees:");
     }
     setLoading(false);
@@ -171,7 +170,6 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
       checkAuth();
     }
   }, [loggedIn]);
-
 
   const contextValue = {
     loading,

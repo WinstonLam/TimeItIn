@@ -9,6 +9,7 @@ import UserSvg from "../icons/user";
 import GearSvg from "../icons/settings-gear";
 import CalendarSvg from "../icons/calendar";
 import SignOutSvg from "../icons/signout";
+import LockedSvg from "../icons/locked";
 
 interface SettingsProps {
   active: boolean;
@@ -52,9 +53,16 @@ const Settings: FC<SettingsProps> = ({ active, setActive }) => {
           <div className="settings-content-header-title">
             <h1>Settings</h1>
           </div>
-          <div className="settings-signout" onClick={() => handleSignOut()}>
-            <SignOutSvg className="settings-signout-icon" />
-            <p>Signout</p>
+          <div className="header-actions">
+            <div className="settings-lock">
+              <LockedSvg className="settings-lock-icon" />
+              <p>Lock</p>
+            </div>
+
+            <div className="settings-signout" onClick={() => handleSignOut()}>
+              <SignOutSvg className="settings-signout-icon" />
+              <p>Signout</p>
+            </div>
           </div>
         </div>
         <div className="settings-box-tiles">

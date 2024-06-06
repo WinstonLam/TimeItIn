@@ -16,6 +16,20 @@ const auth = getAuth(app);
 // Ensure cookies are included in requests
 axios.defaults.withCredentials = true;
 
+// Global token expiration interceptor
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 400) {
+      // Token expired, log the user out
+      logoutUser().then(() => {
+        window.location.reload(); // Reload the page to reflect the logout
+      });
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const checkAuthStatus = () => {
   return axios
     .get(`${BASE_URL}/auth-status`, {
