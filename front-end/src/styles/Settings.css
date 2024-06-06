@@ -53,7 +53,7 @@
   justify-content: space-between;
   align-items: center;
   width: 35%;
-
+  min-width: 190px;
 }
 
 .settings-active{
@@ -85,13 +85,17 @@
 }
 
 .settings-lock{
-  fill:  rgba(var(--primary-color));
+  color: rgba(var(--primary-color));
+  fill:  none;
+  stroke: rgba(var(--primary-color));
+  stroke-width: 1.5px;
   width: 60px;
+  margin-top: 5px;
   cursor: pointer;
   filter: drop-shadow(-2px 2px 2px rgba(0, 0, 0, 0.5));
   transition: transform 0.1s ease-in-out,
               filter 0.1s ease-in-out,
-              fill 0.5s ease-in-out,
+              stroke 0.5s ease-in-out,
               color 0.5s ease-in-out;
 
 }
@@ -106,21 +110,28 @@
               color 0.5s ease-in-out;
 }
 
-.settings-signout:hover,
-.settings-lock:hover {
+.settings-signout:hover{
   color: rgba(var(--third-color));
   fill: rgba(var(--third-color));
 }
-.settings-signout p,
-.settings-lock p{  
+
+.settings-lock:hover{
+  color: rgba(var(--third-color));
+  stroke: rgba(var(--third-color));
+}
+.settings-signout p {  
   margin: -5px 0px 0px -5px;
 }
+
+.settings-lock p {
+  margin: -7px -5px 8px -5px;
+}
+
 .settings-signout:active,
 .settings-lock:active{
   transform: translate(-2px, 2px);
   filter: none;
 }
-
 
 .close {
   cursor: pointer;

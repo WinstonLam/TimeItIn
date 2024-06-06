@@ -144,19 +144,18 @@ export const logoutUser = () => {
     });
 };
 
-export const getPin = () => {
-  console.log("getPin");
+export const checkPin = (pincode) => {
+  console.log("checkPin");
 
   return axios
-    .get(`${BASE_URL}/api/pin`, {
+    .get(`${BASE_URL}/check-pin`, {
+      params: { pincode },
       headers: {
         "Content-Type": "application/json",
       },
     })
     .then((response) => {
-      console.log("Successfully retrieved pin");
-      console.log("response", response);
-      return response.data.pin;
+      return response.data;
     })
     .catch((error) => {
       console.error("Error retrieving pin:", error);

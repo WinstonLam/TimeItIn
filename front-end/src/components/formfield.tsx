@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../styles/component-styles/FormField.css";
 import EyeSvg from "../icons/eye";
 
-interface FormFieldProps {
+export interface FormFieldProps {
   value: string;
   label: string;
   id: string;
@@ -39,16 +39,17 @@ const FormField: React.FC<FormFieldProps> = ({
   }, [value]);
 
   useEffect(() => {
-    if (formSubmitted) {
-      if (!hasValue && required) {
-        setError(true);
-        setMessage("This field is required");
-      }
-    }
-    if (span) {
+    if (formSubmitted && !hasValue && required) {
       setError(true);
+      setMessage("This field is required");
+    } else if (formSubmitted && span) {
+      setError(true);
+      setMessage(span);
+    } else {
+      setError(false);
+      setMessage("");
     }
-  }, [formSubmitted, hasValue, required]);
+  }, [formSubmitted, hasValue, required, span]);
 
   const checkValue = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (onChange) onChange(event.target.value);

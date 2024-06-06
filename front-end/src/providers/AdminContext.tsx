@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import { logoutUser, getEmployees, getHours, checkAuthStatus } from "../api";
+import { logoutUser, getEmployees, getHours, checkAuthStatus, checkPin } from "../api";
 
 interface Employee {
   uid: string;
@@ -22,6 +22,9 @@ interface AdminContextProps {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   loggedIn: boolean;
   setLoggedin: React.Dispatch<React.SetStateAction<boolean>>;
+  locked: boolean;
+  handleLock: () => void;
+  handleUnlock: (input: string, level: string) => Promise<string>;
   logout: () => void;
   login: (loggedIn: boolean) => void;
   employees: Employee[];
@@ -40,15 +43,18 @@ interface AdminContextProps {
 
 const defaultState: AdminContextProps = {
   loading: false,
-  setLoading: () => {},
+  setLoading: () => { },
   loggedIn: false,
-  setLoggedin: () => {},
-  logout: () => {},
-  login: () => {},
+  setLoggedin: () => { },
+  locked: true,
+  handleLock: () => { },
+  handleUnlock: async () => "",
+  logout: () => { },
+  login: () => { },
   employees: [],
-  setEmployees: () => {},
+  setEmployees: () => { },
   hours: {},
-  setHours: () => {},
+  setHours: () => { },
   getEmployeeHours: async () => null,
   transformDate: () => "",
 };
@@ -62,6 +68,10 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loggedIn, setLoggedin] = useState<boolean>(() => {
     const status = localStorage.getItem("loggedIn");
     return status && status === "true" ? true : false;
+  });
+  const [locked, setLocked] = useState<boolean>(() => {
+    const status = sessionStorage.getItem("locked");
+    return status && status === "false" ? false : true;
   });
   const [employees, setEmployees] = useState<Employee[]>(() => {
     const storedEmp = localStorage.getItem("employees");
@@ -158,6 +168,27 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
     setLoggedin(false);
   };
 
+  const handleUnlock = async (pincode: string, level: string) => {
+    const res = await checkPin(pincode);
+    let message = "";
+
+    if (res.success) {
+      if (level === "global") {
+        setLocked(false);
+        sessionStorage.setItem("locked", "false");
+      }
+    } else {
+      message = "Incorrect pincode";
+    }
+    return message;
+  }
+
+  const handleLock = () => {
+    setLocked(true);
+    sessionStorage.removeItem("locked");
+  }
+
+
   useEffect(() => {
     const checkAuth = async () => {
       const isAuthenticated = await checkAuthStatus();
@@ -176,6 +207,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
     setLoading,
     loggedIn,
     setLoggedin,
+    locked,
+    handleLock,
+    handleUnlock,
     logout,
     login,
     employees,

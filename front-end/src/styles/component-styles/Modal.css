@@ -3,7 +3,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    z-index: 100;
+    z-index: 999;
     left: 0;
     top: 0;
     width: 100%;
@@ -37,6 +37,12 @@
     animation: slideUp .5s ease-in-out;
 }
 
+.modal-header .close{
+    position: absolute;
+    top: 10px;
+    left: -10px;
+    cursor: pointer;
+}
 
 
 @keyframes fadeIn {

@@ -84,16 +84,22 @@ unprotectedRouter.post("/logout", (req, res) => {
 });
 
 // Get pin for a specific user
-protectedRouter.get("/get-pin", async (req, res) => {
-  const userId = req.cookies.userId;
-  console.log("Fetching pin for adminId:", userId);
+protectedRouter.get("/check-pin", async (req, res) => {
+  const userId = req.user.uid;
+  const pincode = req.query.pincode;
+  console.log("Checking pin for adminId:", userId);
 
   try {
     const doc = await db.collection("users").doc(userId).get();
     if (!doc.exists) {
       res.status(404).send({ error: "User not found" });
     } else {
-      res.status(200).send({ pin: doc.data().pincode });
+      const pin = doc.data().auth.pincode;
+      if (pin === pincode) {
+        res.status(200).send({ success: true });
+      } else {
+        res.status(200).send({ success: false });
+      }
     }
   } catch (error) {
     console.error("Error fetching pin:", error);

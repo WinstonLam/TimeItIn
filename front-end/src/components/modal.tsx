@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "./button";
+import FormField, { FormFieldProps } from "./formfield";
+
 
 import "../styles/component-styles/Modal.css";
 interface ModalProps {
@@ -12,8 +14,9 @@ interface ModalProps {
     link?: string;
     handle?: () => void;
   };
+  input?: FormFieldProps
 }
-const Modal: React.FC<ModalProps> = ({ title, desc, dismiss, action }) => {
+const Modal: React.FC<ModalProps> = ({ title, desc, dismiss, action, input }) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = React.useState(true);
   const [isClosing, setIsClosing] = React.useState(false);
@@ -38,7 +41,8 @@ const Modal: React.FC<ModalProps> = ({ title, desc, dismiss, action }) => {
       <div className="modal-content">
         <dialog open={isOpen}>
           <div className="modal-header">
-            {dismiss && <Button onClick={handleClose} text="X" type="button" />}
+            {dismiss && <div className="close" onClick={handleClose} />
+            }
             <h2>{title}</h2>
           </div>
           <p>{desc}</p>
@@ -47,6 +51,12 @@ const Modal: React.FC<ModalProps> = ({ title, desc, dismiss, action }) => {
               <Button onClick={handleClose} text={action.title} type="button" />
             </div>
           )}
+          {input && (
+            <div className="modal-input">
+              <FormField {...input} />
+            </div>
+          )}
+
         </dialog>
       </div>
     </div>
