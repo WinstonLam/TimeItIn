@@ -7,6 +7,7 @@ import { getHours, editHours } from "../api"; // Import the setTime function
 import Button from "../components/button";
 import AutocompleteInput from "../components/autocomplete";
 import { AxiosError } from "axios";
+import Modal from "../components/modal";
 
 interface Employee {
   uid: string;
@@ -26,16 +27,27 @@ interface Hours {
 }
 
 const Hours: React.FC = () => {
-  const { setHours, employees, transformDate, hours, logout } =
-    useContext(AdminContext);
+  const {
+    setHours,
+    employees,
+    transformDate,
+    hours,
+    logout,
+    handleUnlock,
+    locked,
+  } = useContext(AdminContext);
   const [visibleCols, setVisibleCols] = useState<number>(1);
   const [sorted, setSorted] = useState(false);
   const [hideEmptyEmployees, setHideEmptyEmployees] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedName, setSelectedName] = useState<string>("");
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("");
   const [editedHours, setEditedHours] = useState<Hours>(hours);
+  const [showLocalModal, setShowLocalModal] = useState<boolean>(false);
+  const [pincode, setPincode] = useState<string>("");
+  const [error, setError] = useState<string | undefined>(undefined);
+  const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
+
   const [sortConfig, setSortConfig] = useState({
     key: "firstName",
     direction: "ascending",
@@ -138,13 +150,7 @@ const Hours: React.FC = () => {
   };
 
   const handleNameChange = (employeeId: string, name: string) => {
-    setSelectedName(name);
     setSelectedEmployeeId(employeeId);
-  };
-
-  const handleEditClick = (event: React.MouseEvent) => {
-    event.preventDefault();
-    setIsEditing(true);
   };
 
   const handleCancelClick = () => {
@@ -198,6 +204,31 @@ const Hours: React.FC = () => {
     }));
   };
 
+  const handleChangeLocal = async (value: string) => {
+    setFormSubmitted(false);
+    setPincode(value);
+    if (value.length === 4) {
+      setFormSubmitted(true);
+      const res = await handleUnlock(value, "local");
+      if (res === "") {
+        setShowLocalModal(false);
+        setIsEditing(true);
+        setPincode("");
+        setFormSubmitted(false);
+      } else {
+        setError(res);
+      }
+    }
+  };
+
+  const handleLocalModal = () => {
+    if (locked) {
+      setShowLocalModal(!showLocalModal);
+    } else {
+      setIsEditing(true);
+    }
+  };
+
   const getTime = (date: string | null) => {
     if (!date) return "";
     const newDate = new Date(date);
@@ -210,161 +241,185 @@ const Hours: React.FC = () => {
     weeks.push(dates.slice(i, i + 7));
   }
   return (
-    <div
-      className={`hours-container ${
-        visibleCols === 1
-          ? "one-col"
-          : visibleCols === 7
-          ? "seven-cols"
-          : visibleCols === 31
-          ? "thirty-one-cols"
-          : ""
-      }`}
-    >
-      <div className="hours-table-top-content">
-        <div className="hours-container-header">
-          <h1>Hours</h1>
-          <div className="hours-cointainer-header-actions">
-            {!isEditing ? (
-              <Button text="Edit Hours" onClick={handleEditClick} />
-            ) : (
-              <>
-                <Button
-                  text="Submit"
-                  onClick={handleSubmitClick}
-                  type="submit"
-                />
-                <Button
-                  text="Cancel"
-                  onClick={handleCancelClick}
-                  type="reset"
-                  style={{ cancel: true }}
-                />
-              </>
-            )}
-          </div>
-        </div>
-        <div className="col-selector">
-          <div className="hide-empty">
-            <Button
-              text="Hide No Hours"
-              onClick={handleHideEmptyEmployeesChange}
-            />
-          </div>
-          <div className="namepicker">
-            <AutocompleteInput
-              suggestions={names}
-              onSelect={handleNameChange}
-            />
-          </div>
-          <div className="datepicker">
-            <DatePicker
-              selected={selectedDate}
-              onChange={(date: Date | null) => setSelectedDate(date)}
-            />
-          </div>
-          <div className="display">
-            <select onChange={handleColChange}>
-              <option value={1}>Day</option>
-              <option value={7}>Week</option>
-              <option value={31}>Month</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div className="hours-table">
-        {weeks.map((weekDates, weekIndex) => (
-          <table key={weekIndex}>
-            <thead>
-              <tr>
-                <th>
-                  Employee
-                  <SortSvg
-                    className={`hours-table-sort ${sorted ? "clicked" : ""}`}
-                    onClick={() => sortEmployees("firstName")}
+    <>
+      {showLocalModal && (
+        <Modal
+          title="Pincode Required"
+          desc="Please enter your pincode to access this feature"
+          dismiss={handleLocalModal}
+          input={{
+            value: pincode,
+            label: "Pincode",
+            id: "pincode",
+            required: true,
+            sensitive: true,
+            formSubmitted: formSubmitted,
+            limit: 4,
+            onChange: handleChangeLocal,
+            strict: "digit",
+            span: error,
+          }}
+        />
+      )}
+      <div
+        className={`hours-container ${
+          visibleCols === 1
+            ? "one-col"
+            : visibleCols === 7
+            ? "seven-cols"
+            : visibleCols === 31
+            ? "thirty-one-cols"
+            : ""
+        }`}
+      >
+        <div className="hours-table-top-content">
+          <div className="hours-container-header">
+            <h1>Hours</h1>
+            <div className="hours-cointainer-header-actions">
+              {!isEditing ? (
+                <Button text="Edit Hours" onClick={handleLocalModal} />
+              ) : (
+                <>
+                  <Button
+                    text="Submit"
+                    onClick={handleSubmitClick}
+                    type="submit"
                   />
-                </th>
-                {weekDates.map((date, index) => (
-                  <th key={index}>{date.toLocaleDateString()}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {employees
-                .filter((employee) =>
-                  hideEmptyEmployees ? hasHours(employee, weekDates) : true
-                )
-                .filter((employee) =>
-                  selectedEmployeeId
-                    ? employee.uid === selectedEmployeeId
-                    : true
-                )
-                .sort(employeeComparator)
-                .map((employee, employeeIndex) => (
-                  <tr key={employeeIndex}>
-                    <td>{employee.firstName}</td>
-                    {weekDates.map((date, colIndex) => {
-                      const dayIdx = transformDate(date, {
-                        day: true,
-                        month: true,
-                        year: true,
-                      });
+                  <Button
+                    text="Cancel"
+                    onClick={handleCancelClick}
+                    type="reset"
+                    style={{ cancel: true }}
+                  />
+                </>
+              )}
+            </div>
+          </div>
+          <div className="col-selector">
+            <div className="hide-empty">
+              <Button
+                text="Hide No Hours"
+                onClick={handleHideEmptyEmployeesChange}
+              />
+            </div>
+            <div className="namepicker">
+              <AutocompleteInput
+                suggestions={names}
+                onSelect={handleNameChange}
+              />
+            </div>
+            <div className="datepicker">
+              <DatePicker
+                selected={selectedDate}
+                onChange={(date: Date | null) => setSelectedDate(date)}
+              />
+            </div>
+            <div className="display">
+              <select onChange={handleColChange}>
+                <option value={1}>Day</option>
+                <option value={7}>Week</option>
+                <option value={31}>Month</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div className="hours-table">
+          {weeks.map((weekDates, weekIndex) => (
+            <table key={weekIndex}>
+              <thead>
+                <tr>
+                  <th>
+                    Employee
+                    <SortSvg
+                      className={`hours-table-sort ${sorted ? "clicked" : ""}`}
+                      onClick={() => sortEmployees("firstName")}
+                    />
+                  </th>
+                  {weekDates.map((date, index) => (
+                    <th key={index}>{date.toLocaleDateString()}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {employees
+                  .filter((employee) =>
+                    hideEmptyEmployees ? hasHours(employee, weekDates) : true
+                  )
+                  .filter((employee) =>
+                    selectedEmployeeId
+                      ? employee.uid === selectedEmployeeId
+                      : true
+                  )
+                  .sort(employeeComparator)
+                  .map((employee, employeeIndex) => (
+                    <tr key={employeeIndex}>
+                      <td>
+                        <div className="row-name">{employee.firstName}</div>
+                      </td>
+                      {weekDates.map((date, colIndex) => {
+                        const dayIdx = transformDate(date, {
+                          day: true,
+                          month: true,
+                          year: true,
+                        });
 
-                      const isEditable = isEditing;
-                      const starttime =
-                        getTime(
-                          editedHours[dayIdx]?.[employee.uid]?.starttime
-                        ) || "";
-                      const endtime =
-                        getTime(editedHours[dayIdx]?.[employee.uid]?.endtime) ||
-                        "";
+                        const isEditable = isEditing;
+                        const starttime =
+                          getTime(
+                            editedHours[dayIdx]?.[employee.uid]?.starttime
+                          ) || "";
+                        const endtime =
+                          getTime(
+                            editedHours[dayIdx]?.[employee.uid]?.endtime
+                          ) || "";
 
-                      return (
-                        <td key={colIndex}>
-                          <>
-                            <input
-                              type="time"
-                              className={`timepicker${
-                                isEditable ? `-enabled` : ""
-                              }`}
-                              value={starttime}
-                              onChange={(e) =>
-                                handleTimeChange(
-                                  dayIdx,
-                                  employee.uid,
-                                  "starttime",
-                                  e.target.value
-                                )
-                              }
-                              disabled={!isEditable}
-                            />
-                            <input
-                              type="time"
-                              className={`timepicker${
-                                isEditable ? `-enabled` : ""
-                              }`}
-                              value={endtime}
-                              onChange={(e) =>
-                                handleTimeChange(
-                                  dayIdx,
-                                  employee.uid,
-                                  "endtime",
-                                  e.target.value
-                                )
-                              }
-                              disabled={!isEditable}
-                            />
-                          </>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        ))}
+                        return (
+                          <td key={colIndex}>
+                            <>
+                              <input
+                                type="time"
+                                className={`timepicker${
+                                  isEditable ? `-enabled` : ""
+                                }`}
+                                value={starttime}
+                                onChange={(e) =>
+                                  handleTimeChange(
+                                    dayIdx,
+                                    employee.uid,
+                                    "starttime",
+                                    e.target.value
+                                  )
+                                }
+                                disabled={!isEditable}
+                              />
+                              <input
+                                type="time"
+                                className={`timepicker${
+                                  isEditable ? `-enabled` : ""
+                                }`}
+                                value={endtime}
+                                onChange={(e) =>
+                                  handleTimeChange(
+                                    dayIdx,
+                                    employee.uid,
+                                    "endtime",
+                                    e.target.value
+                                  )
+                                }
+                                disabled={!isEditable}
+                              />
+                            </>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

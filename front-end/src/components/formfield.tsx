@@ -82,7 +82,7 @@ const FormField: React.FC<FormFieldProps> = ({
         onChange={checkValue}
         onFocus={handleFocus}
         className={hasValue ? "has-value" : ""}
-        maxLength={limit}
+        maxLength={limit ? limit : 25}
         disabled={disbabled}
       />
 

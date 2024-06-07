@@ -55,35 +55,32 @@ const Settings: FC<SettingsProps> = ({ active, setActive }) => {
 
   const handleModal = () => {
     setShowGlobalModal(!showGlobalModal);
-  }
+  };
 
   const handleLocalModal = (dest: string) => {
     if (!locked) {
       handleNav(dest);
     } else {
-      setDestination(dest)
+      setDestination(dest);
       setShowLocalModal(!showLocalModal);
     }
-  }
-
+  };
 
   const handleChangeGlobal = async (value: string) => {
     setFormSubmitted(false);
-    setPincode(value)
+    setPincode(value);
     if (value.length === 4) {
       setFormSubmitted(true);
       const res = await handleUnlock(value, "global");
       if (res === "") {
         setShowGlobalModal(false);
         setPincode("");
-
+        setFormSubmitted(false);
       } else {
         setError(res);
       }
     }
-    setFormSubmitted(false)
-
-  }
+  };
 
   const handleChangeLocal = async (value: string) => {
     setFormSubmitted(false);
@@ -93,18 +90,15 @@ const Settings: FC<SettingsProps> = ({ active, setActive }) => {
       const res = await handleUnlock(value, "local");
       if (res === "") {
         setShowLocalModal(false);
-        handleNav(destination)
+        handleNav(destination);
         setPincode("");
         setDestination("");
+        setFormSubmitted(false);
       } else {
         setError(res);
       }
-
     }
-    setFormSubmitted(false)
   };
-
-
 
   return (
     <>
@@ -112,7 +106,7 @@ const Settings: FC<SettingsProps> = ({ active, setActive }) => {
         <Modal
           title="Unlock Settings"
           desc="Please enter your pincode to unlock settings"
-          dismiss={true}
+          dismiss={handleModal}
           input={{
             value: pincode,
             label: "Pincode",
@@ -123,15 +117,15 @@ const Settings: FC<SettingsProps> = ({ active, setActive }) => {
             limit: 4,
             onChange: handleChangeGlobal,
             strict: "digit",
-            span: error
+            span: error,
           }}
         />
       )}
       {showLocalModal && (
         <Modal
           title="Pincode Required"
-          desc="This feature is not yet available"
-          dismiss={true}
+          desc="Please enter your pincode to access this feature"
+          dismiss={() => setShowLocalModal(!showLocalModal)}
           input={{
             value: pincode,
             label: "Pincode",
@@ -142,7 +136,7 @@ const Settings: FC<SettingsProps> = ({ active, setActive }) => {
             limit: 4,
             onChange: handleChangeLocal,
             strict: "digit",
-            span: error
+            span: error,
           }}
         />
       )}
@@ -200,7 +194,6 @@ const Settings: FC<SettingsProps> = ({ active, setActive }) => {
           </div>
         </div>
       </div>
-
     </>
   );
 };

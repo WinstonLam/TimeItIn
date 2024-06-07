@@ -64,7 +64,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .employees-table tr {
     display: flex;
@@ -90,18 +91,12 @@
     font-size: 25px;
   }
 
-
-
-  
-
   .employees-table-top-content .actions{
-
     display: flex;
     justify-content: space-between;
     margin-bottom: 5px;
   }
 
-  
   .employees-table-header{
     display: flex;
     flex-direction: row;
@@ -119,7 +114,6 @@
     stroke: rgb(var(--second-color));
     transition: all 0.3s ease-in-out;
     filter: drop-shadow(-1px 1px 1px black)
-   
   }
 
   .employees-table-sort.clicked {
@@ -133,6 +127,10 @@
     color: white;
     width: 90%;
   }
+  .employees-table-content-val{
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   
   .employees-table-top-content .actions .add-user{
     display: flex;
@@ -140,7 +138,7 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-
+    
   }
   .employees-table-top-content .actions .add-user{
     cursor: pointer;

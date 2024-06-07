@@ -63,6 +63,7 @@
     cursor: pointer;
     width: 90%;
     overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   .suggestions li:hover {

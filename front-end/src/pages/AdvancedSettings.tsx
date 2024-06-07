@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useContext } from "react";
 import { getSettings, editSettings } from "../api";
+import { useNavigate } from "react-router-dom";
 import { AdminContext } from "../providers/AdminContext";
 import FormField from "../components/formfield";
 import Button from "../components/button";
 import "../styles/AdvancedSettings.css";
 import { AxiosError } from "axios";
 
+import Modal from "../components/modal";
 interface AdvancedSettingsProps {}
 
 const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
+  const navigate = useNavigate();
   const [settings, setSettings] = useState({
     auth: { email: "", pincode: "", password: "" },
     clockin: { roundTime: "", timeBetween: "" },
@@ -16,6 +19,7 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
 
   const [editedSettings, setEditedSettings] = useState(settings);
   const [isEditing, setIsEditing] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const { logout } = useContext(AdminContext);
 
@@ -59,15 +63,18 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
     event.preventDefault();
     setSettings(editedSettings);
     setIsEditing(false);
-    // Add logic to save changes if necessary
-    editSettings(editedSettings).catch((error) => {
+
+    try {
+      editSettings(editedSettings);
+    } catch (error) {
       const err = error as AxiosError;
       if (err.response && err.response.status === 403) {
         logout();
       } else {
         console.error("Error editing settings", error);
       }
-    });
+    }
+    setShowModal(true);
   };
 
   const handleChange =
@@ -83,6 +90,27 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
 
   return (
     <>
+      {showModal && (
+        <Modal
+          title="Success"
+          desc="Settings have been updated"
+          dismiss={() => setShowModal(false)}
+          action={{
+            title: "Back",
+            onClick: () => {
+              setShowModal(false);
+            },
+            style: { cancel: true },
+          }}
+          actionB={{
+            title: "Home",
+            onClick: () => {
+              setShowModal(false);
+              navigate("/");
+            },
+          }}
+        />
+      )}
       <div className="advanced-settings">
         <div className="advanced-settings-header">
           <h1>Advanced Settings</h1>

@@ -1,5 +1,12 @@
 import React, { createContext, useState, useEffect } from "react";
-import { logoutUser, getEmployees, getHours, checkAuthStatus, checkPin } from "../api";
+import {
+  logoutUser,
+  getEmployees,
+  getHours,
+  checkAuthStatus,
+  checkPin,
+} from "../api";
+import { AxiosError } from "axios";
 
 interface Employee {
   uid: string;
@@ -43,18 +50,18 @@ interface AdminContextProps {
 
 const defaultState: AdminContextProps = {
   loading: false,
-  setLoading: () => { },
+  setLoading: () => {},
   loggedIn: false,
-  setLoggedin: () => { },
+  setLoggedin: () => {},
   locked: true,
-  handleLock: () => { },
+  handleLock: () => {},
   handleUnlock: async () => "",
-  logout: () => { },
-  login: () => { },
+  logout: () => {},
+  login: () => {},
   employees: [],
-  setEmployees: () => { },
+  setEmployees: () => {},
   hours: {},
-  setHours: () => { },
+  setHours: () => {},
   getEmployeeHours: async () => null,
   transformDate: () => "",
 };
@@ -169,7 +176,14 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const handleUnlock = async (pincode: string, level: string) => {
-    const res = await checkPin(pincode);
+    const res = await checkPin(pincode).catch((err) => {
+      const error = err as AxiosError;
+      if (error.response && error.response.status === 403) {
+        logout();
+      } else {
+        console.error("Error checking pincode:", error);
+      }
+    });
     let message = "";
 
     if (res.success) {
@@ -181,13 +195,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
       message = "Incorrect pincode";
     }
     return message;
-  }
+  };
 
   const handleLock = () => {
     setLocked(true);
     sessionStorage.removeItem("locked");
-  }
-
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
