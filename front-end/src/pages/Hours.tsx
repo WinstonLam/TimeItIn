@@ -150,7 +150,9 @@ const Hours: React.FC = () => {
   };
 
   const handleNameChange = (employeeId: string, name: string) => {
-    setSelectedEmployeeId(employeeId);
+    if (employeeId === "all") {
+      setSelectedEmployeeId("");
+    } else setSelectedEmployeeId(employeeId);
   };
 
   const handleCancelClick = () => {
@@ -291,6 +293,7 @@ const Hours: React.FC = () => {
                     type="reset"
                     style={{ cancel: true }}
                   />
+                  <Button text="Export" onClick={() => {}} />
                 </>
               )}
             </div>
@@ -304,7 +307,7 @@ const Hours: React.FC = () => {
             </div>
             <div className="namepicker">
               <AutocompleteInput
-                suggestions={names}
+                suggestions={[["all", "All Employees"], ...names]}
                 onSelect={handleNameChange}
               />
             </div>

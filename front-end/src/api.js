@@ -158,6 +158,8 @@ export const checkPin = (pincode) => {
       return response.data;
     })
     .catch((error) => {
+      if (error.response && error.response.status === 403) {
+      }
       console.error("Error retrieving pin:", error);
       throw error;
     });
