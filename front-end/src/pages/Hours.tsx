@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef } from "react";
 import { AdminContext } from "../providers/AdminContext";
 import DatePicker from "react-datepicker";
 import SortSvg from "../icons/sort";
@@ -8,6 +8,12 @@ import Button from "../components/button";
 import AutocompleteInput from "../components/autocomplete";
 import { AxiosError } from "axios";
 import Modal from "../components/modal";
+
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import OverviewPDF from "../components/pdf";
+
+
+
 
 interface Employee {
   uid: string;
@@ -47,21 +53,21 @@ const Hours: React.FC = () => {
   const [pincode, setPincode] = useState<string>("");
   const [error, setError] = useState<string | undefined>(undefined);
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
-
   const [sortConfig, setSortConfig] = useState({
     key: "firstName",
     direction: "ascending",
   });
+  const pdfLink = useRef<HTMLDivElement | null>(null); // Create a ref
 
   const names =
     employees && employees.length > 0
       ? employees.map(
-          (employee) =>
-            [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
-              string,
-              string
-            ]
-        )
+        (employee) =>
+          [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
+            string,
+            string
+          ]
+      )
       : [];
 
   const employeeComparator = (a: Employee, b: Employee) => {
@@ -231,6 +237,11 @@ const Hours: React.FC = () => {
     }
   };
 
+  const handleExport = () => {
+    console.log(hours)
+    console.log(employees)
+    pdfLink.current?.click(); // Trigger click on the hidden PDFDownloadLink
+  }
   const getTime = (date: string | null) => {
     if (!date) return "";
     const newDate = new Date(date);
@@ -242,6 +253,7 @@ const Hours: React.FC = () => {
   for (let i = 0; i < dates.length; i += 7) {
     weeks.push(dates.slice(i, i + 7));
   }
+
   return (
     <>
       {showLocalModal && (
@@ -264,15 +276,14 @@ const Hours: React.FC = () => {
         />
       )}
       <div
-        className={`hours-container ${
-          visibleCols === 1
-            ? "one-col"
-            : visibleCols === 7
+        className={`hours-container ${visibleCols === 1
+          ? "one-col"
+          : visibleCols === 7
             ? "seven-cols"
             : visibleCols === 31
-            ? "thirty-one-cols"
-            : ""
-        }`}
+              ? "thirty-one-cols"
+              : ""
+          }`}
       >
         <div className="hours-table-top-content">
           <div className="hours-container-header">
@@ -293,7 +304,19 @@ const Hours: React.FC = () => {
                     type="reset"
                     style={{ cancel: true }}
                   />
-                  <Button text="Export" onClick={() => {}} />
+                  <Button text="Export" onClick={handleExport} />
+                  <PDFDownloadLink
+                    document={<OverviewPDF />}
+                    fileName="invoice.pdf"
+                  >
+                    {() => (
+                      <div
+                        ref={pdfLink}
+                        style={{ display: "none" }}
+                      />
+
+                    )}
+                  </PDFDownloadLink>
                 </>
               )}
             </div>
@@ -381,9 +404,8 @@ const Hours: React.FC = () => {
                             <>
                               <input
                                 type="time"
-                                className={`timepicker${
-                                  isEditable ? `-enabled` : ""
-                                }`}
+                                className={`timepicker${isEditable ? `-enabled` : ""
+                                  }`}
                                 value={starttime}
                                 onChange={(e) =>
                                   handleTimeChange(
@@ -397,9 +419,8 @@ const Hours: React.FC = () => {
                               />
                               <input
                                 type="time"
-                                className={`timepicker${
-                                  isEditable ? `-enabled` : ""
-                                }`}
+                                className={`timepicker${isEditable ? `-enabled` : ""
+                                  }`}
                                 value={endtime}
                                 onChange={(e) =>
                                   handleTimeChange(
