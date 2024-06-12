@@ -1,4 +1,3 @@
-
 import {
   Image,
   Text,
@@ -7,63 +6,28 @@ import {
   Document,
   StyleSheet,
 } from "@react-pdf/renderer";
+import React, { useContext } from "react";
+import { AdminContext } from "../providers/AdminContext";
 
 const logo = require("../icons/logo.png") as string;
 
-interface PdfData {
-  Employeeid: string;
-  FirstName: string;
-  LastName: string;
-  Hours: {
-    date: {
-      start: string;
-      end: string;
-    }
+interface TransformedEmployeeData {
+  name: string;
+  dates: {
+    [date: string]: {
+      starttime: string | null;
+      endtime: string | null;
+      hours: number | null;
+    };
   };
 }
 
-// pdfData: PdfData
+interface OverviewPDFProps {
+  pdfData: TransformedEmployeeData;
+}
 
-const OverviewPDF = () => {
-  const reciept_data = {
-    "id": "642be0b4bbe5d71a5341dfb1",
-    "invoice_no": "20200669",
-    "address": "739 Porter Avenue, Cade, Missouri, 1134",
-    "date": "24-09-2019",
-    "items": [
-      {
-        "id": 1,
-        "desc": "do ex anim quis velit excepteur non",
-        "qty": 8,
-        "price": 179.25
-      },
-      {
-        "id": 2,
-        "desc": "incididunt cillum fugiat aliqua Lorem sit Lorem",
-        "qty": 9,
-        "price": 107.78
-      },
-      {
-        "id": 3,
-        "desc": "quis Lorem ad laboris proident aliqua laborum",
-        "qty": 4,
-        "price": 181.62
-      },
-      {
-        "id": 4,
-        "desc": "exercitation non do eu ea ullamco cillum",
-        "qty": 4,
-        "price": 604.55
-      },
-      {
-        "id": 5,
-        "desc": "ea nisi non excepteur irure Lorem voluptate",
-        "qty": 6,
-        "price": 687.08
-      }
-    ]
-  }
-
+const OverviewPDF: React.FC<OverviewPDFProps> = ({ pdfData }) => {
+  const { transformDate } = useContext(AdminContext);
   const styles = StyleSheet.create({
     page: {
       fontSize: 11,
@@ -134,14 +98,19 @@ const OverviewPDF = () => {
     tbody2: { flex: 2, borderRightWidth: 1 },
   });
 
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
+  const getTime = (date: string | null) => {
+    if (!date) return "";
+    const newDate = new Date(date);
+    return transformDate(newDate, { time: true });
   };
 
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
 
   const InvoiceTitle = () => (
     <View style={styles.titleContainer}>
@@ -150,7 +119,6 @@ const OverviewPDF = () => {
         <Text style={styles.reportTitle}>Originals</Text>
       </View>
     </View>
-
   );
 
   const Address = () => (
@@ -162,20 +130,16 @@ const OverviewPDF = () => {
             Created on: {formatDate(new Date())}
           </Text>
         </View>
-        <View>
-          <Text style={styles.addressTitle}>7, Ademola Odede, </Text>
-          <Text style={styles.addressTitle}>Ikeja,</Text>
-          <Text style={styles.addressTitle}>Lagos, Nigeria.</Text>
-        </View>
       </View>
     </View>
   );
+
   const UserAddress = () => (
     <View style={styles.titleContainer}>
       <View style={styles.spaceBetween}>
         <View style={{ maxWidth: 200 }}>
           <Text style={styles.addressTitle}>Overview of: </Text>
-          <Text style={styles.address}>{reciept_data.address}</Text>
+          <Text style={styles.address}>{pdfData.name}</Text>
         </View>
       </View>
     </View>
@@ -197,48 +161,48 @@ const OverviewPDF = () => {
       </View>
     </View>
   );
+
   const TableBody = () =>
-    reciept_data.items.map((receipt) => (
-      <View key={receipt.id} style={{ width: "100%", flexDirection: "row" }}>
+    Object.keys(pdfData.dates).map((date) => (
+      <View key={date} style={{ width: "100%", flexDirection: "row" }}>
         <View style={[styles.tbody, styles.tbody2]}>
-          <Text>{receipt.desc}</Text>
+          <Text>{date}</Text>
         </View>
         <View style={styles.tbody}>
-          <Text>{receipt.price} </Text>
+          <Text>{getTime(pdfData.dates[date].starttime) || "N/A"} </Text>
         </View>
         <View style={styles.tbody}>
-          <Text>{receipt.qty}</Text>
+          <Text>{getTime(pdfData.dates[date].endtime) || "N/A"}</Text>
         </View>
         <View style={styles.tbody}>
-          <Text>{(receipt.price * receipt.qty).toFixed(2)}</Text>
+          <Text>{pdfData.dates[date].hours?.toFixed(2) || "N/A"}</Text>
         </View>
       </View>
     ));
 
-  const TableTotal = () => (
-    <View style={{ width: "100%", flexDirection: "row" }}>
-      <View style={styles.total}>
-        <Text>Total Days</Text>
+  const TableTotal = () => {
+    const totalDays = Object.keys(pdfData.dates).length;
+    const totalHours = Object.values(pdfData.dates).reduce((sum, date) => {
+      return sum + (date.hours || 0);
+    }, 0);
+
+    return (
+      <View style={{ width: "100%", flexDirection: "row" }}>
+        <View style={styles.total}>
+          <Text>Total Days</Text>
+        </View>
+        <View style={styles.total}>
+          <Text>{totalDays}</Text>
+        </View>
+        <View style={styles.tbody}>
+          <Text>Total Hours</Text>
+        </View>
+        <View style={styles.tbody}>
+          <Text>{totalHours.toFixed(2)}</Text>
+        </View>
       </View>
-      <View style={styles.total}>
-        <Text> {reciept_data.items.reduce(
-          (sum, item) => sum + item.price * item.qty,
-          0
-        )}</Text>
-      </View>
-      <View style={styles.tbody}>
-        <Text>Total Hours</Text>
-      </View>
-      <View style={styles.tbody}>
-        <Text>
-          {reciept_data.items.reduce(
-            (sum, item) => sum + item.price * item.qty,
-            0
-          )}
-        </Text>
-      </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <Document>
@@ -253,4 +217,5 @@ const OverviewPDF = () => {
     </Document>
   );
 };
+
 export default OverviewPDF;
