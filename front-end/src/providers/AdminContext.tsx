@@ -35,9 +35,9 @@ interface AdminContextProps {
   logout: () => void;
   login: (loggedIn: boolean) => void;
   employees: Employee[];
-  setEmployees: React.Dispatch<React.SetStateAction<Employee[]>>;
+  setEmployees: (newEmployees: Employee[]) => void;
   hours: Hours;
-  setHours: React.Dispatch<React.SetStateAction<Hours>>;
+  setHours: (newHours: Hours) => void;
   getEmployeeHours: (
     employeeId: string,
     date: Date
@@ -50,18 +50,18 @@ interface AdminContextProps {
 
 const defaultState: AdminContextProps = {
   loading: false,
-  setLoading: () => {},
+  setLoading: () => { },
   loggedIn: false,
-  setLoggedin: () => {},
+  setLoggedin: () => { },
   locked: true,
-  handleLock: () => {},
+  handleLock: () => { },
   handleUnlock: async () => "",
-  logout: () => {},
-  login: () => {},
+  logout: () => { },
+  login: () => { },
   employees: [],
-  setEmployees: () => {},
+  setEmployees: () => { },
   hours: {},
-  setHours: () => {},
+  setHours: () => { },
   getEmployeeHours: async () => null,
   transformDate: () => "",
 };
@@ -128,6 +128,18 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
       return dateString;
     }
   };
+
+  const setHoursAndPersist = (newHours: Hours) => {
+    setHours(newHours);
+    localStorage.setItem("hours", JSON.stringify(newHours));
+  };
+
+  const setEmployeesAndPersist = (newEmployees: Employee[]) => {
+    setEmployees(newEmployees);
+    localStorage.setItem("employees", JSON.stringify(newEmployees));
+  }
+
+
 
   const getEmployeeHours = async (employeeId: string, date: Date) => {
     let employeeHours = null;
@@ -226,9 +238,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
     logout,
     login,
     employees,
-    setEmployees,
+    setEmployees: setEmployeesAndPersist,
     hours,
-    setHours,
+    setHours: setHoursAndPersist,
     getEmployeeHours,
     transformDate,
   };
