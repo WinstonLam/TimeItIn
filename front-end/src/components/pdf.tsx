@@ -107,13 +107,11 @@ const OverviewPDF: React.FC<OverviewPDFProps> = ({ pdfData }) => {
       newDate = new Date(date);
     } else {
       // If date is not in a valid format, log the issue
-      console.error("Invalid date format:", date);
       return "";
     }
 
     const time = transformDate(newDate, { time: true });
-    console.log("Parsed Date:", newDate);
-    console.log("Formatted Time:", time);
+
     return time;
   };
 
@@ -177,7 +175,6 @@ const OverviewPDF: React.FC<OverviewPDFProps> = ({ pdfData }) => {
 
   const TableBody = () =>
     Object.keys(pdfData.dates).map((date) => (
-      console.log(pdfData.dates[date].starttime),
       <View key={date} style={{ width: "100%", flexDirection: "row" }}>
         <View style={[styles.tbody, styles.tbody2]}>
           <Text>{date}</Text>
