@@ -100,8 +100,21 @@ const OverviewPDF: React.FC<OverviewPDFProps> = ({ pdfData }) => {
 
   const getTime = (date: string | null) => {
     if (!date) return "";
-    const newDate = new Date(date);
-    return transformDate(newDate, { time: true });
+
+    // Check if the date string is in ISO format or needs to be adjusted
+    let newDate;
+    if (!isNaN(Date.parse(date))) {
+      newDate = new Date(date);
+    } else {
+      // If date is not in a valid format, log the issue
+      console.error("Invalid date format:", date);
+      return "";
+    }
+
+    const time = transformDate(newDate, { time: true });
+    console.log("Parsed Date:", newDate);
+    console.log("Formatted Time:", time);
+    return time;
   };
 
   const formatDate = (date: Date) => {
@@ -164,6 +177,7 @@ const OverviewPDF: React.FC<OverviewPDFProps> = ({ pdfData }) => {
 
   const TableBody = () =>
     Object.keys(pdfData.dates).map((date) => (
+      console.log(pdfData.dates[date].starttime),
       <View key={date} style={{ width: "100%", flexDirection: "row" }}>
         <View style={[styles.tbody, styles.tbody2]}>
           <Text>{date}</Text>

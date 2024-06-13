@@ -105,7 +105,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
       );
     }
 
-    if (time) {
+    if (time === true) {
       const timeOptions: Intl.DateTimeFormatOptions = {
         hour: "2-digit",
         minute: "2-digit",
