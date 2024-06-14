@@ -8,6 +8,7 @@ import Button from "../components/button";
 import AutocompleteInput from "../components/autocomplete";
 import { AxiosError } from "axios";
 import Modal from "../components/modal";
+import loading from "../../public/assets/loading.gif";
 
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import OverviewPDF from "../components/pdf";
