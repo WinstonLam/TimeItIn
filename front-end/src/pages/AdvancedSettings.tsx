@@ -8,7 +8,7 @@ import "../styles/AdvancedSettings.css";
 import { AxiosError } from "axios";
 
 import Modal from "../components/modal";
-interface AdvancedSettingsProps {}
+interface AdvancedSettingsProps { }
 
 const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
 
   const [editedSettings, setEditedSettings] = useState(settings);
   const [isEditing, setIsEditing] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const { logout } = useContext(AdminContext);
 
@@ -74,7 +74,7 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
         console.error("Error editing settings", error);
       }
     }
-    setShowModal(true);
+    setSuccess(true);
   };
 
   const handleChange =
@@ -90,22 +90,22 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
 
   return (
     <>
-      {showModal && (
+      {success && (
         <Modal
           title="Success"
           desc="Settings have been updated"
-          dismiss={() => setShowModal(false)}
+          dismiss={() => setSuccess(false)}
           action={{
             title: "Back",
             onClick: () => {
-              setShowModal(false);
+              setSuccess(false);
             },
             style: { cancel: true },
           }}
           actionB={{
             title: "Home",
             onClick: () => {
-              setShowModal(false);
+              setSuccess(false);
               navigate("/");
             },
           }}

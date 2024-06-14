@@ -7,6 +7,7 @@ import Button from "../components/button";
 import { getEmployees } from "../api";
 import { useCreateEmployee } from "../hooks/useCreateEmployee";
 import { AxiosError } from "axios";
+import Modal from "../components/modal";
 
 interface EmployeeCreationProps {
   setAddUser: (value: boolean) => void;
@@ -73,51 +74,68 @@ const EmployeeCreation: React.FC<EmployeeCreationProps> = ({ setAddUser }) => {
         <div className={`error${errorMessage ? "-show" : ""}`}>
           {errorMessage}
         </div>
-        {success ? (
-          <div className="succes">
-            <h2>Succesfully created new employee</h2>
-
-            <div className="actions">
-              <Button onClick={handleBack} text="Overview" />
-              <Button
-                onClick={() => navigate("/")}
-                text="Home"
-                style={{ cancel: true }}
+        {success && (
+          <Modal
+            title="Success"
+            desc="Employee created successfully!"
+            dismiss={() => setSuccess(false)}
+            action={{
+              title: "Back",
+              onClick: () => {
+                setSuccess(false);
+              },
+              style: { cancel: true },
+            }}
+            actionB={{
+              title: "Employees",
+              onClick: () => {
+                setSuccess(false);
+                setAddUser(false);
+                navigate("/employees");
+              },
+            }}
+            actionC={{
+              title: "Home",
+              onClick: () => {
+                setSuccess(false);
+                navigate("/");
+              },
+            }}
+          />
+        )}
+        <form onSubmit={handleCreate}>
+          <div className="employee-creation-form-fields">
+            <div className="row">
+              <FormField
+                value={firstName}
+                label="First Name:"
+                id="firstName"
+                required={true}
+                formSubmitted={formSubmitted}
+                onChange={(value) => setFirstName(value)}
+                limit={10}
+              />
+              <FormField
+                value={lastName}
+                label="Last Name:"
+                id="lastName"
+                required={true}
+                formSubmitted={formSubmitted}
+                onChange={(value) => setLastName(value)}
+                limit={15}
               />
             </div>
           </div>
-        ) : (
-          <form onSubmit={handleCreate}>
-            <div className="employee-creation-form-fields">
-              <div className="row">
-                <FormField
-                  value={firstName}
-                  label="First Name:"
-                  id="firstName"
-                  required={true}
-                  formSubmitted={formSubmitted}
-                  onChange={(value) => setFirstName(value)}
-                />
-                <FormField
-                  value={lastName}
-                  label="Last Name:"
-                  id="lastName"
-                  required={true}
-                  formSubmitted={formSubmitted}
-                  onChange={(value) => setLastName(value)}
-                />
-              </div>
-            </div>
-            <div className="actions">
-              <Button type="submit" text="Create" onClick={handleCreate} />
-              <Button
-                onClick={handleBack}
-                text="Back"
-                style={{ cancel: true }}
-              />
-            </div>
-          </form>
-        )}
+          <div className="actions">
+            <Button type="submit" text="Create" onClick={handleCreate} />
+            <Button
+              onClick={handleBack}
+              text="Back"
+              style={{ cancel: true }}
+            />
+          </div>
+        </form>
+
       </div>
     </div>
   );

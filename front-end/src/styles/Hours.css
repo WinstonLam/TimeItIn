@@ -153,9 +153,21 @@
   display: flex;
   flex-direction: row;
   margin-left: -15px;
-  min-width: 275px;
+  width: 100%;
+  align-items: center;
 }
 
+.hours-cointainer-header-actions .loadingIcon{
+  height: 50px;
+}
+
+.hours-cointainer-header-actions p{
+  font-size: 12px;
+  position: absolute;
+  left: 36%;
+  color: white;
+
+}
 .hours-table-top-content th {
   border: none;
   min-width: 220px;
@@ -322,3 +334,5 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   display: none;
   -webkit-appearance: none;
 }
+
+

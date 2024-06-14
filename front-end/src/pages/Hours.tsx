@@ -8,10 +8,11 @@ import Button from "../components/button";
 import AutocompleteInput from "../components/autocomplete";
 import { AxiosError } from "axios";
 import Modal from "../components/modal";
-import loading from "../../public/assets/loading.gif";
-
+import loadingIcon from "../icons/loading.gif";
+import { useNavigate } from "react-router-dom";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import OverviewPDF from "../components/pdf";
+import _ from 'lodash';
 
 interface Employee {
   uid: string;
@@ -51,6 +52,7 @@ const Hours: React.FC = () => {
     handleUnlock,
     locked,
   } = useContext(AdminContext);
+  const navigate = useNavigate();
   const [visibleCols, setVisibleCols] = useState<number>(1);
   const [sorted, setSorted] = useState(false);
   const [hideEmptyEmployees, setHideEmptyEmployees] = useState(false);
@@ -58,13 +60,20 @@ const Hours: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("");
   const [editedHours, setEditedHours] = useState<Hours>(hours);
+  const [submitHoursStatus, setSubmitHoursStatus] = useState({
+    status: false,
+    message: "",
+  });
   const [showLocalModal, setShowLocalModal] = useState<boolean>(false);
   const [pincode, setPincode] = useState<string>("");
   const [error, setError] = useState<string | undefined>(undefined);
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
+  const [exportMessage, setExportMessage] = useState<string>("");
+  const [exporting, setExporting] = useState<boolean>(false);
   const [exportData, setExportData] = useState<TransformedEmployeeData | null>(
     null
   );
+
 
   const [sortConfig, setSortConfig] = useState({
     key: "firstName",
@@ -75,12 +84,12 @@ const Hours: React.FC = () => {
   const names =
     employees && employees.length > 0
       ? employees.map(
-          (employee) =>
-            [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
-              string,
-              string
-            ]
-        )
+        (employee) =>
+          [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
+            string,
+            string
+          ]
+      )
       : [];
 
   const employeeComparator = (a: Employee, b: Employee) => {
@@ -173,11 +182,21 @@ const Hours: React.FC = () => {
   };
 
   const handleCancelClick = () => {
+    setExportMessage("");
     setIsEditing(false);
+    setEditedHours(hours);
+    resetIncompleteHours();
   };
 
   const handleSubmitClick = async () => {
-    // Submit the edited hours
+
+    console.log(editedHours === hours)
+
+    if (_.isEqual(editedHours, hours)) { // use lodash to do a deep comparison
+
+      setSubmitHoursStatus({ status: true, message: "No changes detected" });
+      return;
+    }
 
     const currentDate = selectedDate ? selectedDate : new Date();
 
@@ -195,6 +214,7 @@ const Hours: React.FC = () => {
     }
 
     setIsEditing(false);
+    setSubmitHoursStatus({ status: true, message: "Hours Updated" });
   };
 
   const handleTimeChange = (
@@ -204,6 +224,7 @@ const Hours: React.FC = () => {
     value: string | null
   ) => {
     if (!value) return;
+    setExportMessage("");
 
     let p = date.split("-");
     let day = parseInt(p[0], 10);
@@ -223,7 +244,48 @@ const Hours: React.FC = () => {
         },
       },
     }));
+
   };
+
+  // this function will reset partially edited hours, it will scan editedHours and if for example a input field
+  // only is filled in like 12:-- instead of also specifiying the minutes, it will reset the field to the original value
+  const resetIncompleteHours = () => {
+    let newEditedHours = { ...editedHours };
+
+    for (const date in editedHours) {
+      for (const employeeId in editedHours[date]) {
+        if (editedHours[date][employeeId].starttime) {
+          let p = date.split("-");
+          let day = parseInt(p[0], 10);
+          let month = parseInt(p[1], 10) - 1; // Month is 0-based in JavaScript Date
+          let year = parseInt(p[2], 10);
+
+          const datePart = new Date(year, month, day).toISOString().split("T")[0];
+          const time = new Date(`${datePart}T${editedHours[date][employeeId].starttime}:00`);
+
+          if (time.getMinutes() === 0) {
+            newEditedHours[date][employeeId].starttime = "";
+          }
+        }
+        if (editedHours[date][employeeId].endtime) {
+          let p = date.split("-");
+          let day = parseInt(p[0], 10);
+          let month = parseInt(p[1], 10) - 1; // Month is 0-based in JavaScript Date
+          let year = parseInt(p[2], 10);
+
+          const datePart = new Date(year, month, day).toISOString().split("T")[0];
+          const time = new Date(`${datePart}T${editedHours[date][employeeId].endtime}:00`);
+
+          if (time.getMinutes() === 0) {
+            newEditedHours[date][employeeId].endtime = null;
+          }
+        }
+      }
+    }
+
+    setEditedHours(newEditedHours);
+  }
+
 
   const handleChangeLocal = async (value: string) => {
     setFormSubmitted(false);
@@ -251,6 +313,14 @@ const Hours: React.FC = () => {
   };
 
   const handleExport = async () => {
+    await new Promise<void>((resolve) => {
+      setExportMessage("");
+      setExporting(true);
+      resolve();
+    });
+
+
+
     const visibleEmployees = employees
       .filter((employee) =>
         hideEmptyEmployees ? hasHours(employee, dates) : true
@@ -258,6 +328,7 @@ const Hours: React.FC = () => {
       .filter((employee) =>
         selectedEmployeeId ? employee.uid === selectedEmployeeId : true
       );
+
 
     const transformedData: TransformedEmployeeData[] = visibleEmployees
       .map((employee) => {
@@ -280,8 +351,8 @@ const Hours: React.FC = () => {
             const hoursWorked =
               endtime && starttime
                 ? (new Date(endtime).getTime() -
-                    new Date(starttime).getTime()) /
-                  (1000 * 60 * 60)
+                  new Date(starttime).getTime()) /
+                (1000 * 60 * 60)
                 : null;
 
             employeeData.dates[dayIdx] = {
@@ -295,12 +366,23 @@ const Hours: React.FC = () => {
         return employeeData;
       })
       .filter((employeeData) => Object.keys(employeeData.dates).length > 0);
+
+
+    if (transformedData.length === 0) {
+      setExporting(false);
+      setExportMessage("No data to export");
+      return;
+    }
     for (const employeeData of transformedData) {
       await new Promise<void>((resolve) => {
         setExportData(employeeData);
         resolve();
       });
+
     }
+    setExporting(false);
+    setExportMessage("Exported successfully");
+    setExportData(null);
   };
 
   useEffect(() => {
@@ -321,8 +403,30 @@ const Hours: React.FC = () => {
     weeks.push(dates.slice(i, i + 7));
   }
 
+
   return (
     <>
+      {submitHoursStatus.status && (
+        <Modal
+          title={submitHoursStatus.message}
+
+          dismiss={() => setSubmitHoursStatus({ status: false, message: "" })}
+          action={{
+            title: "Back",
+            onClick: () => {
+              setSubmitHoursStatus({ status: false, message: "" })
+            },
+            style: { cancel: true },
+          }}
+          actionB={{
+            title: "Home",
+            onClick: () => {
+              setSubmitHoursStatus({ status: false, message: "" })
+              navigate("/");
+            },
+          }}
+        />
+      )}
       {showLocalModal && (
         <Modal
           title="Pincode Required"
@@ -343,15 +447,14 @@ const Hours: React.FC = () => {
         />
       )}
       <div
-        className={`hours-container ${
-          visibleCols === 1
-            ? "one-col"
-            : visibleCols === 7
+        className={`hours-container ${visibleCols === 1
+          ? "one-col"
+          : visibleCols === 7
             ? "seven-cols"
             : visibleCols === 31
-            ? "thirty-one-cols"
-            : ""
-        }`}
+              ? "thirty-one-cols"
+              : ""
+          }`}
       >
         <div className="hours-table-top-content">
           <div className="hours-container-header">
@@ -373,6 +476,9 @@ const Hours: React.FC = () => {
                     style={{ cancel: true }}
                   />
                   <Button text="Export" onClick={handleExport} />
+                  {exporting && <img className="loadingIcon" src={loadingIcon} alt="Loading..." />}
+                  {exportMessage && <p>{exportMessage}</p>}
+
                   <PDFDownloadLink
                     document={
                       exportData ? <OverviewPDF pdfData={exportData} /> : <></>
@@ -468,9 +574,8 @@ const Hours: React.FC = () => {
                             <>
                               <input
                                 type="time"
-                                className={`timepicker${
-                                  isEditable ? `-enabled` : ""
-                                }`}
+                                className={`timepicker${isEditable ? `-enabled` : ""
+                                  }`}
                                 value={starttime}
                                 onChange={(e) =>
                                   handleTimeChange(
@@ -484,9 +589,8 @@ const Hours: React.FC = () => {
                               />
                               <input
                                 type="time"
-                                className={`timepicker${
-                                  isEditable ? `-enabled` : ""
-                                }`}
+                                className={`timepicker${isEditable ? `-enabled` : ""
+                                  }`}
                                 value={endtime}
                                 onChange={(e) =>
                                   handleTimeChange(
