@@ -98,19 +98,16 @@ const OverviewPDF: React.FC<OverviewPDFProps> = ({ pdfData }) => {
     tbody2: { flex: 2, borderRightWidth: 1 },
   });
 
+
+
   const getTime = (date: string | null) => {
     if (!date) return "";
 
-    // Check if the date string is in ISO format or needs to be adjusted
-    let newDate;
-    if (!isNaN(Date.parse(date))) {
-      newDate = new Date(date);
-    } else {
-      // If date is not in a valid format, log the issue
-      return "";
-    }
+    const newDate = new Date(date);
+
 
     const time = transformDate(newDate, { time: true });
+    console.log(time);
 
     return time;
   };
@@ -174,7 +171,11 @@ const OverviewPDF: React.FC<OverviewPDFProps> = ({ pdfData }) => {
   );
 
   const TableBody = () =>
+
+
     Object.keys(pdfData.dates).map((date) => (
+
+
       <View key={date} style={{ width: "100%", flexDirection: "row" }}>
         <View style={[styles.tbody, styles.tbody2]}>
           <Text>{date}</Text>
@@ -189,6 +190,7 @@ const OverviewPDF: React.FC<OverviewPDFProps> = ({ pdfData }) => {
           <Text>{pdfData.dates[date].hours?.toFixed(2) || "N/A"}</Text>
         </View>
       </View>
+
     ));
 
   const TableTotal = () => {

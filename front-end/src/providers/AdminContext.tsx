@@ -111,6 +111,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
         minute: "2-digit",
         hour12: false,
       };
+      console.log(date.toLocaleTimeString("en-GB", timeOptions));
       return date.toLocaleTimeString("en-GB", timeOptions); // en-GB ensures 24-hour format
     } else {
       let dateString = "";
