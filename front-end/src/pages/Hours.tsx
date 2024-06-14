@@ -180,10 +180,15 @@ const Hours: React.FC = () => {
     } else setSelectedEmployeeId(employeeId);
   };
 
-  const handleCancelClick = () => {
+  const handleCancelClick = async () => {
     setExportMessage("");
     setIsEditing(false);
-    setEditedHours(hours);
+
+    await new Promise<void>((resolve) => {
+      setEditedHours(hours);
+      resolve();
+    });
+
     resetIncompleteHours();
   };
 
