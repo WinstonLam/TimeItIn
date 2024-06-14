@@ -50,18 +50,18 @@ interface AdminContextProps {
 
 const defaultState: AdminContextProps = {
   loading: false,
-  setLoading: () => { },
+  setLoading: () => {},
   loggedIn: false,
-  setLoggedin: () => { },
+  setLoggedin: () => {},
   locked: true,
-  handleLock: () => { },
+  handleLock: () => {},
   handleUnlock: async () => "",
-  logout: () => { },
-  login: () => { },
+  logout: () => {},
+  login: () => {},
   employees: [],
-  setEmployees: () => { },
+  setEmployees: () => {},
   hours: {},
-  setHours: () => { },
+  setHours: () => {},
   getEmployeeHours: async () => null,
   transformDate: () => "",
 };
@@ -111,7 +111,6 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
         minute: "2-digit",
         hour12: false,
       };
-      console.log(date.toLocaleTimeString("en-GB", timeOptions));
       return date.toLocaleTimeString("en-GB", timeOptions); // en-GB ensures 24-hour format
     } else {
       let dateString = "";
@@ -138,9 +137,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
   const setEmployeesAndPersist = (newEmployees: Employee[]) => {
     setEmployees(newEmployees);
     localStorage.setItem("employees", JSON.stringify(newEmployees));
-  }
-
-
+  };
 
   const getEmployeeHours = async (employeeId: string, date: Date) => {
     let employeeHours = null;

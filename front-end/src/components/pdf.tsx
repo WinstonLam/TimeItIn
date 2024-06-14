@@ -98,26 +98,23 @@ const OverviewPDF: React.FC<OverviewPDFProps> = ({ pdfData }) => {
     tbody2: { flex: 2, borderRightWidth: 1 },
   });
 
-
-
-  const getTime = (date: string | null) => {
-    if (!date) return "";
-
-    const newDate = new Date(date);
-
-
-    const time = transformDate(newDate, { time: true });
-    console.log(time);
-
-    return time;
-  };
-
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
     });
+  };
+
+  const getTime = (date: string | null) => {
+    if (!date) return "";
+    const newDate = new Date(date);
+    const timeOptions: Intl.DateTimeFormatOptions = {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    };
+    return newDate.toLocaleTimeString("en-GB", timeOptions); // en-GB ensures 24-hour format
   };
 
   const InvoiceTitle = () => (
@@ -171,26 +168,21 @@ const OverviewPDF: React.FC<OverviewPDFProps> = ({ pdfData }) => {
   );
 
   const TableBody = () =>
-
-
     Object.keys(pdfData.dates).map((date) => (
-
-
       <View key={date} style={{ width: "100%", flexDirection: "row" }}>
         <View style={[styles.tbody, styles.tbody2]}>
           <Text>{date}</Text>
         </View>
         <View style={styles.tbody}>
-          <Text>{getTime(pdfData.dates[date].starttime) || "N/A"} </Text>
+          <Text>{getTime(pdfData.dates[date].starttime)} </Text>
         </View>
         <View style={styles.tbody}>
-          <Text>{getTime(pdfData.dates[date].endtime) || "N/A"}</Text>
+          <Text>{getTime(pdfData.dates[date].endtime)}</Text>
         </View>
         <View style={styles.tbody}>
           <Text>{pdfData.dates[date].hours?.toFixed(2) || "N/A"}</Text>
         </View>
       </View>
-
     ));
 
   const TableTotal = () => {
