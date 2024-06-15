@@ -312,8 +312,8 @@ protectedRouter.post("/edit-hours", async (req, res) => {
     if (!monthDoc.exists) {
       await userDoc.ref.collection("hours").doc(monthId).set(updates);
     } else {
-      // If the document for this month exists, update the start and end times
-      await userDoc.ref.collection("hours").doc(monthId).update(updates);
+      // If the document for this month exists, replace the document with the new updates
+      await userDoc.ref.collection("hours").doc(monthId).set(updates);
     }
     // Fetch the updated document
     const updatedMonthDoc = await monthDoc.ref.get();

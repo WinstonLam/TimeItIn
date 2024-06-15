@@ -163,8 +163,8 @@
 
 .hours-cointainer-header-actions p{
   font-size: 12px;
-  position: absolute;
-  left: 36%;
+  position: relative;
+  left: 5%;
   color: white;
 
 }

@@ -59,7 +59,7 @@ const Hours: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [isEditing, setIsEditing] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("");
-  const [editedHours, setEditedHours] = useState<Hours>(hours);
+  const [editedHours, setEditedHours] = useState<Hours>(_.cloneDeep(hours));
   const [submitHoursStatus, setSubmitHoursStatus] = useState({
     status: false,
     message: "",
@@ -197,7 +197,6 @@ const Hours: React.FC = () => {
   const checkBothFields = () => {
     for (const date in editedHours) {
       for (const employeeId in editedHours[date]) {
-        console.log(date, editedHours[date][employeeId]);
         if (
           (editedHours[date][employeeId] &&
             editedHours[date][employeeId].starttime &&
@@ -216,6 +215,7 @@ const Hours: React.FC = () => {
   };
 
   const handleSubmitClick = async () => {
+    setExporting(true);
     if (_.isEqual(editedHours, hours)) {
       // use lodash to do a deep comparison
 
@@ -241,11 +241,13 @@ const Hours: React.FC = () => {
       if (err.response && err.response.status === 403) {
         logout();
       } else {
+        setExporting(false);
         console.error("Error editing hours:", error);
       }
     }
 
     setIsEditing(false);
+    setExporting(false);
     setSubmitHoursStatus({ status: true, message: "Hours Updated" });
   };
 
@@ -255,16 +257,29 @@ const Hours: React.FC = () => {
     field: keyof HoursData,
     value: string | null
   ) => {
-    if (!value) return;
     setExportMessage("");
-    // Determine the correct date to use when setting endtime
     let targetDate = date;
+
+    if (!value) {
+      setEditedHours((prevState) => {
+        const newState = { ...prevState };
+        delete newState[date]?.[employeeId]?.[field];
+
+        // If the employee has no hours for the date, remove the employee from the date
+        if (Object.keys(newState[date]?.[employeeId] || {}).length === 0) {
+          delete newState[date]?.[employeeId];
+        }
+
+        return newState;
+      });
+      return;
+    }
 
     if (field === "endtime") {
       const starttime =
         editedHours[date]?.[employeeId]?.starttime ||
         hours[date]?.[employeeId]?.starttime;
-      if (!starttime || new Date(starttime) > new Date(value)) {
+      if (!starttime || new Date(starttime) >= new Date(value)) {
         setSubmitHoursStatus({
           status: true,
           message: "End time cannot be before start time",

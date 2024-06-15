@@ -84,7 +84,9 @@
   justify-content: space-evenly;
 }
 
-.settings-lock{
+
+
+.settings-lock, .settings-themes{
   color: rgba(var(--primary-color));
   fill:  none;
   stroke: rgba(var(--primary-color));
@@ -97,8 +99,12 @@
               filter 0.1s ease-in-out,
               stroke 0.5s ease-in-out,
               color 0.5s ease-in-out;
-
 }
+
+.settings-themes{
+  margin-top: -5px;
+}
+
 .settings-signout{
   color: rgba(var(--primary-color));
   fill: rgba(var(--primary-color));
@@ -110,12 +116,28 @@
               color 0.5s ease-in-out;
 }
 
+.settings-themes select{
+  position: absolute;
+  top: 0;
+  left: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 100%;
+  height: 110%;
+  opacity: 0; 
+  cursor: pointer;
+}
+
+
+
+
 .settings-signout:hover{
   color: rgba(var(--third-color));
   fill: rgba(var(--third-color));
 }
 
-.settings-lock:hover{
+.settings-lock:hover, .settings-themes:hover{
   color: rgba(var(--third-color));
   stroke: rgba(var(--third-color));
 }
@@ -127,8 +149,13 @@
   margin: -7px -5px 8px -5px;
 }
 
+.settings-themes p {
+  margin: -5px 0px 0px -5px;
+}
+
 .settings-signout:active,
-.settings-lock:active{
+.settings-lock:active,
+.settings-themes:active{
   transform: translate(-2px, 2px);
   filter: none;
 }

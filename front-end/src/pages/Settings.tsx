@@ -12,6 +12,9 @@ import CalendarSvg from "../icons/calendar";
 import SignOutSvg from "../icons/signout";
 import LockedSvg from "../icons/locked";
 import UnlockedSvg from "../icons/unlocked";
+import ThemeSvg from "../icons/theme";
+
+import { themes, ThemeNames, ThemeProps } from "../styles/themes";
 
 interface SettingsProps {
   active: boolean;
@@ -100,6 +103,16 @@ const Settings: FC<SettingsProps> = ({ active, setActive }) => {
     }
   };
 
+  const changeTheme = (themeName: ThemeNames) => {
+    const theme = themes[themeName];
+    Object.keys(theme).forEach((key) => {
+      document.documentElement.style.setProperty(
+        `--${key}-color`,
+        theme[key as keyof ThemeProps]
+      );
+    });
+  };
+
   return (
     <>
       {showGlobalModal && (
@@ -147,7 +160,21 @@ const Settings: FC<SettingsProps> = ({ active, setActive }) => {
           <div className="settings-content-header-title">
             <h1>Settings</h1>
           </div>
+
           <div className="header-actions">
+            <div className="settings-themes">
+              <ThemeSvg className="settings-theme-icon" />
+              <select
+                onChange={(e) => changeTheme(e.target.value as ThemeNames)}
+              >
+                {Object.keys(themes).map((themeName) => (
+                  <option key={themeName} value={themeName}>
+                    {themeName.charAt(0).toUpperCase() + themeName.slice(1)}
+                  </option>
+                ))}
+              </select>
+              <p>Theme</p>
+            </div>
             <div className="settings-lock">
               {locked ? (
                 <div className="settings-lock-icon" onClick={handleModal}>
