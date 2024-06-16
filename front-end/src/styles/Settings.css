@@ -13,6 +13,7 @@
   transition: all 0.5s ease-in-out;
 }
 
+
 .settings-content, .settings-content-active {
   position: fixed;
   display: flex;
@@ -43,8 +44,9 @@
 .settings-content-header-title{
   font-size: 1rem;
   font-weight: 600;
-  color: rgba(var(--primary-color));
+  color: rgb(var(--text-color));
   width: 90%;
+
 }
 
 .settings-content-header .header-actions{
@@ -87,9 +89,9 @@
 
 
 .settings-lock, .settings-themes{
-  color: rgba(var(--primary-color));
+  color: rgba(var(--text-color));
   fill:  none;
-  stroke: rgba(var(--primary-color));
+  stroke: rgba(var(--text-color));
   stroke-width: 1.5px;
   width: 60px;
   margin-top: 5px;
@@ -106,8 +108,8 @@
 }
 
 .settings-signout{
-  color: rgba(var(--primary-color));
-  fill: rgba(var(--primary-color));
+  color: rgba(var(--text-color));
+  fill: rgba(var(--text-color));
   cursor: pointer;
   filter: drop-shadow(-2px 2px 2px rgba(0, 0, 0, 0.5));
   transition: transform 0.1s ease-in-out,
@@ -127,6 +129,14 @@
   height: 110%;
   opacity: 0; 
   cursor: pointer;
+  background-color: rgb(var(--primary-color));
+  border: none;
+  outline: none;
+  color: rgb(var(--text-color));
+  text-shadow: rgba(var(--text-color), 0.5);
+  font-size: 25px;
+
+
 }
 
 
@@ -180,7 +190,7 @@
   right: 10%;
   height: 8px;
   width: 40px;
-  background-color: rgba(var(--primary-color));  
+  background-color: rgba(var(--text-color));  
   border-radius: 2rem;  
   transition: inherit;
 }

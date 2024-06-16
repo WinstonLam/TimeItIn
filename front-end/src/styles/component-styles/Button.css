@@ -1,7 +1,7 @@
 .button, .button-cancel{
     background-color: rgb(var(--primary-color));
     border: none;
-    color: white;
+    color: rgb(var(--text-color));
     padding: 10px 20px;
     text-align: center;
     text-decoration: none;

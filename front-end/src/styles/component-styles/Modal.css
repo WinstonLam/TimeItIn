@@ -55,6 +55,9 @@
     align-items: center;
 }
 
+.modal-content h2, .modal-content p{
+    color: rgb(var(--text-color));
+}
 
 @keyframes fadeIn {
     from {opacity: 0;}

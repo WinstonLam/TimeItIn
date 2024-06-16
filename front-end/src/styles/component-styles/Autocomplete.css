@@ -12,6 +12,7 @@
   
   .autocomplete-input .title {
     margin-left: 5px;
+    color: rgb(var(--text-color));
   }
   
   input {

@@ -39,6 +39,7 @@
     justify-content: space-evenly;
     width: 90%;
     margin-top: -15%;   
+    color: rgb(var(--text-color))
 }
 
 .hour-registration-modal .error,
