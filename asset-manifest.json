@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/TimeItIn/static/css/main.f9f01544.css",
-    "main.js": "/TimeItIn/static/js/main.ecc53abd.js",
+    "main.js": "/TimeItIn/static/js/main.37a2c65e.js",
     "static/media/logo.png": "/TimeItIn/static/media/logo.96e5758b03525f99857d.png",
     "static/media/loading.gif": "/TimeItIn/static/media/loading.79180a30d5dc55c04e61.gif",
     "index.html": "/TimeItIn/index.html",
     "main.f9f01544.css.map": "/TimeItIn/static/css/main.f9f01544.css.map",
-    "main.ecc53abd.js.map": "/TimeItIn/static/js/main.ecc53abd.js.map"
+    "main.37a2c65e.js.map": "/TimeItIn/static/js/main.37a2c65e.js.map"
   },
   "entrypoints": [
     "static/css/main.f9f01544.css",
-    "static/js/main.ecc53abd.js"
+    "static/js/main.37a2c65e.js"
   ]
 }
