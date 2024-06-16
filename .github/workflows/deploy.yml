@@ -11,7 +11,7 @@ jobs:
       REACT_APP_BACKEND_URL: ${{ secrets.REACT_APP_BACKEND_URL }}
       FIREBASE_ADMIN_JSON: ${{ secrets.FIREBASE_ADMIN_JSON }}
       FIREBASE_URL: ${{ secrets.FIREBASE_URL }}
-      REACT_APP_FIREBASE_PRIVATE_KEY_ID: ${{ secrets.REACT_APP_FIREBASE_PRIVATE_KEY_ID }}
+      REACT_APP_FIREBASE_API: ${{ secrets.REACT_APP_FIREBASE_API }}
       REACT_APP_FIREBASE_PROJECT_ID: ${{ secrets.REACT_APP_FIREBASE_PROJECT_ID }}
     steps:
       - name: Checkout code
