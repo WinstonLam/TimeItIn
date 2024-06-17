@@ -145,6 +145,7 @@
   align-items: center;
   justify-content: space-between;
   color: rgb(var(--second-color));
+  max-width: 1280px;
 }
 
 .hours-container-header {

@@ -52,7 +52,24 @@
     transform: translate(-2px, 2px);
     filter: none;
   }
+  .header .header-logo  {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    cursor: pointer;
+    color: rgb(var(--text-color));
+    text-shadow: 2px 2px 2px rgba(var(--primary-color), 0.5);
+    transition: all 0.5s ease-in-out;
+  }
 
-  .header h1{
-    color: rgb(var(--text-color))
+  .header .header-logo:hover {
+    color: rgb(var(--third-color)); 
+  }
+
+  .header .header-logo:active{
+    transform: translate(-2px, 2px);
+  }
+
+  .header .header-logo  .logo-icon{
+    width: 75px;
   }
