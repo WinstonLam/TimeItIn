@@ -5,6 +5,7 @@
   justify-content: center;
   height: 100%;
   overflow: auto;
+  width: 100%;
 }
 
 
@@ -90,7 +91,7 @@
 .hours-table th,
 .hours-table td {
   padding: 8px;
-  min-width: 180px;
+  min-width: 125px;
   width: 100%;
   height: 50px;
   text-align: left;
@@ -181,42 +182,68 @@
   justify-content: flex-start;
 }
 
-.hours-table-top-content .col-selector {
+.hours-table-top-content .col-selector, 
+.hours-table-top-content .col-selector-small  {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-direction: row;
   margin-bottom: 5px;
+  z-index: 1;
   width: 65%;
-  min-width: 580px;
+  min-width: 530px;
+  border-radius: 2rem;
   cursor: pointer;
 }
 
-.hours-table-top-content .col-selector select {
+.hours-table-top-content .col-selector-small {
+  position: absolute;
+  right: 10%;
+  top: 220px;
+  flex-direction: column;
+  align-items: center;
+  width: 10%;
+  height: 30%;
+  min-width: 155px;
+  background-color: rgb(var(--second-color));
+}
+
+.hours-table-top-content .col-selector select,
+.hours-table-top-content .col-selector-small select {
   height: 50px;
   background-color: rgb(var(--primary-color));
   border: 3px solid black;
   border-radius: 2rem;
   font-size: 20px;
   color: rgb(var(--text-color));
-
   outline: none;
   padding: 10px;
   cursor: pointer;
   transition: all 0.3s ease-in-out;
 }
 
+.hours-table-top-content .col-selector-small .display{
+  width: 90%;
+  margin-bottom: 10px;
+}
+.hours-table-top-content .col-selector-small select{
+  font-size: 16px;
+  height: 40px;
+  padding: 5px;
+  width: 100%;
+}
+
 .hours-table-top-content .col-selector select:hover {
   background-color: rgb(var(--second-color));
 }
 
-.hours-table-top-content .col-selector .datepicker input {
+.hours-table-top-content .col-selector .datepicker input,
+.hours-table-top-content .col-selector-small .datepicker input{
   border-radius: 2rem;
   background-color: transparent;
   border: 3px solid black;
   font-size: 20px;
   color: rgb(var(--text-color));
-
   text-align: center;
   cursor: pointer;
   box-shadow: -1px 2px 5px rgb(0, 0, 0 0.5);
@@ -224,6 +251,13 @@
   cursor: pointer;
   width: 120px;
   transition: all 0.3s ease-in-out;
+}
+
+.hours-table-top-content .col-selector-small .datepicker input{
+  font-size: 16px;
+  height: 25px;
+  width: 80%;
+  background-color: rgb(var(--primary-color));
 }
 
 .hours-table-top-content .col-selector .datepicker input .form-field-optional{
@@ -235,7 +269,8 @@
   background-color: rgb(var(--second-color));
 }
 
-.hours-table-top-content .col-selector .namepicker input {
+.hours-table-top-content .col-selector .namepicker input,
+.hours-table-top-content .col-selector-small .namepicker input{
   border-radius: 2rem;
   background-color: transparent;
   border: 3px solid black;
@@ -250,9 +285,25 @@
   transition: all 0.3s ease-in-out;
 }
 
-.hours-table-top-content .col-selector .namepicker .form-field-optional{
+.hours-table-top-content .col-selector .namepicker .form-field-optional,
+.hours-table-top-content .col-selector-small .namepicker .form-field-optional{
   width: 120px;
   color: rgb(var(--text-color));;
+}
+
+.hours-table-top-content .col-selector-small .namepicker .suggestions li{
+  font-size: 12px;
+  background-color: rgb(var(--primary-color));
+  color: rgb(var(--text-color));
+  text-shadow: none;
+  border: none;
+}
+
+.hours-table-top-content .col-selector-small .namepicker input{
+  font-size: 16px;
+  height: 15px;
+  width: 95%;
+  background-color: rgb(var(--primary-color));
 }
 
 .hours-table-top-content .col-selector .namepicker .suggestions{
@@ -297,7 +348,7 @@
   text-align: center;
   background-color: transparent;
   border: 3px solid rgb(var(--second-color));
-  font-size: 25px;
+  font-size: 20px;
   color: rgb(var(--text-color));;
   transition: all 0.3s ease-in-out;
 }
@@ -339,4 +390,57 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   -webkit-appearance: none;
 }
 
+.hours-table-top-content .hamburger-icon{
+  position: absolute;
+  right: 10%;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  stroke: rgb(var(--text-color));
+  stroke-width: 2px;
+  filter: drop-shadow(-2px 2px 1px rgba(0, 0, 0, 0.5));
+  transform: rotate(0deg);
+  transition: transform 0.1s ease-in-out, 
+              filter 0.1s ease-in-out, 
+              ill 0.5s ease-in-out, 
+              stroke 0.5s ease-in-out,
+              rotate 0.5s ease-in-out;
+}
 
+.hours-table-top-content .hamburger-icon:hover{
+  stroke: rgb(var(--third-color));
+  filter: drop-shadow(-2px 2px 1px rgba(0, 0, 0, 0.5));
+}
+
+.hours-table-top-content .hamburger-icon:active{
+  transform: translate(-2px, 2px);
+  filter: none;
+  transform: rotate(-90deg) ;
+}
+
+@media screen and (max-width: 600px) {
+  .hours-container{
+    height: 75%;
+  }
+  .hours-table th, .hours-table td {
+    padding: 4px;
+  }
+  .hours-container .timepicker, .hours-container .timepicker-enabled {
+    font-size: 10px;
+  }
+  .hours-container.seven-cols .hours-table th,
+  .hours-container.seven-cols .hours-table td {
+  min-width: 125px;
+  width: 100%;
+}
+
+.hours-container.thirty-one-cols .hours-table th,
+.hours-container.thirty-one-cols .hours-table td {
+  min-width: 125px;
+  width: 100%;
+}
+.hours-table-top-content .col-selector-small {
+  top:260px;
+}
+  
+}

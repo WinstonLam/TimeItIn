@@ -12,7 +12,8 @@ import loadingIcon from "../icons/loading.gif";
 import { useNavigate } from "react-router-dom";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import OverviewPDF from "../components/pdf";
-import _, { transform } from "lodash";
+import _ from "lodash";
+import HamburgerSvg from "../icons/hamburger";
 
 interface Employee {
   uid: string;
@@ -55,6 +56,8 @@ const Hours: React.FC = () => {
   const navigate = useNavigate();
   const [visibleCols, setVisibleCols] = useState<number>(1);
   const [sorted, setSorted] = useState(false);
+  const [menu, setMenu] = useState(false); // State to manage menu visibility
+  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
   const [hideEmptyEmployees, setHideEmptyEmployees] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [isEditing, setIsEditing] = useState(false);
@@ -83,13 +86,29 @@ const Hours: React.FC = () => {
   const names =
     employees && employees.length > 0
       ? employees.map(
-          (employee) =>
-            [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
-              string,
-              string
-            ]
-        )
+        (employee) =>
+          [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
+            string,
+            string
+          ]
+      )
       : [];
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      if (window.innerWidth > 800) {
+        setMenu(true);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize(); // Call initially to set the correct state based on initial window size
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   const employeeComparator = (a: Employee, b: Employee) => {
     const key = sortConfig.key as keyof Employee;
@@ -424,7 +443,7 @@ const Hours: React.FC = () => {
             const hoursWorked =
               endtimeDate && starttimeDate
                 ? (endtimeDate.getTime() - starttimeDate.getTime()) /
-                  (1000 * 60 * 60)
+                (1000 * 60 * 60)
                 : null;
 
             employeeData.dates[dayIdx] = {
@@ -516,15 +535,14 @@ const Hours: React.FC = () => {
         />
       )}
       <div
-        className={`hours-container ${
-          visibleCols === 1
-            ? "one-col"
-            : visibleCols === 7
+        className={`hours-container ${visibleCols === 1
+          ? "one-col"
+          : visibleCols === 7
             ? "seven-cols"
             : visibleCols === 31
-            ? "thirty-one-cols"
-            : ""
-        }`}
+              ? "thirty-one-cols"
+              : ""
+          }`}
       >
         <div className="hours-table-top-content">
           <div className="hours-container-header">
@@ -567,33 +585,40 @@ const Hours: React.FC = () => {
               )}
             </div>
           </div>
-          <div className="col-selector">
-            <div className="hide-empty">
-              <Button
-                text="Hide No Hours"
-                onClick={handleHideEmptyEmployeesChange}
-              />
+          {windowWidth < 800 && (
+            <div className="hamburger-menu">
+              <HamburgerSvg className="hamburger-icon" onClick={() => setMenu(!menu)} />
             </div>
-            <div className="namepicker">
-              <AutocompleteInput
-                suggestions={[["all", "All Employees"], ...names]}
-                onSelect={handleNameChange}
-              />
+          )}
+          {menu && (
+            <div className={`col-selector${windowWidth < 800 ? "-small" : ""}`}>
+              <div className="hide-empty">
+                <Button
+                  text="Hide No Hours"
+                  onClick={handleHideEmptyEmployeesChange}
+                />
+              </div>
+              <div className="namepicker">
+                <AutocompleteInput
+                  suggestions={[["all", "All Employees"], ...names]}
+                  onSelect={handleNameChange}
+                />
+              </div>
+              <div className="datepicker">
+                <DatePicker
+                  selected={selectedDate}
+                  onChange={(date: Date | null) => setSelectedDate(date)}
+                />
+              </div>
+              <div className="display">
+                <select onChange={handleColChange}>
+                  <option value={1}>Day</option>
+                  <option value={7}>Week</option>
+                  <option value={31}>Month</option>
+                </select>
+              </div>
             </div>
-            <div className="datepicker">
-              <DatePicker
-                selected={selectedDate}
-                onChange={(date: Date | null) => setSelectedDate(date)}
-              />
-            </div>
-            <div className="display">
-              <select onChange={handleColChange}>
-                <option value={1}>Day</option>
-                <option value={7}>Week</option>
-                <option value={31}>Month</option>
-              </select>
-            </div>
-          </div>
+          )}
         </div>
         <div className="hours-table">
           {weeks.map((weekDates, weekIndex) => (
@@ -650,9 +675,8 @@ const Hours: React.FC = () => {
                             <>
                               <input
                                 type="time"
-                                className={`timepicker${
-                                  isEditable ? `-enabled` : ""
-                                }`}
+                                className={`timepicker${isEditable ? `-enabled` : ""
+                                  }`}
                                 value={starttime}
                                 onChange={(e) =>
                                   handleTimeChange(
@@ -666,9 +690,8 @@ const Hours: React.FC = () => {
                               />
                               <input
                                 type="time"
-                                className={`timepicker${
-                                  isEditable ? `-enabled` : ""
-                                }`}
+                                className={`timepicker${isEditable ? `-enabled` : ""
+                                  }`}
                                 value={endtime}
                                 onChange={(e) =>
                                   handleTimeChange(

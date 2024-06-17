@@ -40,6 +40,7 @@
     position: absolute;
     list-style-type: none;
     margin: 0;
+    z-index: 2;
     max-height: 200px;
     overflow-y: scroll; /* Keep scrolling enabled */
     overflow-x: hidden;
@@ -51,6 +52,7 @@
     transition: all 0.3s ease-in-out;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none;  /* IE 10+ */
+    
   }
   
   /* Hide scrollbar for Chrome, Safari and Opera */
