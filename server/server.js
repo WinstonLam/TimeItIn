@@ -17,7 +17,13 @@ admin.initializeApp({
 
 const db = admin.database();
 
-app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+// CORS configuration
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://winstonlam.github.io",
+];
+
+app.use(cors({ credentials: true, origin: allowedOrigins }));
 app.use(express.json());
 app.use(cookieParser());
 

@@ -213,3 +213,9 @@
   filter: none
 }
 
+@media screen and (max-width: 700px){
+  .settings-content, .settings-content-active {
+    width: 100%;
+  }
+  
+}

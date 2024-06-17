@@ -1,13 +1,11 @@
 :root {
-    --primary-color: 18, 72, 107; 
-    --second-color:65, 145, 151;
-    --third-color: 120, 214, 198;
-    --fourth-color:245, 252, 205;
-    --text-color: 255, 255, 255;
+    --primary-color: 96, 150, 180; 
+    --second-color:173, 196, 206;
+    --third-color: 238, 224, 201;
+    --text-color: 241, 240, 232;
   }
 
 .content{
-
     display: flex;
     flex-direction: column;
     height: 100vh;

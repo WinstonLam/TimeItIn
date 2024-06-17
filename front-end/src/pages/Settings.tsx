@@ -45,6 +45,14 @@ const Settings: FC<SettingsProps> = ({ active, setActive }) => {
     };
   });
 
+  useEffect(() => {
+    // Load theme from localStorage on component mount
+    const savedTheme = localStorage.getItem("selectedTheme") as ThemeNames;
+    if (savedTheme && themes[savedTheme]) {
+      applyTheme(savedTheme);
+    }
+  }, []);
+
   const handleSignOut = () => {
     setActive(false);
     logout();
@@ -103,7 +111,7 @@ const Settings: FC<SettingsProps> = ({ active, setActive }) => {
     }
   };
 
-  const changeTheme = (themeName: ThemeNames) => {
+  const applyTheme = (themeName: ThemeNames) => {
     const theme = themes[themeName];
     Object.keys(theme).forEach((key) => {
       document.documentElement.style.setProperty(
@@ -111,6 +119,11 @@ const Settings: FC<SettingsProps> = ({ active, setActive }) => {
         theme[key as keyof ThemeProps]
       );
     });
+  };
+
+  const changeTheme = (themeName: ThemeNames) => {
+    applyTheme(themeName);
+    localStorage.setItem("selectedTheme", themeName); // Save the selected theme to localStorage
   };
 
   return (

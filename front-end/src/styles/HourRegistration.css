@@ -73,3 +73,30 @@
     filter: none;
     transform: translate(-4px, 4px);
 }
+
+@media screen and (max-width: 768px){
+    .hour-registration-modal{
+        min-width: 300px;
+        height: 60%;
+    }
+
+    .hour-registration-modal .autocomplete-input{
+        margin-bottom: 10%;
+    }
+
+    .hour-registration-modal .times{
+        width: 100%;
+        margin-top: -10%;
+    }
+
+    .hour-registration-modal .error,
+    .hour-registration-modal .error-show{
+        width: 80%;
+    }
+
+    .clock-svg{
+        width: 100px;
+        height: 100px;
+    }
+    
+}
