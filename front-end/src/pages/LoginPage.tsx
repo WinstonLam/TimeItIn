@@ -17,8 +17,6 @@ const LoginPage = () => {
   const [stayLoggedIn, setStayLoggedIn] = useState<boolean>(false);
   const { login, sessionExpired, setSessionExpired } = useContext(AdminContext);
 
-
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormSubmitted(true);
@@ -38,7 +36,14 @@ const LoginPage = () => {
   };
 
   return (
-    sessionExpired ? (<Modal title="Session expired" desc="Your session has expired. Please log in again." dismiss={() => setSessionExpired(false)} />) :
+    <>
+      {sessionExpired && (
+        <Modal
+          title="Session expired"
+          desc="Your session has expired. Please log in again."
+          dismiss={() => setSessionExpired(false)}
+        />
+      )}
       <div className="loginPage">
         <div className="login-modal">
           <div className="login-modal-content">
@@ -69,10 +74,13 @@ const LoginPage = () => {
                   />
                   <div className="stay-loggedIn">
                     <label>Stay logged in</label>
-                    <SliderInput value={stayLoggedIn} setValue={setStayLoggedIn} />
+                    <SliderInput
+                      value={stayLoggedIn}
+                      setValue={setStayLoggedIn}
+                    />
                   </div>
                   <div className="actions">
-                    <Button type="submit" text="Login" onClick={() => { }} />
+                    <Button type="submit" text="Login" onClick={() => {}} />
                     <Button
                       text="Register"
                       onClick={() => setRegister(true)}
@@ -85,6 +93,7 @@ const LoginPage = () => {
           </div>
         </div>
       </div>
+    </>
   );
 };
 

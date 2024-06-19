@@ -52,20 +52,20 @@ interface AdminContextProps {
 
 const defaultState: AdminContextProps = {
   sessionExpired: false,
-  setSessionExpired: () => { },
+  setSessionExpired: () => {},
   loading: false,
-  setLoading: () => { },
+  setLoading: () => {},
   loggedIn: false,
-  setLoggedin: () => { },
+  setLoggedin: () => {},
   locked: true,
-  handleLock: () => { },
+  handleLock: () => {},
   handleUnlock: async () => "",
-  logout: () => { },
-  login: () => { },
+  logout: () => {},
+  login: () => {},
   employees: [],
-  setEmployees: () => { },
+  setEmployees: () => {},
   hours: {},
-  setHours: () => { },
+  setHours: () => {},
   getEmployeeHours: async () => null,
   transformDate: () => "",
 };
@@ -196,23 +196,24 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const handleUnlock = async (pincode: string, level: string) => {
-    const res = await checkPin(pincode).catch((err) => {
+    let message = "";
+    try {
+      const res = await checkPin(pincode);
+      if (res.success) {
+        if (level === "global") {
+          setLocked(false);
+          sessionStorage.setItem("locked", "false");
+        }
+      } else {
+        message = "Incorrect pincode";
+      }
+    } catch (err) {
       const error = err as AxiosError;
       if (error.response && error.response.status === 403) {
         logout(true);
       } else {
         console.error("Error checking pincode:", error);
       }
-    });
-    let message = "";
-
-    if (res.success) {
-      if (level === "global") {
-        setLocked(false);
-        sessionStorage.setItem("locked", "false");
-      }
-    } else {
-      message = "Incorrect pincode";
     }
     return message;
   };

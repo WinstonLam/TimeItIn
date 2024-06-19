@@ -26,9 +26,10 @@ axios.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 403) {
       // Token expired, log the user out
-      logoutUser().then(() => {
-        window.location.reload(); // Reload the page to reflect the logout
-      });
+      logoutUser();
+      // .then(() => {
+      //   window.location.reload(); // Reload the page to reflect the logout
+      // });
     }
     return Promise.reject(error);
   }
