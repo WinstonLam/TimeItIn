@@ -258,7 +258,7 @@ const Hours: React.FC = () => {
     } catch (error) {
       const err = error as AxiosError;
       if (err.response && err.response.status === 403) {
-        logout();
+        logout(true);
       } else {
         setExporting(false);
         console.error("Error editing hours:", error);

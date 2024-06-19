@@ -25,6 +25,43 @@ unprotectedRouter.get("/auth-status", async (req, res) => {
   }
 });
 
+// Refresh token
+unprotectedRouter.post("/refresh-token", async (req, res) => {
+  console.log("Refreshing token");
+  const { token, stayLoggedIn, expirationTime } = req.body;
+
+  try {
+    // Verify the new token
+    const decodedIdToken = await admin.auth().verifyIdToken(token);
+
+    // Calculate the remaining time for the session
+    const now = new Date().getTime();
+    const remainingTime = expirationTime - now;
+
+    // If the session has expired, return an error
+    if (remainingTime <= 0) {
+      res.status(401).send({ error: "Session has expired" });
+      return;
+    }
+
+    // Determine the max age for the cookie based on the remaining time
+    const maxAge = remainingTime;
+
+    // Set the new token in an HTTP-only cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      maxAge: maxAge, // Use the remaining time for maxAge
+      sameSite: "None",
+    });
+
+    res.status(200).send({ success: true });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+    console.error("Token refresh error:", error);
+  }
+});
+
 // Login user
 unprotectedRouter.post("/login", async (req, res) => {
   console.log("Logging in user");
@@ -35,9 +72,9 @@ unprotectedRouter.post("/login", async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+      // maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
       sameSite: "None",
-      // maxAge: 1000 * 5, // 5 seconds for testing
+      maxAge: 1000 * 5, // 5 seconds for testing
     });
 
     res.status(200).send({ loggedIn: true });

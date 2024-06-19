@@ -39,7 +39,7 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
       } catch (error) {
         const err = error as AxiosError;
         if (err.response && err.response.status === 403) {
-          logout();
+          logout(true);
         } else {
           console.error("Error fetching settings", error);
         }
@@ -69,7 +69,7 @@ const AdvancedSettings: React.FC<AdvancedSettingsProps> = () => {
     } catch (error) {
       const err = error as AxiosError;
       if (err.response && err.response.status === 403) {
-        logout();
+        logout(true);
       } else {
         console.error("Error editing settings", error);
       }

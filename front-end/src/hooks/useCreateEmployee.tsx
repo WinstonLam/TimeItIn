@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { createEmployee } from "../api";
 import { AdminContext } from "../providers/AdminContext";
+import { AxiosError } from "axios";
 
 interface Employee {
   firstname: string;
@@ -9,6 +10,7 @@ interface Employee {
 }
 
 export const useCreateEmployee = () => {
+  const { logout } = useContext(AdminContext);
   const [loading, setLoading] = useState(true);
   const [response, setResponse] = useState<any>(null);
 
@@ -19,6 +21,12 @@ export const useCreateEmployee = () => {
       const res = await createEmployee(employeeData);
       setResponse(res);
     } catch (error) {
+      const err = error as AxiosError;
+      if (err.response && err.response.status === 403) {
+        logout(true);
+      } else {
+        console.error("Error fetching settings", error);
+      }
       console.error(error);
       // handle error appropriately
     } finally {

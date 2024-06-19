@@ -1,8 +1,9 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 
 import { AdminProvider } from "./providers/AdminContext";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AdminContext } from "./providers/AdminContext";
+import { initializeAppTokenRefresh } from "./api";
 
 import "./styles/App.css";
 
@@ -16,6 +17,11 @@ import Hours from "./pages/Hours";
 import AdvancedSettings from "./pages/AdvancedSettings";
 
 function App() {
+
+  useEffect(() => {
+    initializeAppTokenRefresh();
+  }, []);
+
   return (
     <AdminProvider>
       <AppContent />

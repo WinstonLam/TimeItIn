@@ -47,12 +47,12 @@ const HourRegistration: FC = () => {
   const names =
     employees && employees.length > 0
       ? employees.map(
-          (employee) =>
-            [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
-              string,
-              string
-            ]
-        )
+        (employee) =>
+          [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
+            string,
+            string
+          ]
+      )
       : [];
 
   const getTime = (date: string | null) => {
@@ -76,8 +76,15 @@ const HourRegistration: FC = () => {
         setStartTime("");
         setEndTime("");
       }
-    } catch (err) {
-      console.error("Error fetching employee hours:", err);
+    } catch (error) {
+      const err = error as AxiosError;
+
+      if (err.response && err.response.status === 403) {
+        logout(true);
+      } else {
+        console.error("Error fetching settings", error);
+      }
+      console.error("Error fetching employee hours:", error);
     }
   };
 
@@ -93,7 +100,7 @@ const HourRegistration: FC = () => {
       const res = await setTime(selectedUid, currentDate).catch((error) => {
         const err = error as AxiosError;
         if (err.response?.status === 403) {
-          logout();
+          logout(true);
         } else {
           console.error("Error setting time:", error);
         }
@@ -101,7 +108,7 @@ const HourRegistration: FC = () => {
       const resHours = await getHours(currentDate).catch((error) => {
         const err = error as AxiosError;
         if (err.response?.status === 403) {
-          logout();
+          logout(true);
         } else {
           console.error("Error fetching hours:", error);
         }

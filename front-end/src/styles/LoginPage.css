@@ -59,3 +59,14 @@
 .login-modal-content h2{
     color: rgb(var(--text-color));
 }
+
+.stay-loggedIn{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    text-align: left;
+    align-items: flex-start;
+    color: rgb(var(--text-color));
+    height: 20%;
+    justify-content: space-between;
+}
