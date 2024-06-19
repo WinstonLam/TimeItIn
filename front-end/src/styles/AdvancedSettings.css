@@ -1,64 +1,75 @@
-.admin-creation{
+.admin-creation {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100vh;
     width: 100%;
+    overflow: auto; /* Allow scrolling */
 }
 
-.advanced-settings-container{
+.advanced-settings {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    height: 85vh;
+    min-height: 500px;
+    overflow: auto; /* Allow scrolling */
+}
+
+.advanced-settings-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-evenly;
-    width: 500px;
+    width: 60%;
     height: 70%;
     background-color: rgb(var(--second-color));
     border-radius: 10px;
     padding: 50px;
+    max-width: 650px;
+    overflow: auto; /* Allow scrolling */
 }
 
-.advanced-settings-form{
+.advanced-settings-form {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-evenly;
     transition: all 0.3s ease-in-out;
+    margin-top: -15px;
+    width: 100%; /* Ensure it takes full width */
+    flex-grow: 1; /* Allow it to grow and take available space */
+    overflow: auto; /* Allow scrolling */
 }
-.advanced-settings-form .app-settings{
+
+.advanced-settings-form .app-settings,
+.advanced-settings-form .user-settings {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-evenly;
     width: 100%;
-    margin: -30px 0 -10px 0;
-}
-.advanced-settings-form .user-settings{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    margin-top: 0;
 }
 
-.advanced-settings-form .split{
-    width: 450px;
+.advanced-settings-form .split {
+    width: 100%;
     height: 2px;
-    border-radius: 2rem ;
+    border-radius: 2rem;
     background-color: white;
     border: none;
     margin: 10px;
 }
 
-.advanced-settings-header{
+.advanced-settings-header {
     color: rgb(var(--second-color));
     text-shadow: -1px 1px 1px black;
     font-size: 25px;
 }
 
-.advanced-settings-form h2{
+.advanced-settings-form h2 {
     margin-bottom: 30px;
     color: rgb(var(--text-color));
 }
