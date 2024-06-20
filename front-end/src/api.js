@@ -4,6 +4,7 @@ import {
   getAuth,
   signInWithEmailAndPassword,
   onIdTokenChanged,
+  signOut,
 } from "firebase/auth";
 
 const firebaseConfig = {
@@ -35,11 +36,13 @@ axios.interceptors.response.use(
   }
 );
 
+let unsubscribeOnIdTokenChanged;
+let refreshTokenTimeoutId;
+
 const refreshToken = async () => {
   const user = auth.currentUser;
   if (user) {
     const token = await user.getIdToken(true); // Force refresh the token
-    const stayLoggedIn = localStorage.getItem("stayLoggedIn") === "true";
     const expirationTime = localStorage.getItem("expirationTime");
 
     // Calculate the remaining time for the session
@@ -58,7 +61,7 @@ const refreshToken = async () => {
 
     await axios.post(
       `${BASE_URL}/refresh-token`,
-      { token, stayLoggedIn, expirationTime },
+      { token, expirationTime },
       {
         headers: {
           "Content-Type": "application/json",
@@ -69,16 +72,36 @@ const refreshToken = async () => {
 };
 
 export const initializeAppTokenRefresh = () => {
-  onIdTokenChanged(auth, async (user) => {
-    if (user) {
-      const idTokenResult = await user.getIdTokenResult();
-      const expiresIn = idTokenResult.expirationTime - Date.now();
-      // Refresh token 5 minutes before it expires
-      setTimeout(refreshToken, expiresIn - 5 * 60 * 1000);
-    }
-  });
+  console.log("Initializing app token refresh");
 
-  // Refresh token immediately on app start if user is already logged in
+  // Ensure the listener is set up only once
+  if (!unsubscribeOnIdTokenChanged) {
+    console.log("Setting up ID token change listener");
+    unsubscribeOnIdTokenChanged = onIdTokenChanged(auth, async (user) => {
+      if (user) {
+        const idTokenResult = await user.getIdTokenResult();
+
+        // Parse the expiration time string into a Date object
+        const expirationDate = new Date(idTokenResult.expirationTime);
+
+        // Calculate the time remaining in milliseconds
+        const expiresIn = expirationDate.getTime() - Date.now();
+
+        // Clear the existing timeout if it exists
+        if (refreshTokenTimeoutId) {
+          clearTimeout(refreshTokenTimeoutId);
+        }
+
+        // Refresh token 5 minutes before it expires
+        refreshTokenTimeoutId = setTimeout(
+          refreshToken,
+          expiresIn - 5 * 60 * 1000
+        );
+      }
+    });
+  }
+
+  // Immediate token refresh on app start if user is already logged in
   if (auth.currentUser) {
     refreshToken();
   }
@@ -190,21 +213,33 @@ export const loginUser = async (email, password, stayLoggedIn) => {
   }
 };
 
-export const logoutUser = () => {
-  return axios
-    .post(`${BASE_URL}/logout`, {
+export const logoutUser = async () => {
+  try {
+    // Unsubscribe the onIdTokenChanged listener
+    if (unsubscribeOnIdTokenChanged) {
+      unsubscribeOnIdTokenChanged();
+      unsubscribeOnIdTokenChanged = null;
+    }
+
+    // Perform the sign-out operation using Firebase's signOut method
+    await signOut(auth);
+
+    // Clear local storage items related to authentication
+    localStorage.removeItem("stayLoggedIn");
+    localStorage.removeItem("expirationTime");
+
+    // Notify the backend about the logout
+    const response = await axios.post(`${BASE_URL}/logout`, {
       headers: {
         "Content-Type": "application/json",
       },
-    })
-
-    .then((response) => {
-      console.log(response.data.message);
-    })
-    .catch((error) => {
-      console.error("Error logging out:", error);
-      throw error;
     });
+
+    console.log(response.data.message);
+  } catch (error) {
+    console.error("Error logging out:", error);
+    throw error;
+  }
 };
 
 export const checkPin = (pincode) => {

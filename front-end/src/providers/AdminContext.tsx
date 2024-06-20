@@ -52,20 +52,20 @@ interface AdminContextProps {
 
 const defaultState: AdminContextProps = {
   sessionExpired: false,
-  setSessionExpired: () => {},
+  setSessionExpired: () => { },
   loading: false,
-  setLoading: () => {},
+  setLoading: () => { },
   loggedIn: false,
-  setLoggedin: () => {},
+  setLoggedin: () => { },
   locked: true,
-  handleLock: () => {},
+  handleLock: () => { },
   handleUnlock: async () => "",
-  logout: () => {},
-  login: () => {},
+  logout: () => { },
+  login: () => { },
   employees: [],
-  setEmployees: () => {},
+  setEmployees: () => { },
   hours: {},
-  setHours: () => {},
+  setHours: () => { },
   getEmployeeHours: async () => null,
   transformDate: () => "",
 };
@@ -188,8 +188,6 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.removeItem("employees");
     localStorage.removeItem("hours");
     localStorage.removeItem("loggedIn");
-    localStorage.removeItem("stayLoggedIn");
-    localStorage.removeItem("expirationTime");
     setEmployees([]);
     setHours({});
     setLoggedin(false);
