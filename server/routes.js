@@ -207,6 +207,36 @@ protectedRouter.post("/create-employee", async (req, res) => {
   }
 });
 
+// Edit employee for a specific user
+protectedRouter.post("/edit-employees", async (req, res) => {
+  const userId = req.user.uid;
+  const { employees } = req.body;
+
+  try {
+    const doc = await db.collection("users").doc(userId).get();
+    if (!doc.exists) {
+      res.status(404).send({ error: "Admin not found" });
+    } else {
+      const employeeData = {};
+      employees.forEach((employee) => {
+        const { uid, firstname, lastname, startdate } = employee;
+        employeeData[uid] = {
+          firstName: firstname,
+          lastName: lastname,
+          startdate,
+        };
+      });
+
+      await doc.ref.update({ employees: employeeData });
+
+      res.status(200).send({ success: true });
+    }
+  } catch (error) {
+    console.error("Error editing employees:", error);
+    res.status(500).send({ error: error.message });
+  }
+});
+
 // Set time for employee
 protectedRouter.post("/set-time", async (req, res) => {
   const employeeId = req.body.employeeId;

@@ -305,6 +305,29 @@ export const createEmployee = (employee) => {
     });
 };
 
+export const editEmployees = (employees) => {
+  console.log("editEmployees");
+
+  return axios
+    .post(
+      `${BASE_URL}/edit-employees`,
+      { employees },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    )
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      console.error("Error editing employees:", error);
+      throw error;
+    });
+};
+
 export const setTime = (employeeId, date) => {
   console.log("setTime");
 

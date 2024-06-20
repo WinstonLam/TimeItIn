@@ -56,7 +56,7 @@
   
 .employees-table th, .employees-table td {
     padding: 8px;
-    min-width: 150px;
+    min-width: 65px;
     width: 100%;
     height: 50px;
     text-align: left;
@@ -69,6 +69,9 @@
   }
   .employees-table tr {
     display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
   }
 
  .employees-table th{
@@ -85,16 +88,31 @@
     min-width: 220px ;
     height: 120px;
   }
+
+  .employees-table-top-content th h1{
+    margin: 0;
+  }
+
+
   .employees-table-top-content .title{
     display: flex;
     justify-content: flex-start;
     font-size: 25px;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .employees-table-edit{
+    display: flex;
+    align-items: flex-start;
+
   }
 
   .employees-table-top-content .actions{
     display: flex;
     justify-content: space-between;
     margin-bottom: 5px;
+    width: 30%;
   }
 
   .employees-table-header{
@@ -130,7 +148,31 @@
   .employees-table-content-val{
     overflow: hidden;
     text-overflow: ellipsis;
+    width: 100%;
   }
+  .employees-table-content-val input{
+    width: 92%;
+    border-radius: 5px;
+    text-overflow: ellipsis;
+    height: 100%;
+    background-color: transparent;
+    color: rgb(var(--text-color));
+    border: none;
+    text-align: left;
+    transition: all 0.3s ease-in-out;
+  }
+  .employees-table-content-val-edit input{
+    width: 90%;
+    border-radius: 5px;
+    text-overflow: ellipsis;
+    height: 100%;
+    background-color: rgb(var(--second-color));
+    color: rgb(var(--text-color));
+    border: none;
+    text-align: left;
+    transition: all 0.3s ease-in-out;
+  }
+  
   
   .employees-table-top-content .actions .add-user{
     display: flex;
@@ -195,4 +237,65 @@
     outline: none;
     cursor: pointer;
     text-shadow: rgba(var(--text-color), 0.5);
+  }
+
+
+  .employees-table-actions{
+    display: flex;
+    width: 100%;
+  }
+  .employees-table-actions button{
+    padding: 4% 10%;
+    margin: 3%;
+  }
+  @media screen and (max-width: 860px){
+    .employees-table-actions {
+      display: flex;
+      width: 100%;
+      flex-direction: column;
+      align-items: flex-start;
+      height: 90%;
+  }
+  }
+
+
+  @media screen and (max-width: 700px){
+    .employees-table th, .employees-table td {
+      padding: 5px;
+    }
+    .employees-table-top-content .title{
+      font-size: 15px;
+      width: 50%;
+    }
+    .employees-table{
+      width: 90%;
+    }
+    .employees-table-top-content{
+      margin-left: -5px;
+    }
+    .employees-table-header{
+      font-size: 14px;
+    }
+    .employees-table-top-content th {
+      min-width: 140px;
+    }
+    .employees-table-top-content .actions .add-user,
+    .employees-table-top-content .actions .row-selector {
+      font-size: 14px;
+    }
+    .employees-table-top-content .actions .row-selector select{
+      font-size: 25px;
+      margin: 8px;
+    }
+    .employees-table-top-content .actions .add-user .icon,
+    .employees-table-top-content .actions .row-selector {
+      height: 45px;
+      width: 45px;
+    }
+    .employees-table-content-val{
+      font-size: 11px;
+    }
+    .employees-table-top-content .actions{
+      width: 50%;
+    }
   }
