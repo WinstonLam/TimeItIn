@@ -25,6 +25,8 @@ interface Hours {
 }
 
 interface AdminContextProps {
+  sessionExpired: boolean;
+  setSessionExpired: React.Dispatch<React.SetStateAction<boolean>>;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   loggedIn: boolean;
@@ -32,7 +34,7 @@ interface AdminContextProps {
   locked: boolean;
   handleLock: () => void;
   handleUnlock: (input: string, level: string) => Promise<string>;
-  logout: () => void;
+  logout: (sessionExpired?: boolean) => void;
   login: (loggedIn: boolean) => void;
   employees: Employee[];
   setEmployees: (newEmployees: Employee[]) => void;
@@ -49,19 +51,21 @@ interface AdminContextProps {
 }
 
 const defaultState: AdminContextProps = {
+  sessionExpired: false,
+  setSessionExpired: () => { },
   loading: false,
-  setLoading: () => {},
+  setLoading: () => { },
   loggedIn: false,
-  setLoggedin: () => {},
+  setLoggedin: () => { },
   locked: true,
-  handleLock: () => {},
+  handleLock: () => { },
   handleUnlock: async () => "",
-  logout: () => {},
-  login: () => {},
+  logout: () => { },
+  login: () => { },
   employees: [],
-  setEmployees: () => {},
+  setEmployees: () => { },
   hours: {},
-  setHours: () => {},
+  setHours: () => { },
   getEmployeeHours: async () => null,
   transformDate: () => "",
 };
@@ -91,6 +95,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
       ? JSON.parse(storedHours)
       : [];
   });
+  const [sessionExpired, setSessionExpired] = useState<boolean>(false);
 
   const transformDate = (
     date: Date,
@@ -175,7 +180,10 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
     setLoggedin(loggedIn);
   };
 
-  const logout = () => {
+  const logout = (sessionExpired?: boolean) => {
+    if (sessionExpired) {
+      setSessionExpired(true);
+    }
     logoutUser(); // Assuming this function does not need to be awaited
     localStorage.removeItem("employees");
     localStorage.removeItem("hours");
@@ -186,23 +194,24 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const handleUnlock = async (pincode: string, level: string) => {
-    const res = await checkPin(pincode).catch((err) => {
+    let message = "";
+    try {
+      const res = await checkPin(pincode);
+      if (res.success) {
+        if (level === "global") {
+          setLocked(false);
+          sessionStorage.setItem("locked", "false");
+        }
+      } else {
+        message = "Incorrect pincode";
+      }
+    } catch (err) {
       const error = err as AxiosError;
       if (error.response && error.response.status === 403) {
-        logout();
+        logout(true);
       } else {
         console.error("Error checking pincode:", error);
       }
-    });
-    let message = "";
-
-    if (res.success) {
-      if (level === "global") {
-        setLocked(false);
-        sessionStorage.setItem("locked", "false");
-      }
-    } else {
-      message = "Incorrect pincode";
     }
     return message;
   };
@@ -226,6 +235,8 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [loggedIn]);
 
   const contextValue = {
+    sessionExpired,
+    setSessionExpired,
     loading,
     setLoading,
     loggedIn,

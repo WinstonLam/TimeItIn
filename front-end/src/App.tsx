@@ -1,8 +1,14 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 
 import { AdminProvider } from "./providers/AdminContext";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { AdminContext } from "./providers/AdminContext";
+import { initializeAppTokenRefresh } from "./api";
 
 import "./styles/App.css";
 
@@ -16,6 +22,10 @@ import Hours from "./pages/Hours";
 import AdvancedSettings from "./pages/AdvancedSettings";
 
 function App() {
+  useEffect(() => {
+    initializeAppTokenRefresh();
+  }, []);
+
   return (
     <AdminProvider>
       <AppContent />
@@ -26,6 +36,12 @@ function App() {
 function AppContent() {
   const [settings, setSettings] = React.useState<boolean>(false);
   const { loading, loggedIn } = useContext(AdminContext);
+
+  useEffect(() => {
+    if (!loggedIn) {
+      setSettings(false);
+    }
+  }, [loggedIn]);
 
   return (
     <Router basename="/TimeItIn">
@@ -45,6 +61,8 @@ function AppContent() {
             </Routes>
           ) : (
             <Routes>
+              <Route path="*" element={<Navigate to="/" />} />
+
               <Route path="/" element={<LoginPage />} />
             </Routes>
           )}
