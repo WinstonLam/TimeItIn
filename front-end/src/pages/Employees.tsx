@@ -13,13 +13,14 @@ import { AdminContext } from "../providers/AdminContext";
 import "react-datepicker/dist/react-datepicker.css";
 import _, { set } from "lodash";
 
-import { editEmployees, getEmployees } from "../api";
+import { editEmployees, getEmployees, deleteEmployees } from "../api";
 
 const Employees: React.FC = () => {
   const { employees, handleUnlock, locked, setEmployees, logout } =
     useContext(AdminContext);
   const [fetchedEmployees, setFetchedEmployees] = useState<Array<any>>([]);
   const [showLocalModal, setShowLocalModal] = useState<boolean>(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [pincode, setPincode] = useState<string>("");
   const [error, setError] = useState<string | undefined>(undefined);
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
@@ -34,6 +35,7 @@ const Employees: React.FC = () => {
     status: false,
     message: "",
   });
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (Array.isArray(employees)) {
@@ -43,7 +45,6 @@ const Employees: React.FC = () => {
   }, [employees]);
 
   const headerNames = ["First Name", "Last Name", "Start Date", ""];
-  console.log(employees, editedEmployees);
 
   const [sortConfig, setSortConfig] = useState({
     key: 0,
@@ -56,9 +57,12 @@ const Employees: React.FC = () => {
       direction = "descending";
     }
 
+    const keyMap = ["firstName", "lastName", "startdate"];
+    const key = keyMap[index];
+
     const sortedEmployees = [...fetchedEmployees].sort((a, b) => {
-      const aValue = String(Object.values(a)[index]);
-      const bValue = String(Object.values(b)[index]);
+      const aValue = String(a[key] || "");
+      const bValue = String(b[key] || "");
 
       if (aValue < bValue) {
         return direction === "ascending" ? -1 : 1;
@@ -68,7 +72,8 @@ const Employees: React.FC = () => {
       }
       return 0;
     });
-    setFetchedEmployees(sortedEmployees);
+
+    setEditedEmployees(sortedEmployees);
     setSortConfig({ key: index, direction });
     setClickedHeader(clickedHeader === index ? null : index);
   };
@@ -111,25 +116,6 @@ const Employees: React.FC = () => {
     }
     setEditedEmployees(updatedEmployees);
   };
-
-  //   try {
-  //     await editHours(currentDate.toISOString(), editedHours);
-  //     const resHours = await getHours(currentDate);
-  //     setHours(resHours);
-  //   } catch (error) {
-  //     const err = error as AxiosError;
-  //     if (err.response && err.response.status === 403) {
-  //       logout(true);
-  //     } else {
-  //       setExporting(false);
-  //       console.error("Error editing hours:", error);
-  //     }
-  //   }
-
-  //   setIsEditing(false);
-  //   setExporting(false);
-  //   setSubmitHoursStatus({ status: true, message: "Hours Updated" });
-  // };
 
   const checkAllFields = () => {
     return editedEmployees.every(
@@ -181,6 +167,42 @@ const Employees: React.FC = () => {
     });
   };
 
+  const handleDelete = async () => {
+    try {
+      await deleteEmployees(Array.from(selectedIds));
+      const resEmployees = await getEmployees();
+      setEmployees(resEmployees);
+      setSelectedIds(new Set());
+      setShowDeleteModal(false);
+      setSubmitEmployeesStatus({
+        status: true,
+        message: "Employee(s) deleted successfully",
+      });
+    } catch (error) {
+      const err = error as AxiosError;
+      if (err.response && err.response.status === 403) {
+        logout(true);
+      } else {
+        console.error("Error deleting hours:", error);
+      }
+    }
+  };
+
+  const handleCheckBox = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    id: number
+  ) => {
+    const newSelectedIds = new Set(selectedIds);
+    if (e.target.checked) {
+      newSelectedIds.add(id);
+    } else {
+      newSelectedIds.delete(id);
+    }
+    setSelectedIds(newSelectedIds);
+  };
+
+  console.log("selectedIds", Array.from(selectedIds));
+
   const parseDate = (dateString: string) => {
     const date = new Date(dateString);
     return isNaN(date.getTime()) ? null : date;
@@ -229,6 +251,25 @@ const Employees: React.FC = () => {
           }}
         />
       )}
+      {showDeleteModal && (
+        <Modal
+          title="Deleting Employee(s)"
+          desc="Are you sure you want to delete the selected employee(s)?"
+          dismiss={handleLocalModal}
+          action={{
+            title: "Delete",
+            onClick: handleDelete,
+          }}
+          actionB={{
+            title: "Cancel",
+            onClick: () => {
+              setShowDeleteModal(false);
+            },
+            style: { cancel: true },
+          }}
+        />
+      )}
+
       <div className="employees-container">
         {addUser ? (
           <EmployeeCreation setAddUser={setAddUser} />
@@ -255,6 +296,20 @@ const Employees: React.FC = () => {
                       ) : (
                         <>
                           <Button text="Submit" onClick={handleSubmit} />
+                          <Button
+                            text="Delete"
+                            style={{ cancel: true }}
+                            onClick={() => {
+                              if (selectedIds.size === 0) {
+                                setSubmitEmployeesStatus({
+                                  status: true,
+                                  message: "No employees selected",
+                                });
+                                return;
+                              }
+                              setShowDeleteModal(true);
+                            }}
+                          />
                           <Button
                             text="Cancel"
                             style={{ cancel: true }}
@@ -293,8 +348,15 @@ const Employees: React.FC = () => {
                 </tr>
                 <tr>
                   {headerNames.map((name, i) => (
-                    <th key={i}>
-                      <div className="employees-table-header">
+                    <th
+                      key={i}
+                      className={
+                        name === ""
+                          ? `employees-table-delete${editing ? "-active" : ""}`
+                          : ""
+                      }
+                    >
+                      <div className={"employees-table-header"}>
                         {name}
                         {name !== "" && (
                           <SortSvg
@@ -365,7 +427,19 @@ const Employees: React.FC = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="employees-table-td-actions"></td>
+                    <td
+                      className={`employees-table-delete${
+                        editing ? "-active" : ""
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(editedEmployees[i].uid)}
+                        onChange={(e) =>
+                          handleCheckBox(e, editedEmployees[i].uid)
+                        }
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>

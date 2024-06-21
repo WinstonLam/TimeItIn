@@ -105,14 +105,18 @@
   .employees-table-edit{
     display: flex;
     align-items: flex-start;
-
   }
+  .employees-table-edit button{
+    padding: 11px 11px;
+  }
+ 
 
   .employees-table-top-content .actions{
     display: flex;
     justify-content: space-between;
     margin-bottom: 5px;
     width: 30%;
+    margin-right: 10%;
   }
 
   .employees-table-header{
@@ -204,6 +208,20 @@
     filter: drop-shadow(-2px 2px 1px  rgba(var(--text-color), 0.5));
 
   }
+  
+  .employees-table-delete-active{
+    opacity: 1;
+    max-width: 0;
+    min-width: 8% !important;
+    transition: all 0.3s ease-in-out;
+  }
+  .employees-table-delete{
+    opacity: 0;
+    max-width: 0;
+    min-width: 8% !important;
+    transition: all 0.3s ease-in-out;
+  }
+
 
  
   .employees-table-top-content .actions .add-user:hover {
@@ -296,6 +314,10 @@
       font-size: 11px;
     }
     .employees-table-top-content .actions{
-      width: 50%;
+      width: 42%;
+      margin: 0;
     }
+    .employees-table-edit button {
+      padding: 8px 3px;
+  }
   }
