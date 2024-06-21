@@ -54,7 +54,7 @@ unprotectedRouter.post("/login", async (req, res) => {
 
 // Register user
 unprotectedRouter.post("/register", async (req, res) => {
-  const { email, password, pincode, settings } = req.body.data;
+  const { projectName, email, password, pincode, settings } = req.body.data;
 
   try {
     const userRecord = await admin.auth().createUser({
@@ -65,6 +65,7 @@ unprotectedRouter.post("/register", async (req, res) => {
     // Store user data in Firestore
     await db.collection("users").doc(userRecord.uid).set({
       auth: {
+        projectName,
         email,
         pincode,
       },
@@ -146,6 +147,24 @@ protectedRouter.get("/check-pin", async (req, res) => {
     }
   } catch (error) {
     console.error("Error fetching pin:", error);
+    res.status(500).send({ error: error.message });
+  }
+});
+
+// Get project name for a specific user
+protectedRouter.get("/get-project-name", async (req, res) => {
+  const userId = req.user.uid;
+
+  try {
+    const doc = await db.collection("users").doc(userId).get();
+    if (!doc.exists) {
+      res.status(404).send({ error: "User not found" });
+    } else {
+      const projectName = doc.data().auth.projectName;
+      res.status(200).send({ projectName });
+    }
+  } catch (error) {
+    console.error("Error fetching project name:", error);
     res.status(500).send({ error: error.message });
   }
 });

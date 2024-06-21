@@ -12,6 +12,7 @@
     align-items: center;
     justify-content: center;
     background-color: rgb(var(--primary-color));
+    min-height: 600px;
 }
 
 .App {

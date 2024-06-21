@@ -8,7 +8,8 @@ import AutocompleteInput from "../components/autocomplete";
 import ClockSvg from "../icons/clock";
 
 import Modal from "../components/modal";
-import ErrorMessage from "../components/errormessage";
+import UpdateMessage from "../components/updatemessage";
+import { set } from "lodash";
 
 interface NetworkError extends Error {
   response?: {
@@ -17,10 +18,18 @@ interface NetworkError extends Error {
   };
 }
 
+interface UpdateMessage {
+  message: string;
+  success: boolean;
+}
+
 const HourRegistration: FC = () => {
   const [selectedUid, setSelectedUid] = useState<string | "">("");
   const [selectedName, setSelectedName] = useState<string | "">("");
-  const [errMessage, setErrMessage] = useState<string | "">("");
+  const [updateMessage, setUpdateMessage] = useState<UpdateMessage>({
+    message: "",
+    success: false,
+  });
   const [startTime, setStartTime] = useState<string | "">("");
   const [endTime, setEndTime] = useState<string | "">("");
 
@@ -62,7 +71,7 @@ const HourRegistration: FC = () => {
   };
 
   const handleChange = async (employeeId: string, name: string) => {
-    setErrMessage("");
+    setUpdateMessage({ message: "", success: false });
     setSelectedName(name);
     setSelectedUid(employeeId);
 
@@ -90,39 +99,34 @@ const HourRegistration: FC = () => {
 
   const handleSubmit = async () => {
     if (!selectedUid) {
-      setErrMessage("Please select an employee");
+      setUpdateMessage({ message: "Please select an employee", success: false });
+      return;
+    }
+    if (startTime && endTime) {
+      setUpdateMessage({ message: "Time has already been set", success: false });
       return;
     }
 
     try {
       const currentDate = new Date();
 
-      const res = await setTime(selectedUid, currentDate).catch((error) => {
-        const err = error as AxiosError;
-        if (err.response?.status === 403) {
-          logout(true);
-        } else {
-          console.error("Error setting time:", error);
-        }
-      });
-      const resHours = await getHours(currentDate).catch((error) => {
-        const err = error as AxiosError;
-        if (err.response?.status === 403) {
-          logout(true);
-        } else {
-          console.error("Error fetching hours:", error);
-        }
-      });
+      const res = await setTime(selectedUid, currentDate)
+      const resHours = await getHours(currentDate)
 
       setHours(resHours);
 
       setStartTime(getTime(res.starttime));
       setEndTime(getTime(res.endtime));
+      setUpdateMessage({ message: "Time set successfully", success: true });
+
     } catch (err) {
       const networkError = err as NetworkError;
-      // if error code is 400 it means the employee is already clocked in
+
       if (networkError.response?.status === 400) {
-        setErrMessage(networkError.response.data.error);
+        setUpdateMessage({ message: networkError.response.data.error, success: false });
+      }
+      if (networkError.response?.status === 403) {
+        logout(true);
       }
       console.error(networkError.response?.data.error);
     }
@@ -135,7 +139,11 @@ const HourRegistration: FC = () => {
       <div className="hour-registration-modal">
         <ClockSvg className="clock-svg" onClick={handleSubmit} />
 
-        <ErrorMessage message={errMessage} show={errMessage ? true : false} />
+        <div className="error">
+          <UpdateMessage message={updateMessage.message} show={updateMessage.message ? true : false} success={updateMessage.success} />
+        </div>
+
+
 
         <AutocompleteInput
           suggestions={names}

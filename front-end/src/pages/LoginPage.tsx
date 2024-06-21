@@ -11,7 +11,7 @@ import { AdminContext } from "../providers/AdminContext";
 const LoginPage = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>("");
   const [register, setRegister] = useState<boolean>(false);
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [stayLoggedIn, setStayLoggedIn] = useState<boolean>(false);
@@ -52,6 +52,7 @@ const LoginPage = () => {
             ) : (
               <>
                 <h2>Login</h2>
+
                 <div className={`error${error ? "-show" : ""}`}>{error}</div>
 
                 <form onSubmit={handleLogin}>
@@ -80,7 +81,7 @@ const LoginPage = () => {
                     />
                   </div>
                   <div className="actions">
-                    <Button type="submit" text="Login" onClick={() => {}} />
+                    <Button type="submit" text="Login" onClick={() => { }} />
                     <Button
                       text="Register"
                       onClick={() => setRegister(true)}

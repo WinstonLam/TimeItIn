@@ -4,6 +4,7 @@
     align-items: center;
     justify-content: center;
     height: 100vh;
+    width: 100vw;
 }
 
 .login-modal{
@@ -11,10 +12,13 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-evenly;
-    width: 500px;
-    height: 70%;
+    width: 90%;
+    max-width: 500px;
+    height: 650px;
     background-color: rgb(var(--second-color));
     border-radius: 10px;
+    color: rgb(var(--text-color));
+ 
 }
 
 .login-modal-content{
@@ -23,7 +27,7 @@
     align-items: center;
     justify-content: space-evenly;
     width: 90%;
-    height: 70%;
+    height: 100%;
 }
 
 .login-modal-content form{
@@ -37,17 +41,15 @@
 
 .login-modal .error,
 .login-modal .error-show{
-
     color: red;
     height: 20px;
     opacity: 0;
     pointer-events: none;
-    margin-left: 10%;
-    height: 100px;
+    height: 55px;
     font-weight: bold;
     font-size: 16px;
     width: 50%;
-    margin-top: 5px;
+    margin-top: 15px;
     transition: all 0.3s ease-in-out;
 }
 .login-modal .error-show{
@@ -58,6 +60,7 @@
 
 .login-modal-content h2{
     color: rgb(var(--text-color));
+    margin-bottom: -80px;
 }
 
 .stay-loggedIn{
@@ -69,4 +72,18 @@
     color: rgb(var(--text-color));
     height: 20%;
     justify-content: space-between;
+}
+
+.login-modal .register-success{
+    height: 65%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+@media screen and (max-height: 800px){
+    .login-modal{
+        margin-top: 14%;
+    }
 }

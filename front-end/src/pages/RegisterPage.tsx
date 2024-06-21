@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { registerUser } from "../api"; // Adjust the path if necessary
 import FormField from "../components/formfield";
 import Button from "../components/button";
+import UpdateMessage from "../components/updatemessage";
 import "../styles/LoginPage.css";
 
 interface RegisterPageProps {
@@ -18,6 +18,7 @@ interface AxiosError {
 }
 
 interface Data {
+  projectName: string;
   email: string;
   password: string;
   pincode: string;
@@ -29,6 +30,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ setRegister }) => {
   const [countdown, setCountdown] = useState(5);
 
   const [data, setData] = useState<Data>({
+    projectName: "",
     email: "",
     password: "",
     pincode: "",
@@ -79,8 +81,8 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ setRegister }) => {
         {errorMessage}
       </div>
       {success ? (
-        <div className="succes">
-          <h2>Succesfully created new account</h2>
+        <div className="register-success">
+          <UpdateMessage message="Account created successfully" show={true} success={true} />
           Redirecting in {countdown} seconds...
           <div className="actions">
             <Button
@@ -92,7 +94,17 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ setRegister }) => {
         </div>
       ) : (
         <>
+
           <form onSubmit={handleRegister}>
+            <FormField
+              value={data.projectName}
+              label="Project name"
+              id="projectName"
+              required={true}
+              formSubmitted={formSubmitted}
+              onChange={handleChange("projectName")}
+              limit={50}
+            />
             <FormField
               value={data.email}
               label="Email"

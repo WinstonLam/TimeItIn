@@ -99,6 +99,8 @@ const Hours: React.FC = () => {
       setWindowWidth(window.innerWidth);
       if (window.innerWidth > 800) {
         setMenu(true);
+      } else {
+        setMenu(false);
       }
     };
 
@@ -549,7 +551,7 @@ const Hours: React.FC = () => {
             <h1>Hours</h1>
             <div className="hours-cointainer-header-actions">
               {!isEditing ? (
-                <Button text="Edit Hours" onClick={handleLocalModal} />
+                <Button text="Edit" onClick={handleLocalModal} />
               ) : (
                 <>
                   <Button
@@ -590,35 +592,35 @@ const Hours: React.FC = () => {
               <HamburgerSvg className="hamburger-icon" onClick={() => setMenu(!menu)} />
             </div>
           )}
-          {menu && (
-            <div className={`col-selector${windowWidth < 800 ? "-small" : ""}`}>
-              <div className="hide-empty">
-                <Button
-                  text="Hide No Hours"
-                  onClick={handleHideEmptyEmployeesChange}
-                />
-              </div>
-              <div className="namepicker">
-                <AutocompleteInput
-                  suggestions={[["all", "All Employees"], ...names]}
-                  onSelect={handleNameChange}
-                />
-              </div>
-              <div className="datepicker">
-                <DatePicker
-                  selected={selectedDate}
-                  onChange={(date: Date | null) => setSelectedDate(date)}
-                />
-              </div>
-              <div className="display">
-                <select onChange={handleColChange}>
-                  <option value={1}>Day</option>
-                  <option value={7}>Week</option>
-                  <option value={31}>Month</option>
-                </select>
-              </div>
+
+          <div className={`col-selector${windowWidth < 800 ? "-small" : ""}${menu ? "" : "-hidden"}`}>
+            <div className="hide-empty">
+              <Button
+                text="Hide No Hours"
+                onClick={handleHideEmptyEmployeesChange}
+              />
             </div>
-          )}
+            <div className="namepicker">
+              <AutocompleteInput
+                suggestions={[["all", "All Employees"], ...names]}
+                onSelect={handleNameChange}
+              />
+            </div>
+            <div className="datepicker">
+              <DatePicker
+                selected={selectedDate}
+                onChange={(date: Date | null) => setSelectedDate(date)}
+              />
+            </div>
+            <div className="display">
+              <select onChange={handleColChange}>
+                <option value={1}>Day</option>
+                <option value={7}>Week</option>
+                <option value={31}>Month</option>
+              </select>
+            </div>
+          </div>
+
         </div>
         <div className="hours-table">
           {weeks.map((weekDates, weekIndex) => (

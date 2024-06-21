@@ -5,6 +5,7 @@ import {
   getHours,
   checkAuthStatus,
   checkPin,
+  getProjectName
 } from "../api";
 import { AxiosError } from "axios";
 
@@ -25,6 +26,7 @@ interface Hours {
 }
 
 interface AdminContextProps {
+  projectName: string;
   sessionExpired: boolean;
   setSessionExpired: React.Dispatch<React.SetStateAction<boolean>>;
   loading: boolean;
@@ -51,6 +53,7 @@ interface AdminContextProps {
 }
 
 const defaultState: AdminContextProps = {
+  projectName: "",
   sessionExpired: false,
   setSessionExpired: () => { },
   loading: false,
@@ -84,6 +87,11 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
     const status = sessionStorage.getItem("locked");
     return status && status === "false" ? false : true;
   });
+  const [projectName, setProjectName] = useState<string>(() => {
+    const storedName = localStorage.getItem("projectName");
+    return storedName || "";
+  }
+  );
   const [employees, setEmployees] = useState<Employee[]>(() => {
     const storedEmp = localStorage.getItem("employees");
     return storedEmp && storedEmp !== "undefined" ? JSON.parse(storedEmp) : [];
@@ -165,13 +173,16 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
       const currentDate = new Date().toISOString();
       const resEmployees = await getEmployees();
       const resHours = await getHours(currentDate);
+      const resProjectName = await getProjectName();
 
       const employeesArray: Employee[] = Object.values(resEmployees);
 
       localStorage.setItem("employees", JSON.stringify(employeesArray));
       localStorage.setItem("hours", JSON.stringify(resHours));
+      localStorage.setItem("projectName", resProjectName);
       setEmployees(employeesArray);
       setHours(resHours);
+      setProjectName(resProjectName);
     } catch (err) {
       console.error("Error fetching employees:");
     }
@@ -188,6 +199,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.removeItem("employees");
     localStorage.removeItem("hours");
     localStorage.removeItem("loggedIn");
+    localStorage.removeItem("projectName");
     setEmployees([]);
     setHours({});
     setLoggedin(false);
@@ -235,6 +247,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [loggedIn]);
 
   const contextValue = {
+    projectName,
     sessionExpired,
     setSessionExpired,
     loading,

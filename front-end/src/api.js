@@ -250,6 +250,22 @@ export const logoutUser = async () => {
   }
 };
 
+export const getProjectName = () => {
+  return axios
+    .get(`${BASE_URL}/get-project-name`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    .then((response) => {
+      return response.data.projectName;
+    })
+    .catch((error) => {
+      console.error("Error retrieving project name:", error);
+      throw error;
+    });
+};
+
 export const checkPin = (pincode) => {
   console.log("checkPin");
 

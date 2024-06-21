@@ -2,15 +2,16 @@ import React from 'react';
 import '../styles/component-styles/ErrorMessage.css';
 import ErrorSvg from '../icons/error';
 
-interface ErrorMessageProps {
+interface UpdateMessageProps {
     message: string;
     show: boolean;
+    success?: boolean;
 }
 
-const ErrorMessage: React.FC<ErrorMessageProps> = ({ message, show }) => {
+const UpdateMessage: React.FC<UpdateMessageProps> = ({ message, show, success }) => {
     return (
         <div className={`error-container${show ? '-show' : ''}`}>
-            <div className="error-message">
+            <div className={`error-message${success ? "-success" : ""}`}>
                 <div className="error-svg-container">
                     <ErrorSvg className="error-svg" />
                 </div>
@@ -20,4 +21,4 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({ message, show }) => {
     );
 };
 
-export default ErrorMessage;
+export default UpdateMessage;

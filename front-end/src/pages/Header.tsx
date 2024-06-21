@@ -13,7 +13,7 @@ interface HeaderProps {
 
 const Header: FC<HeaderProps> = ({ setSideNav }) => {
   const navigate = useNavigate();
-  const { loggedIn } = useContext(AdminContext);
+  const { loggedIn, projectName } = useContext(AdminContext);
   return (
     <div>
       <div className="header">
@@ -21,7 +21,7 @@ const Header: FC<HeaderProps> = ({ setSideNav }) => {
           <div className="header-logo" onClick={() => navigate("/")}>
             <h2>TimeItIn</h2>
             <img src={logo} alt="logo" className="logo-icon" />
-            <h2>Originals</h2>
+            <h2>{projectName}</h2>
 
           </div>
           {loggedIn ? <GearSvg

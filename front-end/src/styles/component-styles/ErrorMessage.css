@@ -6,7 +6,9 @@
     justify-content: center;
     opacity: 0;
     pointer-events: none;
+    transition: all 0.3s ease-in-out;
 }
+
 
 .error-container-show{
     opacity: 1;
@@ -14,7 +16,9 @@
 }
 
 .error-container-show .error-message,
-.error-container .error-message{
+.error-container .error-message,
+.error-container-show .error-message-success,
+.error-container .error-message-success{
     color: red;
     font-size: 14px;
     text-align: center;
@@ -25,11 +29,24 @@
     justify-content: space-evenly;
 }
 
+.error-container-show .error-message-success,
+.error-container .error-message-success{
+    color: green;
+    text-shadow: 0px 0px 1px rgba(0, 0, 0, 0.5);
+}
+
 .error-container-show .error-message .error-svg-container,
-.error-container .error-message .error-svg-container{
+.error-container .error-message .error-svg-container,
+.error-container-show .error-message-success .error-svg-container,
+.error-container .error-message-success .error-svg-container{
     width: 25px;
     height: 25px;
     display: inline-block;
     fill:red;
     margin-bottom: 5px;
+}
+
+.error-container-show .error-message-success .error-svg-container{
+    fill: green;
+    filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.5));
 }

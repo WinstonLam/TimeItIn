@@ -151,6 +151,11 @@
 .hours-container-header {
   text-align: left;
   width: 20%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 1%;
+
 }
 
 .hours-cointainer-header-actions {
@@ -184,7 +189,8 @@
 }
 
 .hours-table-top-content .col-selector, 
-.hours-table-top-content .col-selector-small  {
+.hours-table-top-content .col-selector-small,
+.hours-table-top-content .col-selector-small-hidden  {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -192,25 +198,31 @@
   margin-bottom: 5px;
   z-index: 1;
   width: 65%;
-  min-width: 530px;
+  min-width: 565px;
   border-radius: 2rem;
   cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+.hours-table-top-content .col-selector-small-hidden{
+  pointer-events: none;
+  opacity: 0;
 }
 
-.hours-table-top-content .col-selector-small {
-  position: absolute;
-  right: 10%;
-  top: 220px;
+.hours-table-top-content .col-selector-small,
+.hours-table-top-content .col-selector-small-hidden  {
+  position: relative;
+  right: 2%;
+  top: 170px;
   flex-direction: column;
   align-items: center;
   width: 10%;
-  height: 30%;
   min-width: 155px;
   background-color: rgb(var(--second-color));
 }
 
 .hours-table-top-content .col-selector select,
-.hours-table-top-content .col-selector-small select {
+.hours-table-top-content .col-selector-small select,
+.hours-table-top-content .col-selector-small-hidden select {
   height: 50px;
   background-color: rgb(var(--primary-color));
   border: 3px solid black;
@@ -223,11 +235,12 @@
   transition: all 0.3s ease-in-out;
 }
 
-.hours-table-top-content .col-selector-small .display{
+.hours-table-top-content .col-selector-small .display,
+.hours-table-top-content .col-selector-small-hidden .display {
   width: 90%;
-  margin-bottom: 10px;
 }
-.hours-table-top-content .col-selector-small select{
+.hours-table-top-content .col-selector-small select,
+.hours-table-top-content .col-selector-small-hidden select {
   font-size: 16px;
   height: 40px;
   padding: 5px;
@@ -239,7 +252,8 @@
 }
 
 .hours-table-top-content .col-selector .datepicker input,
-.hours-table-top-content .col-selector-small .datepicker input{
+.hours-table-top-content .col-selector-small .datepicker input,
+.hours-table-top-content .col-selector-small-hidden .datepicker input{
   border-radius: 2rem;
   background-color: transparent;
   border: 3px solid black;
@@ -254,14 +268,26 @@
   transition: all 0.3s ease-in-out;
 }
 
-.hours-table-top-content .col-selector-small .datepicker input{
+.col-selector-small .datepicker,
+.col-selector-small .namepicker,
+.col-selector-small .display,
+.col-selector-small-hidden .datepicker,
+.col-selector-small-hidden .namepicker,
+.col-selector-small-hidden .display {
+  margin: 10px;
+}
+
+
+.hours-table-top-content .col-selector-small .datepicker input,
+.hours-table-top-content .col-selector-small-hidden .datepicker input{
   font-size: 16px;
   height: 25px;
-  width: 80%;
+  width: 90%;
   background-color: rgb(var(--primary-color));
 }
 
-.hours-table-top-content .col-selector .datepicker input .form-field-optional{
+.hours-table-top-content .col-selector .datepicker input .form-field-optional,
+.hours-table-top-content .col-selector-small .datepicker input .form-field-optional{
   width: 120px;
   color: white;
 }
@@ -271,7 +297,8 @@
 }
 
 .hours-table-top-content .col-selector .namepicker input,
-.hours-table-top-content .col-selector-small .namepicker input{
+.hours-table-top-content .col-selector-small .namepicker input,
+.hours-table-top-content .col-selector-small-hidden .namepicker input{
   border-radius: 2rem;
   background-color: transparent;
   border: 3px solid black;
@@ -287,7 +314,8 @@
 }
 
 .hours-table-top-content .col-selector .namepicker .form-field-optional,
-.hours-table-top-content .col-selector-small .namepicker .form-field-optional{
+.hours-table-top-content .col-selector-small .namepicker .form-field-optional,
+.hours-table-top-content .col-selector-small-hidden .namepicker .form-field-optional{
   width: 120px;
   color: rgb(var(--text-color));;
 }
@@ -300,7 +328,8 @@
   border: none;
 }
 
-.hours-table-top-content .col-selector-small .namepicker input{
+.hours-table-top-content .col-selector-small .namepicker input,
+.hours-table-top-content .col-selector-small-hidden .namepicker input{
   font-size: 16px;
   height: 15px;
   width: 95%;
