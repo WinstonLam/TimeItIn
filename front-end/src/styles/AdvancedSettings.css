@@ -26,6 +26,7 @@
     justify-content: space-evenly;
     width: 60%;
     height: 70%;
+    max-height: 700px;
     background-color: rgb(var(--second-color));
     border-radius: 10px;
     padding: 50px;

@@ -17,6 +17,7 @@ const BASE_URL = process.env.REACT_APP_BACKEND_URL;
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+let isLoggingOut = false;
 
 // Ensure cookies are included in requests
 axios.defaults.withCredentials = true;
@@ -24,13 +25,20 @@ axios.defaults.withCredentials = true;
 // Global token expiration interceptor
 axios.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response && error.response.status === 403) {
-      // Token expired, log the user out
-      logoutUser();
-      // .then(() => {
-      //   window.location.reload(); // Reload the page to reflect the logout
-      // });
+      // Check if the user is logging out to avoid recursive calls
+      if (!isLoggingOut) {
+        isLoggingOut = true;
+        try {
+          await logoutUser();
+        } catch (logoutError) {
+          console.error("Error during logout:", logoutError);
+        } finally {
+          isLoggingOut = false;
+          window.location.reload(); // Reload the page to reflect the logout
+        }
+      }
     }
     return Promise.reject(error);
   }
@@ -301,6 +309,52 @@ export const createEmployee = (employee) => {
     })
     .catch((error) => {
       console.error("Error creating employee:", error);
+      throw error;
+    });
+};
+
+export const editEmployees = (employees) => {
+  console.log("editEmployees");
+
+  return axios
+    .post(
+      `${BASE_URL}/edit-employees`,
+      { employees },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    )
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      console.error("Error editing employees:", error);
+      throw error;
+    });
+};
+
+export const deleteEmployees = (employeeIds) => {
+  console.log("deleteEmployees");
+
+  return axios
+    .post(
+      `${BASE_URL}/delete-employees`,
+      { employeeIds },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    )
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      console.error("Error deleting employees:", error);
       throw error;
     });
 };

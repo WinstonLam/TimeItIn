@@ -192,7 +192,7 @@ protectedRouter.post("/create-employee", async (req, res) => {
           month: "2-digit",
           year: "numeric",
         }),
-        totalhours: 0,
+        // totalhours: 0, not implemented yet
       };
 
       console.log("Creating employee: ", employeeId, "for adminId: ", userId);
@@ -203,6 +203,61 @@ protectedRouter.post("/create-employee", async (req, res) => {
     }
   } catch (error) {
     console.error("Error creating employee:", error);
+    res.status(500).send({ error: error.message });
+  }
+});
+
+// Edit employee for a specific user
+protectedRouter.post("/edit-employees", async (req, res) => {
+  const userId = req.user.uid;
+  const { employees } = req.body;
+
+  try {
+    const doc = await db.collection("users").doc(userId).get();
+    if (!doc.exists) {
+      res.status(404).send({ error: "Admin not found" });
+    } else {
+      const employeeData = {};
+      employees.forEach((employee) => {
+        const { uid, firstName, lastName, startdate } = employee; // Using camelCase keys
+        employeeData[uid] = {
+          firstName, // firstName: firstName
+          lastName, // lastName: lastName
+          startdate, // startdate: startdate
+        };
+      });
+
+      await doc.ref.update({ employees: employeeData });
+
+      res.status(200).send({ success: true });
+    }
+  } catch (error) {
+    console.error("Error editing employees:", error);
+    res.status(500).send({ error: error.message });
+  }
+});
+
+// Delete employees for a specific user
+protectedRouter.post("/delete-employees", async (req, res) => {
+  const userId = req.user.uid;
+  const employeeIds = req.body.employeeIds; // Array of employeeIds to delete
+
+  try {
+    const doc = await db.collection("users").doc(userId).get();
+    if (!doc.exists) {
+      res.status(404).send({ error: "Admin not found" });
+    } else {
+      const employeesData = doc.data().employees || {};
+      employeeIds.forEach((employeeId) => {
+        delete employeesData[employeeId];
+      });
+
+      await doc.ref.update({ employees: employeesData });
+
+      res.status(200).send({ success: true });
+    }
+  } catch (error) {
+    console.error("Error deleting employees:", error);
     res.status(500).send({ error: error.message });
   }
 });
