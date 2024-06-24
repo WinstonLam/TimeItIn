@@ -87,6 +87,15 @@
   overflow: scroll;
   margin: 10px;
 }
+.hours-table table thead{
+  display: table; /* Ensure thead stays at the top */
+    table-layout: fixed;
+    position: sticky; /* Make thead sticky */
+    background-color: rgb(var(--primary-color));
+    width: 100%;
+    top: 0; /* Stick to the top */
+    z-index: 1; /* Ensure it stays above the content */
+}
 
 .hours-table th,
 .hours-table td {
@@ -247,7 +256,8 @@
   width: 100%;
 }
 
-.hours-table-top-content .col-selector select:hover {
+.hours-table-top-content .col-selector select:hover,
+ .hours-cointainer-header-actions .export select:hover {
   background-color: rgb(var(--second-color));
 }
 
@@ -358,7 +368,8 @@
   background-color: rgb(var(--second-color));
 }
 
-.hours-table-top-content .col-selector .display {
+.hours-table-top-content .col-selector .display,
+.hours-cointainer-header-actions .export{
   display: flex;
   flex-direction: column;
   color: rgb(var(--text-color));;
@@ -369,6 +380,20 @@
   transition: all 0.3s ease-in-out;
   align-items: center;
   justify-content: center;
+}
+
+.hours-cointainer-header-actions .export select{
+  height: 42px;
+  background-color: rgb(var(--primary-color));
+  border: 2px solid black;
+  border-radius: 2rem;
+  font-size: 14px;
+  color: rgb(var(--text-color));
+  outline: none;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+
 }
 
 .hours-container .timepicker {

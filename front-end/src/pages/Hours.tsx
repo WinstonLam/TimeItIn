@@ -11,7 +11,8 @@ import Modal from "../components/modal";
 import loadingIcon from "../icons/loading.gif";
 import { useNavigate } from "react-router-dom";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import OverviewPDF from "../components/pdf";
+import IndividualPDF from "../components/individual-pdf";
+import TotalsPDF from "../components/totals-pdf";
 import _ from "lodash";
 import HamburgerSvg from "../icons/hamburger";
 
@@ -33,6 +34,7 @@ interface Hours {
 }
 
 interface TransformedEmployeeData {
+  type: string;
   name: string;
   dates: {
     [date: string]: {
@@ -42,6 +44,17 @@ interface TransformedEmployeeData {
     };
   };
 }
+
+interface TotalsData {
+  type: string;
+  name: string;
+  totalHours: number;
+  workedDays: number;
+  startDate: string;
+  endDate: string;
+}
+
+type ExportData = TransformedEmployeeData | TotalsData[];
 
 const Hours: React.FC = () => {
   const {
@@ -73,7 +86,8 @@ const Hours: React.FC = () => {
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [exportMessage, setExportMessage] = useState<string>("");
   const [exporting, setExporting] = useState<boolean>(false);
-  const [exportData, setExportData] = useState<TransformedEmployeeData | null>(
+  const [exportType, setExportType] = useState<string>("");
+  const [exportData, setExportData] = useState<ExportData | null>(
     null
   );
 
@@ -93,6 +107,7 @@ const Hours: React.FC = () => {
           ]
       )
       : [];
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -406,59 +421,38 @@ const Hours: React.FC = () => {
       setIsEditing(true);
     }
   };
+  const handleExport = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+    console.log(event.target.value)
+    setExportType(event.target.value);
+    setExportMessage("");
+    setExporting(true);
 
-  const handleExport = async () => {
-    await new Promise<void>((resolve) => {
-      setExportMessage("");
-      setExporting(true);
-      resolve();
-    });
+    const visibleEmployees = getVisibleEmployees();
+    if (visibleEmployees.length === 0) {
+      setExporting(false);
+      setExportMessage("No data to export");
+      return;
+    }
 
-    const visibleEmployees = employees
-      .filter((employee) =>
-        hideEmptyEmployees ? hasHours(employee, dates) : true
-      )
-      .filter((employee) =>
-        selectedEmployeeId ? employee.uid === selectedEmployeeId : true
-      );
+    if (event.target.value === "individuals") {
 
-    const transformedData: TransformedEmployeeData[] = visibleEmployees
-      .map((employee) => {
-        const employeeData: TransformedEmployeeData = {
-          name: `${employee.firstName} ${employee.lastName}`,
-          dates: {},
-        };
+      await exportIndividuals(visibleEmployees);
+    } else if (event.target.value === "totals") {
+      await exportTotals(visibleEmployees);
+    }
 
-        dates.forEach((date) => {
-          const dayIdx = transformDate(date, {
-            day: true,
-            month: true,
-            year: true,
-          });
+    setExporting(false);
+    setExportMessage("Exported successfully");
+  };
 
-          if (hours[dayIdx] && hours[dayIdx][employee.uid]) {
-            const starttime = hours[dayIdx][employee.uid].starttime;
-            const endtime = hours[dayIdx][employee.uid].endtime;
+  const getVisibleEmployees = () => {
+    return employees
+      .filter((employee) => (hideEmptyEmployees ? hasHours(employee, dates) : true))
+      .filter((employee) => (selectedEmployeeId ? employee.uid === selectedEmployeeId : true));
+  };
 
-            const starttimeDate = starttime && new Date(starttime);
-            const endtimeDate = endtime && new Date(endtime);
-            const hoursWorked =
-              endtimeDate && starttimeDate
-                ? (endtimeDate.getTime() - starttimeDate.getTime()) /
-                (1000 * 60 * 60)
-                : null;
-
-            employeeData.dates[dayIdx] = {
-              starttime,
-              endtime,
-              hours: hoursWorked,
-            };
-          }
-        });
-
-        return employeeData;
-      })
-      .filter((employeeData) => Object.keys(employeeData.dates).length > 0);
+  const exportIndividuals = async (visibleEmployees: Employee[]) => {
+    const transformedData = transformIndividualData(visibleEmployees);
 
     if (transformedData.length === 0) {
       setExporting(false);
@@ -472,13 +466,100 @@ const Hours: React.FC = () => {
         resolve();
       });
     }
-    setExporting(false);
-    setExportMessage("Exported successfully");
-    setExportData(null);
   };
+
+  const transformIndividualData = (visibleEmployees: Employee[]): TransformedEmployeeData[] => {
+    return visibleEmployees
+      .map((employee) => {
+        const employeeData: TransformedEmployeeData = {
+          type: "individual",
+          name: `${employee.firstName} ${employee.lastName}`,
+          dates: {},
+        };
+
+        dates.forEach((date) => {
+          const dayIdx = transformDate(date, { day: true, month: true, year: true });
+
+          if (hours[dayIdx] && hours[dayIdx][employee.uid]) {
+            const starttime = hours[dayIdx][employee.uid].starttime;
+            const endtime = hours[dayIdx][employee.uid].endtime;
+
+            const starttimeDate = starttime && new Date(starttime);
+            const endtimeDate = endtime && new Date(endtime);
+            const hoursWorked =
+              endtimeDate && starttimeDate
+                ? (endtimeDate.getTime() - starttimeDate.getTime()) / (1000 * 60 * 60)
+                : null;
+
+            employeeData.dates[dayIdx] = {
+              starttime,
+              endtime,
+              hours: hoursWorked,
+            };
+          }
+        });
+
+        return employeeData;
+      })
+      .filter((employeeData) => Object.keys(employeeData.dates).length > 0);
+  };
+
+  const exportTotals = async (visibleEmployees: Employee[]) => {
+    const totalsData = transformTotalsData(visibleEmployees);
+
+    if (totalsData.length === 0) {
+      setExporting(false);
+      setExportMessage("No data to export");
+      return;
+    }
+
+    setExportData(totalsData);
+  };
+
+  const transformTotalsData = (visibleEmployees: Employee[]): TotalsData[] => {
+    const startDate = dates[0];
+    const endDate = dates[dates.length - 1];
+
+    return visibleEmployees.map((employee) => {
+      let totalHours = 0;
+      let workedDays = 0;
+
+      dates.forEach((date) => {
+        const dayIdx = transformDate(date, { day: true, month: true, year: true });
+
+        if (hours[dayIdx] && hours[dayIdx][employee.uid]) {
+          const starttime = hours[dayIdx][employee.uid].starttime;
+          const endtime = hours[dayIdx][employee.uid].endtime;
+
+          const starttimeDate = starttime && new Date(starttime);
+          const endtimeDate = endtime && new Date(endtime);
+          const hoursWorked =
+            endtimeDate && starttimeDate
+              ? (endtimeDate.getTime() - starttimeDate.getTime()) / (1000 * 60 * 60)
+              : 0;
+
+          if (hoursWorked > 0) {
+            totalHours += hoursWorked;
+            workedDays += 1;
+          }
+        }
+      });
+
+      return {
+        type: "totals",
+        name: `${employee.firstName} ${employee.lastName}`,
+        totalHours,
+        workedDays,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+      };
+    });
+  };
+
 
   useEffect(() => {
     if (exportData) {
+      console.log(exportData)
       pdfLink.current?.click();
     }
   }, [exportData]);
@@ -565,7 +646,13 @@ const Hours: React.FC = () => {
                     type="reset"
                     style={{ cancel: true }}
                   />
-                  <Button text="Export" onClick={handleExport} />
+                  <div className="export">
+                    <select onChange={handleExport}>
+                      <option value="" disabled selected hidden>Export</option>
+                      <option value={"individuals"}>Individual</option>
+                      <option value={"totals"}>Totals</option>
+                    </select>
+                  </div>
                   {exporting && (
                     <img
                       className="loadingIcon"
@@ -577,9 +664,11 @@ const Hours: React.FC = () => {
 
                   <PDFDownloadLink
                     document={
-                      exportData ? <OverviewPDF pdfData={exportData} /> : <></>
+                      exportData && exportType === "individuals"
+                        ? <IndividualPDF pdfData={exportData as TransformedEmployeeData} />
+                        : <TotalsPDF pdfData={exportData as TotalsData[]} />
                     }
-                    fileName={`Hoursoverview-${exportData?.name}.pdf`}
+                    fileName={`Hoursoverview-${exportData && exportType === "individuals" ? (exportData as TransformedEmployeeData).name : "totals"}.pdf`}
                   >
                     {<div ref={pdfLink} style={{ display: "none" }} />}
                   </PDFDownloadLink>

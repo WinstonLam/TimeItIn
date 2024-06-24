@@ -13,28 +13,44 @@
     align-items: center;
     justify-content: center;
     width: 75%;
-
-    overflow: scroll;
+    overflow: hidden;
     max-width: 1280px;
+    border-collapse: collapse; /* Ensure borders collapse properly */
 
   }
 
-  .employees-table::-webkit-scrollbar{
+  .employees-table thead {
+    display: table; /* Ensure thead stays at the top */
+    table-layout: fixed;
+    position: sticky; /* Make thead sticky */
+    background-color: rgb(var(--primary-color));
+    width: 100%;
+    top: 0; /* Stick to the top */
+    z-index: 1; /* Ensure it stays above the content */
+  }
+
+  .employees-table tbody {
+    display: block; /* Allow tbody to scroll independently */
+    max-height: 400px; /* Adjust as needed */
+    width: 100%;
+  }
+
+  .employees-table  table::-webkit-scrollbar{
     display: auto;
     width: 7.5px;
     height: 7.5px;
     margin: 10px;
   }
   
-  .employees-table::-webkit-scrollbar-thumb{
+  .employees-table  table::-webkit-scrollbar-thumb{
     border-radius: 2rem;
     background-color: rgb(var(--second-color));
   }
   
-  .employees-table::-webkit-scrollbar-track{
+  .employees-table  table::-webkit-scrollbar-track{
     background-color:transparent;
   }
-  .employees-table::-webkit-scrollbar-corner {
+  .employees-table  table::-webkit-scrollbar-corner {
     background: transparent;
 }
 
@@ -45,13 +61,14 @@
     border-collapse: collapse;
     table-layout: fixed; /* make cells have equal width */
     max-width: 1250px;
-    overflow: scroll;
+    display: block;
+    overflow-y: scroll;
   }
 
   .employees-table .content-container{
     max-height: 400px;
     width: 100%;
-    overflow-y: scroll;
+
   }
   
 .employees-table th, .employees-table td {
@@ -66,6 +83,7 @@
     align-items: center;
     overflow: hidden;
     text-overflow: ellipsis;
+
   }
   .employees-table tr {
     display: flex;
@@ -80,8 +98,16 @@
   }
 
   .employees-table-top-content{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
     text-shadow: -1px 1px 1px rgb(var(--text-color));
     color: rgb(var(--second-color));
+    width: 75%;
+    height: 185px;
+    max-width: 1280px;
+    margin-top: 6%;
   }
   .employees-table-top-content th{
     border: none;

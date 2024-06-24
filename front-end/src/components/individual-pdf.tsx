@@ -12,6 +12,7 @@ import { AdminContext } from "../providers/AdminContext";
 const logo = require("../icons/logo.png") as string;
 
 interface TransformedEmployeeData {
+  type: string;
   name: string;
   dates: {
     [date: string]: {
@@ -22,11 +23,12 @@ interface TransformedEmployeeData {
   };
 }
 
-interface OverviewPDFProps {
+interface IndividualPDFProps {
   pdfData: TransformedEmployeeData;
 }
 
-const OverviewPDF: React.FC<OverviewPDFProps> = ({ pdfData }) => {
+const IndividualPDF: React.FC<IndividualPDFProps> = ({ pdfData }) => {
+  console.log(pdfData)
   const { transformDate } = useContext(AdminContext);
   const styles = StyleSheet.create({
     page: {
@@ -223,4 +225,4 @@ const OverviewPDF: React.FC<OverviewPDFProps> = ({ pdfData }) => {
   );
 };
 
-export default OverviewPDF;
+export default IndividualPDF;

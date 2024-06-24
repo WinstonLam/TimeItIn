@@ -110,7 +110,7 @@ const Employees: React.FC = () => {
   const handleEditChange = (index: number, field: string, value: any) => {
     const updatedEmployees = [...editedEmployees];
     if (field === "startdate" && value instanceof Date) {
-      updatedEmployees[index][field] = value.toISOString().split("T")[0];
+      updatedEmployees[index][field] = value.toLocaleDateString("en-GB"); // Format as dd/mm/yyyy
     } else {
       updatedEmployees[index][field] = value;
     }
@@ -128,7 +128,6 @@ const Employees: React.FC = () => {
 
   const handleSubmit = async () => {
     // Here you would typically send the edited data to the server
-    console.log("Edited employees: ", editedEmployees);
     setFetchedEmployees(editedEmployees);
     setEditing(false);
 
@@ -201,11 +200,16 @@ const Employees: React.FC = () => {
     setSelectedIds(newSelectedIds);
   };
 
-  console.log("selectedIds", Array.from(selectedIds));
 
   const parseDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return isNaN(date.getTime()) ? null : date;
+    const parts = dateString.split('/');
+    if (parts.length === 3) {
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1; // Month is zero-based in JavaScript Date
+      const year = parseInt(parts[2], 10);
+      return new Date(year, month, day);
+    }
+    return null;
   };
 
   return (
@@ -274,177 +278,175 @@ const Employees: React.FC = () => {
         {addUser ? (
           <EmployeeCreation setAddUser={setAddUser} />
         ) : (
-          <div className="employees-table">
-            <table>
-              <thead>
-                <tr className="employees-table-top-content">
-                  <th className="title">
-                    <h1>Employees</h1>
+          <>
+            <div className="employees-table-top-content">
+              <div className="title">
+                <h1>Employees</h1>
 
-                    <div className="employees-table-edit">
-                      {!editing ? (
-                        <Button
-                          text="Edit"
-                          onClick={() => {
-                            if (locked) {
-                              handleLocalModal();
-                            } else {
-                              setEditing(true);
-                            }
-                          }}
-                        />
-                      ) : (
-                        <>
-                          <Button text="Submit" onClick={handleSubmit} />
-                          <Button
-                            text="Delete"
-                            style={{ cancel: true }}
-                            onClick={() => {
-                              if (selectedIds.size === 0) {
-                                setSubmitEmployeesStatus({
-                                  status: true,
-                                  message: "No employees selected",
-                                });
-                                return;
-                              }
-                              setShowDeleteModal(true);
-                            }}
-                          />
-                          <Button
-                            text="Cancel"
-                            style={{ cancel: true }}
-                            onClick={() => setEditing(false)}
-                          />
-                        </>
-                      )}
-                    </div>
-                  </th>
-
-                  <th className="actions">
-                    {editing ? (
-                      <div
-                        className="add-user"
-                        onClick={() => {
-                          setAddUser(true);
-                        }}
-                      >
-                        <AddUserSvg className="icon" />
-                        Add Employee
-                      </div>
-                    ) : (
-                      <div className="add-user"></div>
-                    )}
-
-                    <div className="row-selector">
-                      <select onChange={handleRowLimitChange}>
-                        <option value="5">5</option>
-                        <option value="10">10</option>
-                        <option value="15">15</option>
-                        <option value="20">20</option>
-                      </select>
-                      Display
-                    </div>
-                  </th>
-                </tr>
-                <tr>
-                  {headerNames.map((name, i) => (
-                    <th
-                      key={i}
-                      className={
-                        name === ""
-                          ? `employees-table-delete${editing ? "-active" : ""}`
-                          : ""
-                      }
-                    >
-                      <div className={"employees-table-header"}>
-                        {name}
-                        {name !== "" && (
-                          <SortSvg
-                            className={`employees-table-sort ${
-                              i === clickedHeader ? "clicked" : ""
-                            }`}
-                            onClick={() => sortData(i)}
-                          />
-                        )}
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {fetchedEmployees.slice(0, rowLimit).map((employee, i) => (
-                  <tr key={i}>
-                    <td>
-                      <div className="employees-table-content">
-                        <div
-                          className={`employees-table-content-val${
-                            editing ? "-edit" : ""
-                          }`}
-                        >
-                          <input
-                            value={editedEmployees[i].firstName}
-                            disabled={!editing}
-                            maxLength={25}
-                            onChange={(e) =>
-                              handleEditChange(i, "firstName", e.target.value)
-                            }
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="employees-table-content">
-                        <div
-                          className={`employees-table-content-val${
-                            editing ? "-edit" : ""
-                          }`}
-                        >
-                          <input
-                            value={editedEmployees[i].lastName}
-                            disabled={!editing}
-                            maxLength={25}
-                            onChange={(e) =>
-                              handleEditChange(i, "lastName", e.target.value)
-                            }
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="employees-table-content">
-                        <div
-                          className={`employees-table-content-val${
-                            editing ? "-edit" : ""
-                          }`}
-                        >
-                          <DatePicker
-                            selected={parseDate(editedEmployees[i].startdate)}
-                            disabled={!editing}
-                            onChange={(date) =>
-                              handleEditChange(i, "startdate", date)
-                            }
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td
-                      className={`employees-table-delete${
-                        editing ? "-active" : ""
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.has(editedEmployees[i].uid)}
-                        onChange={(e) =>
-                          handleCheckBox(e, editedEmployees[i].uid)
+                <div className="employees-table-edit">
+                  {!editing ? (
+                    <Button
+                      text="Edit"
+                      onClick={() => {
+                        if (locked) {
+                          handleLocalModal();
+                        } else {
+                          setEditing(true);
                         }
+                      }}
+                    />
+                  ) : (
+                    <>
+                      <Button text="Submit" onClick={handleSubmit} />
+                      <Button
+                        text="Delete"
+                        style={{ cancel: true }}
+                        onClick={() => {
+                          if (selectedIds.size === 0) {
+                            setSubmitEmployeesStatus({
+                              status: true,
+                              message: "No employees selected",
+                            });
+                            return;
+                          }
+                          setShowDeleteModal(true);
+                        }}
                       />
-                    </td>
+                      <Button
+                        text="Cancel"
+                        style={{ cancel: true }}
+                        onClick={() => setEditing(false)}
+                      />
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="actions">
+                {editing ? (
+                  <div
+                    className="add-user"
+                    onClick={() => {
+                      setAddUser(true);
+                    }}
+                  >
+                    <AddUserSvg className="icon" />
+                    Add Employee
+                  </div>
+                ) : (
+                  <div className="add-user"></div>
+                )}
+
+                <div className="row-selector">
+                  <select onChange={handleRowLimitChange}>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                  </select>
+                  Display
+                </div>
+              </div>
+            </div>
+            <div className="employees-table">
+              <table>
+                <thead>
+
+                  <tr>
+                    {headerNames.map((name, i) => (
+                      <th
+                        key={i}
+                        className={
+                          name === ""
+                            ? `employees-table-delete${editing ? "-active" : ""}`
+                            : ""
+                        }
+                      >
+                        <div className={"employees-table-header"}>
+                          {name}
+                          {name !== "" && (
+                            <SortSvg
+                              className={`employees-table-sort ${i === clickedHeader ? "clicked" : ""
+                                }`}
+                              onClick={() => sortData(i)}
+                            />
+                          )}
+                        </div>
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {fetchedEmployees.slice(0, rowLimit).map((employee, i) => (
+                    <tr key={i}>
+                      <td>
+                        <div className="employees-table-content">
+                          <div
+                            className={`employees-table-content-val${editing ? "-edit" : ""
+                              }`}
+                          >
+                            <input
+                              value={editedEmployees[i].firstName}
+                              disabled={!editing}
+                              maxLength={25}
+                              onChange={(e) =>
+                                handleEditChange(i, "firstName", e.target.value)
+                              }
+                            />
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="employees-table-content">
+                          <div
+                            className={`employees-table-content-val${editing ? "-edit" : ""
+                              }`}
+                          >
+                            <input
+                              value={editedEmployees[i].lastName}
+                              disabled={!editing}
+                              maxLength={25}
+                              onChange={(e) =>
+                                handleEditChange(i, "lastName", e.target.value)
+                              }
+                            />
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="employees-table-content">
+                          <div
+                            className={`employees-table-content-val${editing ? "-edit" : ""
+                              }`}
+                          >
+                            <DatePicker
+                              selected={parseDate(editedEmployees[i].startdate)}
+                              disabled={!editing}
+                              onChange={(date) =>
+                                handleEditChange(i, "startdate", date)
+                              }
+                            />
+                          </div>
+                        </div>
+                      </td>
+                      <td
+                        className={`employees-table-delete${editing ? "-active" : ""
+                          }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(editedEmployees[i].uid)}
+                          onChange={(e) =>
+                            handleCheckBox(e, editedEmployees[i].uid)
+                          }
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </>

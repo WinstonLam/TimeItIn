@@ -113,7 +113,7 @@ const EmployeeCreation: React.FC<EmployeeCreationProps> = ({ setAddUser }) => {
                 required={true}
                 formSubmitted={formSubmitted}
                 onChange={(value) => setFirstName(value)}
-                limit={10}
+                limit={20}
               />
               <FormField
                 value={lastName}
@@ -122,7 +122,7 @@ const EmployeeCreation: React.FC<EmployeeCreationProps> = ({ setAddUser }) => {
                 required={true}
                 formSubmitted={formSubmitted}
                 onChange={(value) => setLastName(value)}
-                limit={15}
+                limit={20}
               />
             </div>
           </div>
