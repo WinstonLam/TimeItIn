@@ -81,12 +81,12 @@ const LoginPage = () => {
                     />
                   </div>
                   <div className="actions">
-                    <Button type="submit" text="Login" onClick={() => { }} />
-                    <Button
+                    <Button type="submit" text="Login" onClick={() => {}} />
+                    {/* <Button
                       text="Register"
                       onClick={() => setRegister(true)}
                       style={{ cancel: true }}
-                    />
+                    /> */}
                   </div>
                 </form>
               </>
