@@ -6,7 +6,7 @@ import {
   Document,
   StyleSheet,
 } from "@react-pdf/renderer";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { AdminContext } from "../providers/AdminContext";
 
 const logo = require("../icons/logo.png") as string;
@@ -25,11 +25,20 @@ interface TransformedEmployeeData {
 
 interface IndividualPDFProps {
   pdfData: TransformedEmployeeData;
+  setStatus: (status: boolean) => void;
 }
 
-const IndividualPDF: React.FC<IndividualPDFProps> = ({ pdfData }) => {
-  console.log(pdfData)
-  const { transformDate } = useContext(AdminContext);
+const IndividualPDF: React.FC<IndividualPDFProps> = ({
+  pdfData,
+  setStatus,
+}) => {
+  useEffect(() => {
+    if (pdfData !== null) {
+      setStatus(true);
+      console.log("pdfData", pdfData);
+    }
+  }, [pdfData]);
+
   const styles = StyleSheet.create({
     page: {
       fontSize: 11,
