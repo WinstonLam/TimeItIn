@@ -46,7 +46,33 @@ const PDFDownload: React.FC<PDFDownloadProps> = ({
 }) => {
   const pdfLink = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<boolean>(false);
-  const [pdfData, setPdfData] = useState<ExportType>(); // Use the custom hook
+  const [pdfData, setPdfData] = useState<ExportType>();
+
+  const generatePDF = async (pdfData: ExportType, type: string) => {
+    let url = "";
+    if (type === "individuals") {
+      const blob = await pdf(<IndividualPDF pdfData={pdfData as TransformedEmployeeData} setStatus={() => { }} />).toBlob();
+      url = URL.createObjectURL(blob);
+
+    }
+    if (type === "totals") {
+
+    }
+
+    // Create a link element
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${pdfData.name}_overview.pdf`;
+
+    // Append to the document and trigger the download
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up and remove the link
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
 
   useEffect(() => {
     if (exportData && exportType === "individuals") {
@@ -62,13 +88,11 @@ const PDFDownload: React.FC<PDFDownloadProps> = ({
       const employee = data[uid];
       const name = employee.name;
       const dates = employee.dates;
+      const newPdfData = { type: "individuals", name, dates };
 
       await new Promise<void>((resolve) => {
-        setPdfData({
-          type: "individuals",
-          name,
-          dates,
-        });
+        generatePDF(newPdfData, "individuals")
+
         resolve();
       });
     }
