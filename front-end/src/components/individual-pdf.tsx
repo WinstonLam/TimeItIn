@@ -7,12 +7,11 @@ import {
   StyleSheet,
 } from "@react-pdf/renderer";
 import React, { useContext, useEffect } from "react";
-import { AdminContext } from "../providers/AdminContext";
 
 const logo = require("../icons/logo.png") as string;
 
 interface TransformedEmployeeData {
-  type: string;
+
   name: string;
   dates: {
     [date: string]: {

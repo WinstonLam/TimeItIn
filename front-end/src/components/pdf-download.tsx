@@ -1,11 +1,17 @@
-import React, { useEffect, useRef, useState } from "react";
-import { PDFDownloadLink, pdf } from "@react-pdf/renderer";
+import React, { useEffect } from "react";
+import { pdf } from "@react-pdf/renderer";
 import IndividualPDF from "./individual-pdf";
 import TotalsPDF from "./totals-pdf";
-import useStateCallback from "../hooks/useStateCallback";
+
+export interface TransformedAllEmployeeData {
+  type: string;
+  data: {
+    [uid: string]: TransformedEmployeeData;
+  };
+}
+
 
 export interface TransformedEmployeeData {
-  type: string;
   name: string;
   dates: {
     [date: string]: {
@@ -13,13 +19,6 @@ export interface TransformedEmployeeData {
       endtime: string | null;
       hours: number | null;
     };
-  };
-}
-
-export interface TransformedAllEmployeeData {
-  type: string;
-  data: {
-    [uid: string]: TransformedEmployeeData;
   };
 }
 
@@ -33,7 +32,7 @@ export interface TotalsData {
 }
 
 export type ExportData = TransformedAllEmployeeData | TotalsData[] | null;
-type ExportType = TransformedEmployeeData | TotalsData;
+type ExportType = TransformedEmployeeData | TotalsData[];
 
 interface PDFDownloadProps {
   exportData: ExportData;
@@ -44,9 +43,7 @@ const PDFDownload: React.FC<PDFDownloadProps> = ({
   exportData,
   exportType,
 }) => {
-  const pdfLink = useRef<HTMLDivElement>(null);
-  const [status, setStatus] = useState<boolean>(false);
-  const [pdfData, setPdfData] = useState<ExportType>();
+
 
   const generatePDF = async (pdfData: ExportType, type: string) => {
     let url = "";
@@ -55,14 +52,23 @@ const PDFDownload: React.FC<PDFDownloadProps> = ({
       url = URL.createObjectURL(blob);
 
     }
-    if (type === "totals") {
-
+    else if (type === "totals") {
+      const blob = await pdf(<TotalsPDF pdfData={pdfData as TotalsData[]} setStatus={() => { }} />).toBlob();
+      url = URL.createObjectURL(blob);
     }
 
     // Create a link element
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${pdfData.name}_overview.pdf`;
+
+    if (type === "individuals") {
+      const hoursData = pdfData as TransformedEmployeeData;
+      link.download = `${hoursData.name}_overview.pdf`;
+    }
+    else if (type === "totals") {
+      link.download = `Hoursoverview.pdf`;
+    }
+
 
     // Append to the document and trigger the download
     document.body.appendChild(link);
@@ -77,11 +83,11 @@ const PDFDownload: React.FC<PDFDownloadProps> = ({
   useEffect(() => {
     if (exportData && exportType === "individuals") {
       const data = (exportData as TransformedAllEmployeeData).data;
-      setAndPrint(data);
+      setAndCreate(data);
     }
   }, [exportData, exportType]);
 
-  const setAndPrint = async (data: {
+  const setAndCreate = async (data: {
     [uid: string]: TransformedEmployeeData;
   }) => {
     for (const uid of Object.keys(data)) {
@@ -99,32 +105,9 @@ const PDFDownload: React.FC<PDFDownloadProps> = ({
     console.log("done");
   };
 
-  useEffect(() => {
-    if (status === true) {
-      pdfLink.current?.click();
-      setStatus(false);
-    }
-  }, [status]);
 
-  return pdfData && exportType === "individuals" ? (
-    <PDFDownloadLink
-      document={
-        <IndividualPDF
-          pdfData={pdfData as TransformedEmployeeData}
-          setStatus={setStatus}
-        />
-      }
-      fileName={`Hoursoverview`}
-    >
-      <div ref={pdfLink} style={{ display: "none" }} />
-    </PDFDownloadLink>
-  ) : (
-    <PDFDownloadLink
-      document={
-        <TotalsPDF pdfData={exportData as TotalsData[]} setStatus={setStatus} />
-      }
-      fileName={`Hoursoverview-`}
-    />
+  return (
+    <></>
   );
 };
 

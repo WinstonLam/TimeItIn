@@ -11,7 +11,6 @@ import React, { useEffect } from "react";
 const logo = require("../icons/logo.png") as string;
 
 interface TotalsData {
-  type: string;
   name: string;
   totalHours: number;
   workedDays: number;
@@ -139,8 +138,8 @@ const TotalsPDF: React.FC<TotalsPDFProps> = ({ pdfData, setStatus }) => {
           <Text style={styles.address}>
             {pdfData && pdfData.length > 0
               ? `${formatDate(new Date(pdfData[0].startDate))} - ${formatDate(
-                  new Date(pdfData[0].endDate)
-                )}`
+                new Date(pdfData[0].endDate)
+              )}`
               : "N/A"}
           </Text>
         </View>

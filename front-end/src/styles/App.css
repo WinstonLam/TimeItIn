@@ -53,3 +53,22 @@ body::-webkit-scrollbar-thumb{
 body::-webkit-scrollbar-track{
   background-color:rgb(var(--second-color));
 }
+
+.loading{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 90vh;
+  flex-direction: column;
+}
+
+.loading img{
+  width: 400px;
+  height: 400px;
+}
+
+.loading .loadingIcon{
+  margin-top: -100px;
+  width: 150px;
+  height: 150px;
+}

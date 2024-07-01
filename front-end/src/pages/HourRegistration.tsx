@@ -9,7 +9,7 @@ import ClockSvg from "../icons/clock";
 
 import Modal from "../components/modal";
 import UpdateMessage from "../components/updatemessage";
-import { set } from "lodash";
+
 
 interface NetworkError extends Error {
   response?: {
@@ -132,9 +132,7 @@ const HourRegistration: FC = () => {
     }
   };
 
-  return loading ? (
-    <div>Loading...</div> // Provide a loading state here
-  ) : names.length > 0 ? (
+  return names.length > 0 ? (
     <div className="hour-registration">
       <div className="hour-registration-modal">
         <ClockSvg className="clock-svg" onClick={handleSubmit} />

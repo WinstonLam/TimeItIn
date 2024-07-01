@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 import { AdminContext } from "./providers/AdminContext";
 import { initializeAppTokenRefresh } from "./api";
+import loadingIcon from "./icons/loading.gif";
 
 import "./styles/App.css";
 
@@ -20,6 +21,9 @@ import LoginPage from "./pages/LoginPage";
 import Employees from "./pages/Employees";
 import Hours from "./pages/Hours";
 import AdvancedSettings from "./pages/AdvancedSettings";
+
+const logo = require("./icons/main-logo.png") as string;
+
 
 function App() {
   useEffect(() => {
@@ -51,7 +55,14 @@ function AppContent() {
 
         <div className="content">
           {loading ? (
-            <p>Loading...</p>
+            <div className="loading">
+              <img src={logo} alt="logo" className="logo-icon" />
+              <img
+                className="loadingIcon"
+                src={loadingIcon}
+                alt="Loading..."
+              />
+            </div>
           ) : loggedIn ? (
             <Routes>
               <Route path="/" element={<HourRegistration />} />

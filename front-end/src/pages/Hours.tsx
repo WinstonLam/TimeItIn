@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { AdminContext } from "../providers/AdminContext";
 import DatePicker from "react-datepicker";
 import SortSvg from "../icons/sort";
@@ -11,6 +11,7 @@ import Modal from "../components/modal";
 import loadingIcon from "../icons/loading.gif";
 import { useNavigate } from "react-router-dom";
 import PDFDownload from "../components/pdf-download";
+import { useExportHours } from "../hooks/useExportHours";
 
 import {
   TransformedEmployeeData,
@@ -49,6 +50,7 @@ const Hours: React.FC = () => {
     locked,
   } = useContext(AdminContext);
   const navigate = useNavigate();
+  const { exportHours } = useExportHours();
   const [visibleCols, setVisibleCols] = useState<number>(1);
   const [sorted, setSorted] = useState(false);
   const [menu, setMenu] = useState(false); // State to manage menu visibility
@@ -68,24 +70,22 @@ const Hours: React.FC = () => {
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [exportMessage, setExportMessage] = useState<string>("");
   const [exporting, setExporting] = useState<boolean>(false);
-  const [exportType, setExportType] = useState<string>("");
-  const [exportData, setExportData] = useState<ExportData | null>(null);
+
 
   const [sortConfig, setSortConfig] = useState({
     key: "firstName",
     direction: "ascending",
   });
-  const pdfLink = useRef<HTMLDivElement | null>(null); // Create a ref
 
   const names =
     employees && employees.length > 0
       ? employees.map(
-          (employee) =>
-            [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
-              string,
-              string
-            ]
-        )
+        (employee) =>
+          [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
+            string,
+            string
+          ]
+      )
       : [];
 
   useEffect(() => {
@@ -198,6 +198,7 @@ const Hours: React.FC = () => {
   const handleCancelClick = async () => {
     setExportMessage("");
     setIsEditing(false);
+    setExporting(false);
 
     await new Promise<void>((resolve) => {
       setEditedHours(hours);
@@ -401,9 +402,9 @@ const Hours: React.FC = () => {
     }
   };
   const handleExport = async (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setExportType(event.target.value);
-    setExportMessage("");
     setExporting(true);
+    setExportMessage("");
+
 
     const visibleEmployees = getVisibleEmployees();
     if (visibleEmployees.length === 0) {
@@ -412,15 +413,15 @@ const Hours: React.FC = () => {
       return;
     }
 
-    if (event.target.value === "individuals") {
-      exportIndividuals(visibleEmployees);
-    } else if (event.target.value === "totals") {
-      exportTotals(visibleEmployees);
-    }
+    await new Promise<void>((resolve) => {
+      exportHours({
+        data: visibleEmployees, dates, type: event.target.value,
+        setExportMessage
+      });
+      resolve();
+    });
 
-    if (exportMessage !== "") {
-      setExportMessage("Exported successfully");
-    }
+    setExportMessage("Exported successfully");
     setExporting(false);
   };
 
@@ -434,136 +435,6 @@ const Hours: React.FC = () => {
       );
   };
 
-  const exportIndividuals = async (visibleEmployees: Employee[]) => {
-    const transformedData = transformAllEmployeeData(
-      visibleEmployees,
-      "individuals"
-    );
-    console.log(transformedData);
-
-    if (transformedData && Object.keys(transformedData.data).length === 0) {
-      setExporting(false);
-      setExportMessage("No data to export");
-      return;
-    }
-
-    setExportData(transformedData);
-  };
-
-  const transformAllEmployeeData = (
-    visibleEmployees: Employee[],
-    type: string
-  ): { type: string; data: { [uid: string]: TransformedEmployeeData } } => {
-    const transformedData: { [uid: string]: TransformedEmployeeData } = {};
-
-    visibleEmployees.forEach((employee) => {
-      const employeeData: TransformedEmployeeData = {
-        type: type,
-        name: `${employee.firstName} ${employee.lastName}`,
-        dates: {},
-      };
-
-      dates.forEach((date) => {
-        const dayIdx = transformDate(date, {
-          day: true,
-          month: true,
-          year: true,
-        });
-
-        if (hours[dayIdx] && hours[dayIdx][employee.uid]) {
-          const starttime = hours[dayIdx][employee.uid].starttime;
-          const endtime = hours[dayIdx][employee.uid].endtime;
-
-          const starttimeDate = starttime && new Date(starttime);
-          const endtimeDate = endtime && new Date(endtime);
-          const hoursWorked =
-            endtimeDate && starttimeDate
-              ? (endtimeDate.getTime() - starttimeDate.getTime()) /
-                (1000 * 60 * 60)
-              : null;
-
-          employeeData.dates[dayIdx] = {
-            starttime,
-            endtime,
-            hours: hoursWorked,
-          };
-        }
-      });
-
-      if (Object.keys(employeeData.dates).length > 0) {
-        transformedData[employee.uid] = employeeData;
-      }
-    });
-
-    return {
-      type: type,
-      data: transformedData,
-    };
-  };
-
-  const exportTotals = async (visibleEmployees: Employee[]) => {
-    const totalsData = transformTotalsData(visibleEmployees);
-
-    if (totalsData.length === 0) {
-      setExporting(false);
-      setExportMessage("No data to export");
-      return;
-    }
-
-    setExportData(totalsData);
-  };
-
-  const transformTotalsData = (visibleEmployees: Employee[]): TotalsData[] => {
-    const startDate = dates[0];
-    const endDate = dates[dates.length - 1];
-
-    return visibleEmployees.map((employee) => {
-      let totalHours = 0;
-      let workedDays = 0;
-
-      dates.forEach((date) => {
-        const dayIdx = transformDate(date, {
-          day: true,
-          month: true,
-          year: true,
-        });
-
-        if (hours[dayIdx] && hours[dayIdx][employee.uid]) {
-          const starttime = hours[dayIdx][employee.uid].starttime;
-          const endtime = hours[dayIdx][employee.uid].endtime;
-
-          const starttimeDate = starttime && new Date(starttime);
-          const endtimeDate = endtime && new Date(endtime);
-          const hoursWorked =
-            endtimeDate && starttimeDate
-              ? (endtimeDate.getTime() - starttimeDate.getTime()) /
-                (1000 * 60 * 60)
-              : 0;
-
-          if (hoursWorked > 0) {
-            totalHours += hoursWorked;
-            workedDays += 1;
-          }
-        }
-      });
-
-      return {
-        type: "totals",
-        name: `${employee.firstName} ${employee.lastName}`,
-        totalHours,
-        workedDays,
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString(),
-      };
-    });
-  };
-
-  // useEffect(() => {
-  //   if (exportData) {
-  //     console.log(exportData);
-  //     // pdfLink.current?.click();
-  //   }
-  // }, [exportData]);
 
   const getTime = (date: string | null) => {
     if (!date) return "";
@@ -619,15 +490,14 @@ const Hours: React.FC = () => {
         />
       )}
       <div
-        className={`hours-container ${
-          visibleCols === 1
-            ? "one-col"
-            : visibleCols === 7
+        className={`hours-container ${visibleCols === 1
+          ? "one-col"
+          : visibleCols === 7
             ? "seven-cols"
             : visibleCols === 31
-            ? "thirty-one-cols"
-            : ""
-        }`}
+              ? "thirty-one-cols"
+              : ""
+          }`}
       >
         <div className="hours-table-top-content">
           <div className="hours-container-header">
@@ -666,31 +536,8 @@ const Hours: React.FC = () => {
                   )}
                   {exportMessage && <p>{exportMessage}</p>}
 
-                  {/* <PDFDownloadLink
-                    document={
-                      exportData && exportType === "individuals" ? (
-                        <IndividualPDF
-                          pdfData={exportData as TransformedEmployeeData}
-                        />
-                      ) : (
-                        <TotalsPDF pdfData={exportData as TotalsData[]} />
-                      )
-                    }
-                    fileName={`Hoursoverview-${
-                      exportData && exportType === "individuals"
-                        ? (exportData as TransformedEmployeeData).name
-                        : "totals"
-                    }.pdf`}
-                  >
-                    {<div ref={pdfLink} style={{ display: "none" }} />}
-                  </PDFDownloadLink> */}
 
-                  {exportData && (
-                    <PDFDownload
-                      exportData={exportData}
-                      exportType={exportType}
-                    />
-                  )}
+
                 </>
               )}
             </div>
@@ -705,9 +552,8 @@ const Hours: React.FC = () => {
           )}
 
           <div
-            className={`col-selector${windowWidth < 800 ? "-small" : ""}${
-              menu ? "" : "-hidden"
-            }`}
+            className={`col-selector${windowWidth < 800 ? "-small" : ""}${menu ? "" : "-hidden"
+              }`}
           >
             <div className="hide-empty">
               <Button
@@ -791,9 +637,8 @@ const Hours: React.FC = () => {
                             <>
                               <input
                                 type="time"
-                                className={`timepicker${
-                                  isEditable ? `-enabled` : ""
-                                }`}
+                                className={`timepicker${isEditable ? `-enabled` : ""
+                                  }`}
                                 value={starttime}
                                 onChange={(e) =>
                                   handleTimeChange(
@@ -807,9 +652,8 @@ const Hours: React.FC = () => {
                               />
                               <input
                                 type="time"
-                                className={`timepicker${
-                                  isEditable ? `-enabled` : ""
-                                }`}
+                                className={`timepicker${isEditable ? `-enabled` : ""
+                                  }`}
                                 value={endtime}
                                 onChange={(e) =>
                                   handleTimeChange(
