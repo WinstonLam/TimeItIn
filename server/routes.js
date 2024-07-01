@@ -465,31 +465,37 @@ protectedRouter.get("/get-hours", async (req, res) => {
         const year = date.getFullYear();
         const dateId = `${month}-${year}`;
 
-        const hoursDoc = await doc.ref.collection("hours").doc(dateId).get();
+        let hoursDoc = await doc.ref.collection("hours").doc(dateId).get();
         if (!hoursDoc.exists) {
-          console.log("No hours document for this date");
-          res.status(200).send({ hours: [] });
-        } else {
-          let hoursData = hoursDoc.data();
+          // If there's no document for this date, create one with empty data
+          console.log(
+            "No hours found for this date, creating new document for month and year: ",
+            dateId,
+            "for adminId: ",
+            userId
+          );
+          await doc.ref.collection("hours").doc(dateId).set({});
+          hoursDoc = await doc.ref.collection("hours").doc(dateId).get();
+        }
+        let hoursData = hoursDoc.data();
 
-          // Convert Firestore Timestamps to ISO strings
-          for (const dateKey in hoursData) {
-            for (const employeeId in hoursData[dateKey]) {
-              const data = hoursData[dateKey][employeeId];
-              if (data.starttime) {
-                data.starttime = new Date(
-                  data.starttime._seconds * 1000
-                ).toISOString();
-              }
-              if (data.endtime) {
-                data.endtime = new Date(
-                  data.endtime._seconds * 1000
-                ).toISOString();
-              }
+        // Convert Firestore Timestamps to ISO strings
+        for (const dateKey in hoursData) {
+          for (const employeeId in hoursData[dateKey]) {
+            const data = hoursData[dateKey][employeeId];
+            if (data.starttime) {
+              data.starttime = new Date(
+                data.starttime._seconds * 1000
+              ).toISOString();
+            }
+            if (data.endtime) {
+              data.endtime = new Date(
+                data.endtime._seconds * 1000
+              ).toISOString();
             }
           }
-          res.status(200).send({ hoursData });
         }
+        res.status(200).send({ hoursData });
       }
     }
   } catch (error) {
