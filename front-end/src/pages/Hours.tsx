@@ -71,7 +71,6 @@ const Hours: React.FC = () => {
   const [exportMessage, setExportMessage] = useState<string>("");
   const [exporting, setExporting] = useState<boolean>(false);
 
-
   const [sortConfig, setSortConfig] = useState({
     key: "firstName",
     direction: "ascending",
@@ -80,12 +79,12 @@ const Hours: React.FC = () => {
   const names =
     employees && employees.length > 0
       ? employees.map(
-        (employee) =>
-          [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
-            string,
-            string
-          ]
-      )
+          (employee) =>
+            [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
+              string,
+              string
+            ]
+        )
       : [];
 
   useEffect(() => {
@@ -243,7 +242,7 @@ const Hours: React.FC = () => {
         status: true,
         message: "Not all fields are filled in correctly",
       });
-      return;
+      // return;
     }
 
     const currentDate = selectedDate ? selectedDate : new Date();
@@ -405,7 +404,6 @@ const Hours: React.FC = () => {
     setExporting(true);
     setExportMessage("");
 
-
     const visibleEmployees = getVisibleEmployees();
     if (visibleEmployees.length === 0) {
       setExporting(false);
@@ -415,8 +413,10 @@ const Hours: React.FC = () => {
 
     await new Promise<void>((resolve) => {
       exportHours({
-        data: visibleEmployees, dates, type: event.target.value,
-        setExportMessage
+        data: visibleEmployees,
+        dates,
+        type: event.target.value,
+        setExportMessage,
       });
       resolve();
     });
@@ -434,7 +434,6 @@ const Hours: React.FC = () => {
         selectedEmployeeId ? employee.uid === selectedEmployeeId : true
       );
   };
-
 
   const getTime = (date: string | null) => {
     if (!date) return "";
@@ -490,14 +489,15 @@ const Hours: React.FC = () => {
         />
       )}
       <div
-        className={`hours-container ${visibleCols === 1
-          ? "one-col"
-          : visibleCols === 7
+        className={`hours-container ${
+          visibleCols === 1
+            ? "one-col"
+            : visibleCols === 7
             ? "seven-cols"
             : visibleCols === 31
-              ? "thirty-one-cols"
-              : ""
-          }`}
+            ? "thirty-one-cols"
+            : ""
+        }`}
       >
         <div className="hours-table-top-content">
           <div className="hours-container-header">
@@ -535,9 +535,6 @@ const Hours: React.FC = () => {
                     />
                   )}
                   {exportMessage && <p>{exportMessage}</p>}
-
-
-
                 </>
               )}
             </div>
@@ -552,8 +549,9 @@ const Hours: React.FC = () => {
           )}
 
           <div
-            className={`col-selector${windowWidth < 800 ? "-small" : ""}${menu ? "" : "-hidden"
-              }`}
+            className={`col-selector${windowWidth < 800 ? "-small" : ""}${
+              menu ? "" : "-hidden"
+            }`}
           >
             <div className="hide-empty">
               <Button
@@ -637,8 +635,9 @@ const Hours: React.FC = () => {
                             <>
                               <input
                                 type="time"
-                                className={`timepicker${isEditable ? `-enabled` : ""
-                                  }`}
+                                className={`timepicker${
+                                  isEditable ? `-enabled` : ""
+                                }`}
                                 value={starttime}
                                 onChange={(e) =>
                                   handleTimeChange(
@@ -652,8 +651,9 @@ const Hours: React.FC = () => {
                               />
                               <input
                                 type="time"
-                                className={`timepicker${isEditable ? `-enabled` : ""
-                                  }`}
+                                className={`timepicker${
+                                  isEditable ? `-enabled` : ""
+                                }`}
                                 value={endtime}
                                 onChange={(e) =>
                                   handleTimeChange(
