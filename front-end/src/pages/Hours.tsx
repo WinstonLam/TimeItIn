@@ -10,7 +10,6 @@ import { AxiosError } from "axios";
 import Modal from "../components/modal";
 import loadingIcon from "../icons/loading.gif";
 import { useNavigate } from "react-router-dom";
-import PDFDownload from "../components/pdf-download";
 import { useExportHours } from "../hooks/useExportHours";
 
 import {
@@ -38,6 +37,17 @@ interface Hours {
     [employeeId: string]: HoursData;
   };
 }
+interface Action {
+  title: string;
+  onClick: () => void;
+  style?: { cancel: boolean };
+}
+
+interface SubmitHoursStatus {
+  status: boolean;
+  message: string;
+  actions?: Action[];
+}
 
 const Hours: React.FC = () => {
   const {
@@ -60,16 +70,20 @@ const Hours: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("");
   const [editedHours, setEditedHours] = useState<Hours>(_.cloneDeep(hours));
-  const [submitHoursStatus, setSubmitHoursStatus] = useState({
-    status: false,
-    message: "",
-  });
+  const [submitHoursStatus, setSubmitHoursStatus] = useState<SubmitHoursStatus>(
+    {
+      status: false,
+      message: "",
+      actions: [],
+    }
+  );
   const [showLocalModal, setShowLocalModal] = useState<boolean>(false);
   const [pincode, setPincode] = useState<string>("");
   const [error, setError] = useState<string | undefined>(undefined);
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [exportMessage, setExportMessage] = useState<string>("");
   const [exporting, setExporting] = useState<boolean>(false);
+  const [ignoreBothFields, setIgnoreBothFields] = useState<boolean>(false);
 
   const [sortConfig, setSortConfig] = useState({
     key: "firstName",
@@ -104,6 +118,16 @@ const Hours: React.FC = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  // Effect to handle submit after ignoreBothFields is set to true
+  useEffect(() => {
+    if (ignoreBothFields) {
+      setSubmitHoursStatus({ status: false, message: "" });
+      setIsEditing(false);
+      handleSubmitClick();
+      // Optionally reset ignoreBothFields here if needed
+    }
+  }, [ignoreBothFields]); // Only re-run the effect if ignoreBothFields changes
 
   const employeeComparator = (a: Employee, b: Employee) => {
     const key = sortConfig.key as keyof Employee;
@@ -237,14 +261,31 @@ const Hours: React.FC = () => {
       setSubmitHoursStatus({ status: true, message: "No changes detected" });
       return;
     }
-    if (!checkBothFields()) {
-      setSubmitHoursStatus({
-        status: true,
-        message: "Not all fields are filled in correctly",
-      });
-      // return;
+    if (!ignoreBothFields) {
+      if (!checkBothFields()) {
+        setSubmitHoursStatus({
+          status: true,
+          message: "Not all fields are filled in correctly",
+          actions: [
+            {
+              title: "Keep Editing",
+              onClick: () => {
+                setSubmitHoursStatus({ status: false, message: "" });
+                setIsEditing(true);
+              },
+              style: { cancel: true },
+            },
+            {
+              title: "Submit Anyway",
+              onClick: () => {
+                setIgnoreBothFields(true);
+              },
+            },
+          ],
+        });
+        return;
+      }
     }
-
     const currentDate = selectedDate ? selectedDate : new Date();
 
     try {
@@ -263,6 +304,7 @@ const Hours: React.FC = () => {
 
     setIsEditing(false);
     setExporting(false);
+    setIgnoreBothFields(false);
     setSubmitHoursStatus({ status: true, message: "Hours Updated" });
   };
 
@@ -453,20 +495,28 @@ const Hours: React.FC = () => {
         <Modal
           title={submitHoursStatus.message}
           dismiss={() => setSubmitHoursStatus({ status: false, message: "" })}
-          action={{
-            title: "Back",
-            onClick: () => {
-              setSubmitHoursStatus({ status: false, message: "" });
-            },
-            style: { cancel: true },
-          }}
-          actionB={{
-            title: "Home",
-            onClick: () => {
-              setSubmitHoursStatus({ status: false, message: "" });
-              navigate("/");
-            },
-          }}
+          action={
+            submitHoursStatus.actions
+              ? submitHoursStatus.actions[0]
+              : {
+                  title: "Back",
+                  onClick: () => {
+                    setSubmitHoursStatus({ status: false, message: "" });
+                  },
+                  style: { cancel: true },
+                }
+          }
+          actionB={
+            submitHoursStatus.actions
+              ? submitHoursStatus.actions[1]
+              : {
+                  title: "Home",
+                  onClick: () => {
+                    setSubmitHoursStatus({ status: false, message: "" });
+                    navigate("/");
+                  },
+                }
+          }
         />
       )}
       {showLocalModal && (
