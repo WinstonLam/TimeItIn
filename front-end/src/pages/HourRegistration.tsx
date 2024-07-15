@@ -6,10 +6,10 @@ import { AxiosError } from "axios";
 
 import AutocompleteInput from "../components/autocomplete";
 import ClockSvg from "../icons/clock";
+import loadingIcon from "../icons/loading.gif";
 
 import Modal from "../components/modal";
 import UpdateMessage from "../components/updatemessage";
-
 
 interface NetworkError extends Error {
   response?: {
@@ -32,15 +32,10 @@ const HourRegistration: FC = () => {
   });
   const [startTime, setStartTime] = useState<string | "">("");
   const [endTime, setEndTime] = useState<string | "">("");
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const {
-    loading,
-    employees,
-    getEmployeeHours,
-    setHours,
-    transformDate,
-    logout,
-  } = useContext(AdminContext);
+  const { employees, getEmployeeHours, setHours, transformDate, logout } =
+    useContext(AdminContext);
 
   useEffect(() => {
     if (selectedName !== "") {
@@ -56,12 +51,12 @@ const HourRegistration: FC = () => {
   const names =
     employees && employees.length > 0
       ? employees.map(
-        (employee) =>
-          [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
-            string,
-            string
-          ]
-      )
+          (employee) =>
+            [employee.uid, `${employee.firstName} ${employee.lastName}`] as [
+              string,
+              string
+            ]
+        )
       : [];
 
   const getTime = (date: string | null) => {
@@ -98,38 +93,50 @@ const HourRegistration: FC = () => {
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
     if (!selectedUid) {
-      setUpdateMessage({ message: "Please select an employee", success: false });
+      setUpdateMessage({
+        message: "Please select an employee",
+        success: false,
+      });
+      setLoading(false);
       return;
     }
     if (startTime && endTime) {
-      setUpdateMessage({ message: "Time has already been set", success: false });
+      setUpdateMessage({
+        message: "Time has already been set",
+        success: false,
+      });
+      setLoading(false);
       return;
     }
 
     try {
       const currentDate = new Date();
 
-      const res = await setTime(selectedUid, currentDate)
-      const resHours = await getHours(currentDate)
+      const res = await setTime(selectedUid, currentDate);
+      const resHours = await getHours(currentDate);
 
       setHours(resHours);
 
       setStartTime(getTime(res.starttime));
       setEndTime(getTime(res.endtime));
       setUpdateMessage({ message: "Time set successfully", success: true });
-
     } catch (err) {
       const networkError = err as NetworkError;
 
       if (networkError.response?.status === 400) {
-        setUpdateMessage({ message: networkError.response.data.error, success: false });
+        setUpdateMessage({
+          message: networkError.response.data.error,
+          success: false,
+        });
       }
       if (networkError.response?.status === 403) {
         logout(true);
       }
       console.error(networkError.response?.data.error);
     }
+    setLoading(false);
   };
 
   return names.length > 0 ? (
@@ -138,10 +145,15 @@ const HourRegistration: FC = () => {
         <ClockSvg className="clock-svg" onClick={handleSubmit} />
 
         <div className="error">
-          <UpdateMessage message={updateMessage.message} show={updateMessage.message ? true : false} success={updateMessage.success} />
+          {loading && (
+            <img className="loadingIcon" src={loadingIcon} alt="Loading..." />
+          )}
+          <UpdateMessage
+            message={updateMessage.message}
+            show={updateMessage.message ? true : false}
+            success={updateMessage.success}
+          />
         </div>
-
-
 
         <AutocompleteInput
           suggestions={names}

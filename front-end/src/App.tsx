@@ -24,7 +24,6 @@ import AdvancedSettings from "./pages/AdvancedSettings";
 
 const logo = require("./icons/main-logo.png") as string;
 
-
 function App() {
   useEffect(() => {
     initializeAppTokenRefresh();
@@ -46,7 +45,6 @@ function AppContent() {
       setSettings(false);
     }
   }, [loggedIn]);
-
   return (
     <Router basename="/TimeItIn">
       <div className="App">
@@ -57,11 +55,7 @@ function AppContent() {
           {loading ? (
             <div className="loading">
               <img src={logo} alt="logo" className="logo-icon" />
-              <img
-                className="loadingIcon"
-                src={loadingIcon}
-                alt="Loading..."
-              />
+              <img className="loadingIcon" src={loadingIcon} alt="Loading..." />
             </div>
           ) : loggedIn ? (
             <Routes>
