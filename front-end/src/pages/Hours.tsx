@@ -66,6 +66,7 @@ const Hours: React.FC = () => {
   const [menu, setMenu] = useState(false); // State to manage menu visibility
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
   const [hideEmptyEmployees, setHideEmptyEmployees] = useState(false);
+  const [showIncompleteHours, setShowIncompleteHours] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [isEditing, setIsEditing] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("");
@@ -147,25 +148,12 @@ const Hours: React.FC = () => {
     setSortConfig({ key, direction });
   };
 
-  const hasHours = (employee: Employee, dates: Date[]): boolean => {
-    for (const date of dates) {
-      const monthIdx = date
-        .toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        })
-        .split("/")
-        .join("-");
-      if (hours && hours[monthIdx] && hours[monthIdx][employee.uid]) {
-        return true;
-      }
-    }
-    return false;
-  };
-
   const handleHideEmptyEmployeesChange = () => {
     setHideEmptyEmployees(!hideEmptyEmployees);
+  };
+
+  const handleShowIncompleteHoursChange = () => {
+    setShowIncompleteHours(!showIncompleteHours);
   };
 
   const handleColChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -418,6 +406,44 @@ const Hours: React.FC = () => {
     setEditedHours(newEditedHours);
   };
 
+  const hasIncompleteFields = (employee: Employee, dates: Date[]): boolean => {
+    for (const date of dates) {
+      const monthIdx = date
+        .toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })
+        .split("/")
+        .join("-");
+      const hoursData =
+        editedHours[monthIdx]?.[employee.uid] ||
+        hours[monthIdx]?.[employee.uid];
+
+      if (hoursData && hoursData.starttime && !hoursData.endtime) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const hasHours = (employee: Employee, dates: Date[]): boolean => {
+    for (const date of dates) {
+      const monthIdx = date
+        .toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })
+        .split("/")
+        .join("-");
+      if (hours && hours[monthIdx] && hours[monthIdx][employee.uid]) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   const handleChangeLocal = async (value: string) => {
     setFormSubmitted(false);
     setPincode(value);
@@ -440,6 +466,20 @@ const Hours: React.FC = () => {
       setShowLocalModal(!showLocalModal);
     } else {
       setIsEditing(true);
+    }
+  };
+
+  const handleFilter = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = event.target.value;
+    if (val === "none") {
+      setShowIncompleteHours(false);
+      handleHideEmptyEmployeesChange();
+    } else if (val === "incomplete") {
+      setHideEmptyEmployees(false);
+      handleShowIncompleteHoursChange();
+    } else {
+      setHideEmptyEmployees(false);
+      setShowIncompleteHours(false);
     }
   };
   const handleExport = async (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -470,6 +510,9 @@ const Hours: React.FC = () => {
   const getVisibleEmployees = () => {
     return employees
       .filter((employee) =>
+        showIncompleteHours ? hasIncompleteFields(employee, dates) : true
+      )
+      .filter((employee) =>
         hideEmptyEmployees ? hasHours(employee, dates) : true
       )
       .filter((employee) =>
@@ -488,7 +531,6 @@ const Hours: React.FC = () => {
   for (let i = 0; i < dates.length; i += 7) {
     weeks.push(dates.slice(i, i + 7));
   }
-
   return (
     <>
       {submitHoursStatus.status && (
@@ -604,10 +646,14 @@ const Hours: React.FC = () => {
             }`}
           >
             <div className="hide-empty">
-              <Button
-                text="Hide No Hours"
-                onClick={handleHideEmptyEmployeesChange}
-              />
+              <select onChange={handleFilter}>
+                <option value="" disabled selected hidden>
+                  Filter
+                </option>
+                <option value={"none"}>Hide No Hours</option>
+                <option value={"incomplete"}>Show Incomplete Hours</option>
+                <option value={"all"}>Show All</option>
+              </select>
             </div>
             <div className="namepicker">
               <AutocompleteInput
@@ -651,6 +697,11 @@ const Hours: React.FC = () => {
                 {employees
                   .filter((employee) =>
                     hideEmptyEmployees ? hasHours(employee, weekDates) : true
+                  )
+                  .filter((employee) =>
+                    showIncompleteHours
+                      ? hasIncompleteFields(employee, dates)
+                      : true
                   )
                   .filter((employee) =>
                     selectedEmployeeId
