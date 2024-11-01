@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/TimeItIn/static/css/main.c7446f8d.css",
-    "main.js": "/TimeItIn/static/js/main.497d7e54.js",
+    "main.js": "/TimeItIn/static/js/main.f5aeb398.js",
     "static/media/main-logo.png": "/TimeItIn/static/media/main-logo.07f211af7d54e4fea4ef.png",
     "static/media/logo.png": "/TimeItIn/static/media/logo.96e5758b03525f99857d.png",
     "static/media/loading.gif": "/TimeItIn/static/media/loading.79180a30d5dc55c04e61.gif",
     "index.html": "/TimeItIn/index.html",
     "main.c7446f8d.css.map": "/TimeItIn/static/css/main.c7446f8d.css.map",
-    "main.497d7e54.js.map": "/TimeItIn/static/js/main.497d7e54.js.map"
+    "main.f5aeb398.js.map": "/TimeItIn/static/js/main.f5aeb398.js.map"
   },
   "entrypoints": [
     "static/css/main.c7446f8d.css",
-    "static/js/main.497d7e54.js"
+    "static/js/main.f5aeb398.js"
   ]
 }
